@@ -50,6 +50,9 @@ npm run deploy
 - [📊 Wymagania](./docs/REQUIREMENTS.md)
 - [🚀 Roadmap](./docs/ROADMAP.md)
 - [🔌 API Integration](./docs/API_INTEGRATION.md)
+- [📦 Komponenty UI](./docs/COMPONENTS.md) - Dokumentacja komponentów UI z przykładami
+- [🏗️ Komponenty Layout](./docs/LAYOUT_COMPONENTS.md) - Dokumentacja komponentów layoutu
+- [🎨 Component Showcase](./docs/COMPONENT_SHOWCASE.md) - Interaktywny showcase komponentów
 
 ## 🛠 Stos technologiczny
 
