@@ -14,9 +14,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     // TODO: Implement new analysis flow
   }
 
-  const handleSidebarToggle = () => {
-    setSidebarOpen(!sidebarOpen)
-  }
 
   const handleSidebarClose = () => {
     setSidebarOpen(false)
