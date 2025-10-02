@@ -29,6 +29,13 @@ export const DataTable: React.FC<DataTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(20)
 
+  // Debug - sprawdź dane produktów
+  console.log('DataTable: Otrzymane produkty:', {
+    count: products.length,
+    products: products.slice(0, 3), // Pierwsze 3 produkty
+    title
+  })
+
   // Filtrowanie i sortowanie danych
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter(product =>

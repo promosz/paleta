@@ -44,6 +44,8 @@ export class ParserService {
     file: File, 
     onProgress?: ParseProgressCallback
   ): Promise<ParseResult> {
+    console.log('ParserService: Rozpoczynanie parsowania pliku:', file.name, file.type, file.size)
+    
     const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     const result: ParseResult = {
       fileId,
@@ -63,17 +65,29 @@ export class ParserService {
 
     try {
       onProgress?.(10, 'Rozpoczynanie parsowania...')
+      console.log('ParserService: Postęp 10% - Rozpoczynanie parsowania')
+      
+      // Symulacja krótkiego opóźnienia
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Określenie typu pliku i wywołanie odpowiedniego parsera
+      console.log('ParserService: Określanie typu pliku:', file.type, file.name)
+      
       if (file.type.includes('spreadsheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+        console.log('ParserService: Parsowanie jako XLSX')
         result.products = await this.parseXLSX(file, onProgress)
       } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+        console.log('ParserService: Parsowanie jako CSV')
         result.products = await this.parseCSV(file, onProgress)
       } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+        console.log('ParserService: Parsowanie jako PDF')
         result.products = await this.parsePDF(file, onProgress)
       } else {
+        console.error('ParserService: Nieobsługiwany typ pliku:', file.type)
         throw new Error(`Nieobsługiwany format pliku: ${file.type}`)
       }
+      
+      console.log('ParserService: Parsowanie zakończone, znaleziono produktów:', result.products.length)
 
       onProgress?.(90, 'Finalizowanie wyników...')
 
@@ -90,11 +104,13 @@ export class ParserService {
       onProgress?.(100, 'Parsowanie zakończone')
 
     } catch (error) {
+      console.error('ParserService: Błąd parsowania:', error)
       result.status = 'error'
       result.error = error instanceof Error ? error.message : 'Nieznany błąd parsowania'
       result.progress = 0
     }
 
+    console.log('ParserService: Zwracanie wyniku:', result.status, result.products.length, 'produktów')
     return result
   }
 

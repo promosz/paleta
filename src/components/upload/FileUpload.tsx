@@ -82,8 +82,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       
       // Symulacja postępu uploadu
       await new Promise(resolve => {
+        let currentProgress = 0
         const progressInterval = setInterval(() => {
-          const currentProgress = Math.min(100, Math.random() * 20 + 10)
+          currentProgress += Math.random() * 15 + 5 // Dodaje 5-20%
+          currentProgress = Math.min(currentProgress, 100)
           useUploadStore.getState().updateFileStatus(file.id, 'uploading', currentProgress)
           
           if (currentProgress >= 100) {
@@ -102,30 +104,42 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     setParsing(true)
     
     try {
+      console.log('FileUpload: Rozpoczynanie parsowania plików:', files.length)
+      
       // Parsowanie każdego pliku
       for (const file of files) {
+        console.log('FileUpload: Sprawdzanie pliku:', file.name, file.status)
+        
         if (file.status === 'success') {
+          console.log('FileUpload: Parsowanie pliku:', file.name)
+          
           const result = await parserService.parseFile(
             file.file,
             (progress, status) => {
-              console.log(`Parsowanie ${file.name}: ${progress}% - ${status}`)
+              console.log(`FileUpload: Parsowanie ${file.name}: ${progress}% - ${status}`)
             }
           )
           
+          console.log('FileUpload: Wynik parsowania:', result.status, result.products.length, 'produktów')
+          
           // Zapisanie wyniku parsowania
           setParseResult(file.id, result)
+        } else {
+          console.log('FileUpload: Pomijanie pliku (status nie success):', file.name, file.status)
         }
       }
       
       // Zakończenie parsowania
+      console.log('FileUpload: Zakończenie parsowania')
       setParsing(false)
       
       // Wywołanie callback
       const allFiles = useUploadStore.getState().files
+      console.log('FileUpload: Wywołanie callback onUploadComplete z plikami:', allFiles.length)
       onUploadComplete?.(allFiles)
       
     } catch (error) {
-      console.error('Błąd parsowania:', error)
+      console.error('FileUpload: Błąd parsowania:', error)
       setParsing(false)
       
       // Oznaczenie błędów

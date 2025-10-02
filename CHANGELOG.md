@@ -14,11 +14,34 @@
 - Responsywny design system
 - Dokumentacja komponentów (COMPONENTS.md, LAYOUT_COMPONENTS.md, COMPONENT_SHOWCASE.md)
 - GitHub Pages deployment
+- **System reguł analizy produktów:**
+  - Typy reguł: budżetowe, kategorii, jakościowe
+  - Akcje reguł: blokada, ostrzeżenie, preferencja
+  - Formularz tworzenia/edycji reguł z walidacją
+  - Lista reguł z filtrowaniem i sortowaniem
+  - Predefiniowane szablony reguł
+  - Silnik oceny produktów (RulesEngine)
+  - System rekomendacji z priorytetami
+  - Integracja z parserami plików
+  - Automatyczna ocena produktów po parsowaniu
+  - Statystyki reguł i ocen produktów
+- **Dashboard i zarządzanie analizami:**
+  - System analiz z pełnym cyklem życia
+  - Dashboard ze statystykami i trendami
+  - Lista analiz z filtrowaniem i sortowaniem
+  - Szczegóły analizy z pełnymi informacjami
+  - Eksport wyników (JSON, CSV, XLSX, PDF)
+  - Zarządzanie plikami w analizach
+  - Statystyki cenowe i kategorii
+  - Integracja z systemem reguł
+  - Persistencja danych analiz
 
 ### Changed
 - Przeniesienie integracji API na fazę rozwoju
 - Fokus na MVP bez zewnętrznych API
-- Ukończenie Etapu 2 (Upload i Parsowanie) w 50%
+- Ukończenie Etapu 2 (Upload i Parsowanie) w 100%
+- Ukończenie Etapu 3 (System Reguł) w 100%
+- Ukończenie Etapu 4 (Dashboard i Szczegóły) w 100%
 
 ### Fixed
 - Brak

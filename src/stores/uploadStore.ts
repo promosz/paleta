@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import type { ParseResult, ParsedProduct } from '../types/parser'
+import type { ProductEvaluation } from '../types/rules'
+import { rulesEngine } from '../utils/rulesEngine'
 
 // Definicja typu dla pliku w uploadzie
 export interface UploadFile {
@@ -22,6 +24,8 @@ interface UploadState {
   uploadProgress: number
   isParsing: boolean
   parsedProducts: ParsedProduct[]
+  productEvaluations: ProductEvaluation[]
+  isEvaluating: boolean
   
   // Akcje
   addFiles: (files: File[]) => void
@@ -34,6 +38,9 @@ interface UploadState {
   setParseResult: (fileId: string, result: ParseResult) => void
   clearParsedProducts: () => void
   getAllParsedProducts: () => ParsedProduct[]
+  evaluateProducts: () => Promise<void>
+  clearEvaluations: () => void
+  getAllEvaluations: () => ProductEvaluation[]
 }
 
 // Tworzenie store z Zustand
@@ -44,6 +51,8 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   uploadProgress: 0,
   isParsing: false,
   parsedProducts: [],
+  productEvaluations: [],
+  isEvaluating: false,
 
   // Dodawanie plików do uploadu
   addFiles: (newFiles: File[]) => {
@@ -105,7 +114,9 @@ export const useUploadStore = create<UploadState>((set, get) => ({
       isUploading: false,
       uploadProgress: 0,
       isParsing: false,
-      parsedProducts: []
+      parsedProducts: [],
+      productEvaluations: [],
+      isEvaluating: false
     })
   },
 
@@ -144,6 +155,44 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   // Pobieranie wszystkich sparsowanych produktów
   getAllParsedProducts: () => {
     return get().parsedProducts
+  },
+
+  // Ocena produktów
+  evaluateProducts: async () => {
+    const { parsedProducts } = get()
+    if (parsedProducts.length === 0) return
+
+    set({ isEvaluating: true })
+
+    try {
+      // Import rules store
+      const { useRulesStore } = await import('./rulesStore')
+      const rules = useRulesStore.getState().getActiveRules()
+      
+      const evaluations = await rulesEngine.evaluateProducts(
+        parsedProducts,
+        rules,
+        (progress, status) => {
+          console.log(`Ocena produktów: ${progress}% - ${status}`)
+        }
+      )
+
+      set({ productEvaluations: evaluations })
+    } catch (error) {
+      console.error('Błąd oceny produktów:', error)
+    } finally {
+      set({ isEvaluating: false })
+    }
+  },
+
+  // Czyszczenie ocen
+  clearEvaluations: () => {
+    set({ productEvaluations: [] })
+  },
+
+  // Pobieranie wszystkich ocen
+  getAllEvaluations: () => {
+    return get().productEvaluations
   }
 }))
 
