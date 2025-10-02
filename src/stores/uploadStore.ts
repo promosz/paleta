@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import type { ParseResult, ParsedProduct } from '../types/parser'
 
 // Definicja typu dla pliku w uploadzie
 export interface UploadFile {
@@ -11,6 +12,7 @@ export interface UploadFile {
   progress: number
   error?: string
   uploadedAt?: Date
+  parseResult?: ParseResult
 }
 
 // Definicja typu dla stanu uploadu
@@ -18,6 +20,8 @@ interface UploadState {
   files: UploadFile[]
   isUploading: boolean
   uploadProgress: number
+  isParsing: boolean
+  parsedProducts: ParsedProduct[]
   
   // Akcje
   addFiles: (files: File[]) => void
@@ -26,6 +30,10 @@ interface UploadState {
   clearFiles: () => void
   setUploading: (isUploading: boolean) => void
   setUploadProgress: (progress: number) => void
+  setParsing: (isParsing: boolean) => void
+  setParseResult: (fileId: string, result: ParseResult) => void
+  clearParsedProducts: () => void
+  getAllParsedProducts: () => ParsedProduct[]
 }
 
 // Tworzenie store z Zustand
@@ -34,6 +42,8 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   files: [],
   isUploading: false,
   uploadProgress: 0,
+  isParsing: false,
+  parsedProducts: [],
 
   // Dodawanie plików do uploadu
   addFiles: (newFiles: File[]) => {
@@ -93,7 +103,9 @@ export const useUploadStore = create<UploadState>((set, get) => ({
     set({
       files: [],
       isUploading: false,
-      uploadProgress: 0
+      uploadProgress: 0,
+      isParsing: false,
+      parsedProducts: []
     })
   },
 
@@ -105,6 +117,33 @@ export const useUploadStore = create<UploadState>((set, get) => ({
   // Ustawianie postępu uploadu
   setUploadProgress: (progress: number) => {
     set({ uploadProgress: progress })
+  },
+
+  // Ustawianie statusu parsowania
+  setParsing: (isParsing: boolean) => {
+    set({ isParsing })
+  },
+
+  // Ustawianie wyniku parsowania
+  setParseResult: (fileId: string, result: ParseResult) => {
+    set(state => ({
+      files: state.files.map(file =>
+        file.id === fileId
+          ? { ...file, parseResult: result }
+          : file
+      ),
+      parsedProducts: [...state.parsedProducts, ...result.products]
+    }))
+  },
+
+  // Czyszczenie sparsowanych produktów
+  clearParsedProducts: () => {
+    set({ parsedProducts: [] })
+  },
+
+  // Pobieranie wszystkich sparsowanych produktów
+  getAllParsedProducts: () => {
+    return get().parsedProducts
   }
 }))
 

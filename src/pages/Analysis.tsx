@@ -1,10 +1,11 @@
 import React from 'react'
-import { Card, CardHeader, CardBody, StatusBadge } from '../components/ui'
+import { Card, CardHeader, CardBody, StatusBadge, DataTable } from '../components/ui'
 import { FileUpload } from '../components/upload'
 import { useUploadStore, type UploadFile } from '../stores/uploadStore'
 
 const Analysis: React.FC = () => {
-  const { files } = useUploadStore()
+  const { files, getAllParsedProducts } = useUploadStore()
+  const parsedProducts = getAllParsedProducts()
 
   // Funkcja obsługująca zakończenie uploadu
   const handleUploadComplete = (uploadedFiles: UploadFile[]) => {
@@ -39,6 +40,18 @@ const Analysis: React.FC = () => {
         </CardBody>
       </Card>
 
+      {/* Parsed Data Table */}
+      {parsedProducts.length > 0 && (
+        <DataTable
+          products={parsedProducts}
+          title="Sparsowane produkty"
+          showSource={true}
+          showRawData={false}
+          maxRows={1000}
+          className="mb-8"
+        />
+      )}
+
       {/* Analysis List */}
       <Card>
         <CardHeader>
@@ -71,7 +84,7 @@ const Analysis: React.FC = () => {
                   Załadowane pliki ({files.length})
                 </h3>
                 <StatusBadge status="success">
-                  Gotowe do analizy
+                  {parsedProducts.length > 0 ? `${parsedProducts.length} produktów sparsowanych` : 'Gotowe do analizy'}
                 </StatusBadge>
               </div>
               
@@ -92,17 +105,26 @@ const Analysis: React.FC = () => {
                         <p className="text-xs text-neutral-500">
                           {file.size} bytes • {file.type}
                         </p>
+                        {file.parseResult && (
+                          <p className="text-xs text-primary-600">
+                            {file.parseResult.products.length} produktów • {file.parseResult.metadata?.validRows || 0} poprawnych
+                          </p>
+                        )}
                       </div>
                     </div>
                     
                     <StatusBadge 
                       status={
+                        file.parseResult?.status === 'success' ? 'success' :
+                        file.parseResult?.status === 'error' ? 'danger' :
                         file.status === 'success' ? 'success' :
                         file.status === 'error' ? 'danger' :
                         file.status === 'uploading' ? 'warning' : 'info'
                       }
                     >
-                      {file.status === 'success' ? 'Załadowany' :
+                      {file.parseResult?.status === 'success' ? 'Sparsowany' :
+                       file.parseResult?.status === 'error' ? 'Błąd parsowania' :
+                       file.status === 'success' ? 'Załadowany' :
                        file.status === 'error' ? 'Błąd' :
                        file.status === 'uploading' ? 'W toku' : 'Oczekuje'}
                     </StatusBadge>

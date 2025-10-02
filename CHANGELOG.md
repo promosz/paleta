@@ -5,15 +5,20 @@
 ## [Unreleased]
 
 ### Added
-- Dokumentacja projektu
-- Plan rozwoju aplikacji
-- Design system inspirowany Atlassian
-- Architektura techniczna
-- Wymagania funkcjonalne i niefunkcjonalne
+- Komponent FileUpload z pełną funkcjonalnością drag & drop
+- Walidacja plików (XLSX, XLS, CSV, PDF) z limitem 10MB
+- Progress tracking dla uploadu plików
+- Error handling i user feedback
+- Upload store z Zustand dla zarządzania stanem
+- Integracja FileUpload ze stroną Analysis
+- Responsywny design system
+- Dokumentacja komponentów (COMPONENTS.md, LAYOUT_COMPONENTS.md, COMPONENT_SHOWCASE.md)
+- GitHub Pages deployment
 
 ### Changed
 - Przeniesienie integracji API na fazę rozwoju
 - Fokus na MVP bez zewnętrznych API
+- Ukończenie Etapu 2 (Upload i Parsowanie) w 50%
 
 ### Fixed
 - Brak

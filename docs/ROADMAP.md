@@ -47,18 +47,18 @@ Faza 3: Zaawansowane (21-30)    ██████████
 - [x] Dokumentacja komponentów z przykładami
 - [x] GitHub Pages deployment
 
-#### Etap 2: Upload i Parsowanie (Tygodnie 3-4) 🎯 **NASTĘPNY ETAP**
+#### Etap 2: Upload i Parsowanie (Tygodnie 3-4) 🎯 **W TOKU**
 
-**Tydzień 3: Komponent uploadu plików** 📋 **PROPONOWANY**
-- [ ] Drag & drop interface
-- [ ] Walidacja formatów (XLSX, PDF, CSV)
-- [ ] Progress indicator
-- [ ] Error handling
-- [ ] Multiple files support
-- [ ] File preview
-- [ ] Upload history
+**Tydzień 3: Komponent uploadu plików** ✅ **ZAKOŃCZONY**
+- [x] Drag & drop interface
+- [x] Walidacja formatów (XLSX, PDF, CSV)
+- [x] Progress indicator
+- [x] Error handling
+- [x] Multiple files support
+- [x] File preview
+- [x] Upload history
 
-**Tydzień 4: Parsery plików** 📋 **PROPONOWANY**
+**Tydzień 4: Parsery plików** 📋 **NASTĘPNY ETAP**
 - [ ] Implementacja parsowania XLSX (SheetJS)
 - [ ] Implementacja parsowania CSV (Papa Parse)
 - [ ] Implementacja parsowania PDF (PDF.js)
@@ -67,12 +67,12 @@ Faza 3: Zaawansowane (21-30)    ██████████
 - [ ] Error handling dla uszkodzonych plików
 - [ ] Progress tracking dla dużych plików
 
-**Deliverables:** 🎯 **CELE NASTĘPNEGO ETAPU**
-- [ ] Upload plików z walidacją (drag & drop)
+**Deliverables:** ✅ **CZĘŚCIOWO ZREALIZOWANE**
+- [x] Upload plików z walidacją (drag & drop)
 - [ ] Parsowanie wszystkich formatów (XLSX, CSV, PDF)
 - [ ] Wyświetlanie danych w tabeli
-- [ ] Progress tracking i error handling
-- [ ] File preview i upload history
+- [x] Progress tracking i error handling
+- [x] File preview i upload history
 - [ ] Normalizacja danych do wspólnego formatu
 
 #### Etap 3: System Reguł (Tygodnie 5-6)
@@ -446,9 +446,9 @@ Faza 3: Zaawansowane (21-30)    ██████████
 ### 🎯 Aktualny Etap
 
 #### Etap 2: Upload i Parsowanie (Tygodnie 3-4) - **W TOKU**
-- **Tydzień 3**: Komponent uploadu plików 📋 **PROPONOWANY**
-- **Tydzień 4**: Parsery plików 📋 **PROPONOWANY**
-- **Status**: Gotowy do rozpoczęcia
+- **Tydzień 3**: Komponent uploadu plików ✅ **ZAKOŃCZONY**
+- **Tydzień 4**: Parsery plików 📋 **NASTĘPNY ETAP**
+- **Status**: 50% ukończony
 - **Priorytet**: Wysoki
 
 ### 📋 Następne Etapy
@@ -463,51 +463,57 @@ Faza 3: Zaawansowane (21-30)    ██████████
 
 ## 🎯 Propozycja Następnego Etapu
 
-### Tydzień 3: Komponent Uploadu Plików
+### Tydzień 4: Parsery Plików
 
-**Cel**: Stworzenie intuicyjnego interfejsu do uploadu plików XLSX, PDF, CSV
+**Cel**: Implementacja parsowania plików XLSX, CSV, PDF i normalizacja danych
 
 **Zadania do realizacji**:
-1. **Drag & Drop Interface**
-   - Komponent `FileUpload` z obsługą drag & drop
-   - Wizualne feedback (hover, active states)
-   - Obsługa multiple files
+1. **Parser XLSX (SheetJS)**
+   - Instalacja i konfiguracja xlsx
+   - Parsowanie arkuszy kalkulacyjnych
+   - Automatyczne wykrywanie nagłówków
+   - Obsługa wielu arkuszy
 
-2. **Walidacja Plików**
-   - Sprawdzanie formatów (XLSX, PDF, CSV)
-   - Walidacja rozmiaru plików
-   - Sprawdzanie integralności plików
+2. **Parser CSV (Papa Parse)**
+   - Instalacja i konfiguracja papaparse
+   - Parsowanie plików CSV z różnymi separatorami
+   - Automatyczne wykrywanie kodowania
+   - Obsługa dużych plików
 
-3. **Progress Indicator**
-   - Progress bar dla uploadu
-   - Status uploadu (pending, uploading, success, error)
-   - Cancel upload functionality
+3. **Parser PDF (PDF.js)**
+   - Instalacja i konfiguracja pdfjs-dist
+   - Ekstrakcja tekstu z PDF
+   - Parsowanie tabel w PDF
+   - Obsługa różnych formatów PDF
 
-4. **Error Handling**
-   - Wyświetlanie błędów walidacji
+4. **Normalizacja Danych**
+   - Wspólny format danych dla wszystkich parserów
+   - Mapowanie kolumn (nazwa, kategoria, cena, ilość, opis, SKU)
+   - Walidacja i sanityzacja danych
+   - Deduplikacja produktów
+
+5. **Error Handling i Progress**
+   - Obsługa błędów parsowania
+   - Progress tracking dla dużych plików
    - Retry mechanism
    - User-friendly error messages
 
-5. **File Preview**
-   - Podgląd podstawowych informacji o pliku
-   - Lista załadowanych plików
-   - Możliwość usunięcia plików
-
 **Technologie**:
-- React Dropzone dla drag & drop
-- File API dla walidacji
-- React Hook Form dla formularzy
+- xlsx dla plików Excel
+- papaparse dla plików CSV
+- pdfjs-dist dla plików PDF
 - Zustand dla state management
 
 **Deliverables**:
-- Komponent `FileUpload` z pełną funkcjonalnością
-- Integracja ze stroną Analysis
-- Testy komponentu
-- Dokumentacja użycia
+- Parser service z obsługą wszystkich formatów
+- Normalizacja danych do wspólnego formatu
+- Integracja z upload store
+- Wyświetlanie danych w tabeli
+- Error handling i progress tracking
 
 **Czas realizacji**: 1 tydzień
 **Priorytet**: Wysoki
-**Zależności**: Brak (można rozpocząć od razu)
+**Zależności**: Komponent FileUpload (zakończony)
 
 ---
 

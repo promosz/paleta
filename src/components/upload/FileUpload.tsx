@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useUploadStore, validateFile, formatFileSize, type UploadFile } from '../../stores/uploadStore'
 import { Button, Card, CardBody, StatusBadge } from '../ui'
+import { parserService } from '../../utils/parserService'
 
 interface FileUploadProps {
   onUploadComplete?: (files: UploadFile[]) => void
@@ -14,7 +15,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   maxFiles = 10,
   className = ''
 }) => {
-  const { files, addFiles, removeFile, isUploading } = useUploadStore()
+  const { files, addFiles, removeFile, isUploading, isParsing, setParsing, setParseResult } = useUploadStore()
 
   // Funkcja obsługująca dodawanie plików
   const handleFiles = useCallback((acceptedFiles: File[]) => {
@@ -67,19 +68,20 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     useUploadStore.getState().clearFiles()
   }
 
-  // Funkcja rozpoczęcia uploadu
-  const handleStartUpload = () => {
+  // Funkcja rozpoczęcia uploadu i parsowania
+  const handleStartUpload = async () => {
     if (files.length === 0) return
     
-    // Symulacja uploadu (w rzeczywistej aplikacji tutaj byłby prawdziwy upload)
+    // Rozpoczęcie uploadu
     useUploadStore.getState().setUploading(true)
     
-    files.forEach((file, index) => {
+    // Symulacja uploadu plików
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      useUploadStore.getState().updateFileStatus(file.id, 'uploading', 0)
+      
       // Symulacja postępu uploadu
-      setTimeout(() => {
-        useUploadStore.getState().updateFileStatus(file.id, 'uploading', 0)
-        
-        // Symulacja postępu
+      await new Promise(resolve => {
         const progressInterval = setInterval(() => {
           const currentProgress = Math.min(100, Math.random() * 20 + 10)
           useUploadStore.getState().updateFileStatus(file.id, 'uploading', currentProgress)
@@ -87,23 +89,80 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           if (currentProgress >= 100) {
             clearInterval(progressInterval)
             useUploadStore.getState().updateFileStatus(file.id, 'success', 100)
-            
-            // Sprawdzenie czy wszystkie pliki zostały załadowane
-            const allFiles = useUploadStore.getState().files
-            const allUploaded = allFiles.every(f => f.status === 'success')
-            
-            if (allUploaded) {
-              useUploadStore.getState().setUploading(false)
-              onUploadComplete?.(allFiles)
-            }
+            resolve(undefined)
           }
         }, 200)
-      }, index * 500) // Opóźnienie między plikami
-    })
+      })
+    }
+    
+    // Zakończenie uploadu
+    useUploadStore.getState().setUploading(false)
+    
+    // Rozpoczęcie parsowania
+    setParsing(true)
+    
+    try {
+      // Parsowanie każdego pliku
+      for (const file of files) {
+        if (file.status === 'success') {
+          const result = await parserService.parseFile(
+            file.file,
+            (progress, status) => {
+              console.log(`Parsowanie ${file.name}: ${progress}% - ${status}`)
+            }
+          )
+          
+          // Zapisanie wyniku parsowania
+          setParseResult(file.id, result)
+        }
+      }
+      
+      // Zakończenie parsowania
+      setParsing(false)
+      
+      // Wywołanie callback
+      const allFiles = useUploadStore.getState().files
+      onUploadComplete?.(allFiles)
+      
+    } catch (error) {
+      console.error('Błąd parsowania:', error)
+      setParsing(false)
+      
+      // Oznaczenie błędów
+      files.forEach(file => {
+        if (file.status === 'success') {
+          useUploadStore.getState().updateFileStatus(
+            file.id, 
+            'error', 
+            0, 
+            error instanceof Error ? error.message : 'Błąd parsowania'
+          )
+        }
+      })
+    }
   }
 
   // Renderowanie statusu pliku
   const renderFileStatus = (file: UploadFile) => {
+    if (isParsing && file.status === 'success') {
+      return <StatusBadge status="warning">Parsowanie...</StatusBadge>
+    }
+    
+    if (file.parseResult) {
+      if (file.parseResult.status === 'success') {
+        return (
+          <div className="flex flex-col space-y-1">
+            <StatusBadge status="success">Sparsowany</StatusBadge>
+            <span className="text-xs text-neutral-500">
+              {file.parseResult.products.length} produktów
+            </span>
+          </div>
+        )
+      } else if (file.parseResult.status === 'error') {
+        return <StatusBadge status="danger">Błąd parsowania</StatusBadge>
+      }
+    }
+    
     switch (file.status) {
       case 'pending':
         return <StatusBadge status="info">Oczekuje</StatusBadge>
@@ -198,9 +257,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   variant="primary"
                   size="sm"
                   onClick={handleStartUpload}
-                  disabled={isUploading || files.length === 0}
+                  disabled={isUploading || isParsing || files.length === 0}
                 >
-                  {isUploading ? 'Upload w toku...' : 'Rozpocznij upload'}
+                  {isUploading ? 'Upload w toku...' : 
+                   isParsing ? 'Parsowanie...' : 
+                   'Rozpocznij upload i parsowanie'}
                 </Button>
               </div>
             </div>
