@@ -30,38 +30,50 @@ Faza 3: Zaawansowane (21-30)    ██████████
 - [x] Podstawowa struktura folderów
 - [x] Konfiguracja GitHub Pages
 
-**Tydzień 2: Podstawowe komponenty UI**
-- [ ] Layout aplikacji z nawigacją
-- [ ] Podstawowe komponenty (Button, Input, Card, Modal)
-- [ ] Responsywny design system
-- [ ] Routing (React Router)
-- [ ] Dark mode (opcjonalnie)
+**Tydzień 2: Podstawowe komponenty UI** ✅ **ZAKOŃCZONY**
+- [x] Layout aplikacji z nawigacją
+- [x] Podstawowe komponenty (Button, Input, Card, StatusBadge)
+- [x] Responsywny design system
+- [x] Routing (React Router)
+- [x] Dokumentacja komponentów (COMPONENTS.md, LAYOUT_COMPONENTS.md, COMPONENT_SHOWCASE.md)
+- [x] GitHub Pages deployment (manual)
 
-**Deliverables:**
-- Działająca aplikacja z pustymi stronami
-- Kompletny design system
-- Responsywny layout
+**Deliverables:** ✅ **ZREALIZOWANE**
+- [x] Działająca aplikacja z pustymi stronami
+- [x] Kompletny design system (Atlassian-inspired)
+- [x] Responsywny layout z Header i Sidebar
+- [x] Podstawowe komponenty UI (Button, Card, Input, StatusBadge)
+- [x] Routing między stronami (Dashboard, Analysis, Rules, Settings)
+- [x] Dokumentacja komponentów z przykładami
+- [x] GitHub Pages deployment
 
-#### Etap 2: Upload i Parsowanie (Tygodnie 3-4)
+#### Etap 2: Upload i Parsowanie (Tygodnie 3-4) 🎯 **NASTĘPNY ETAP**
 
-**Tydzień 3: Komponent uploadu plików**
+**Tydzień 3: Komponent uploadu plików** 📋 **PROPONOWANY**
 - [ ] Drag & drop interface
 - [ ] Walidacja formatów (XLSX, PDF, CSV)
 - [ ] Progress indicator
 - [ ] Error handling
 - [ ] Multiple files support
+- [ ] File preview
+- [ ] Upload history
 
-**Tydzień 4: Parsery plików**
+**Tydzień 4: Parsery plików** 📋 **PROPONOWANY**
 - [ ] Implementacja parsowania XLSX (SheetJS)
 - [ ] Implementacja parsowania CSV (Papa Parse)
 - [ ] Implementacja parsowania PDF (PDF.js)
 - [ ] Normalizacja danych do wspólnego formatu
 - [ ] Walidacja i sanityzacja danych
+- [ ] Error handling dla uszkodzonych plików
+- [ ] Progress tracking dla dużych plików
 
-**Deliverables:**
-- Upload plików z walidacją
-- Parsowanie wszystkich formatów
-- Wyświetlanie danych w tabeli
+**Deliverables:** 🎯 **CELE NASTĘPNEGO ETAPU**
+- [ ] Upload plików z walidacją (drag & drop)
+- [ ] Parsowanie wszystkich formatów (XLSX, CSV, PDF)
+- [ ] Wyświetlanie danych w tabeli
+- [ ] Progress tracking i error handling
+- [ ] File preview i upload history
+- [ ] Normalizacja danych do wspólnego formatu
 
 #### Etap 3: System Reguł (Tygodnie 5-6)
 
@@ -421,8 +433,84 @@ Faza 3: Zaawansowane (21-30)    ██████████
 - **Team Changes**: Knowledge documentation
 - **Technology Changes**: Flexible architecture
 
+## 📈 Status Postępu
+
+### ✅ Zakończone Etapy
+
+#### Etap 1: Infrastruktura (Tygodnie 1-2) - **ZAKOŃCZONY**
+- **Tydzień 1**: Setup projektu ✅
+- **Tydzień 2**: Podstawowe komponenty UI ✅
+- **Status**: 100% ukończony
+- **Data zakończenia**: Styczeń 2025
+
+### 🎯 Aktualny Etap
+
+#### Etap 2: Upload i Parsowanie (Tygodnie 3-4) - **W TOKU**
+- **Tydzień 3**: Komponent uploadu plików 📋 **PROPONOWANY**
+- **Tydzień 4**: Parsery plików 📋 **PROPONOWANY**
+- **Status**: Gotowy do rozpoczęcia
+- **Priorytet**: Wysoki
+
+### 📋 Następne Etapy
+
+#### Etap 3: System Reguł (Tygodnie 5-6)
+- **Status**: Zaplanowany
+- **Priorytet**: Wysoki
+
+#### Etap 4: Dashboard i Szczegóły (Tygodnie 7-8)
+- **Status**: Zaplanowany
+- **Priorytet**: Średni
+
+## 🎯 Propozycja Następnego Etapu
+
+### Tydzień 3: Komponent Uploadu Plików
+
+**Cel**: Stworzenie intuicyjnego interfejsu do uploadu plików XLSX, PDF, CSV
+
+**Zadania do realizacji**:
+1. **Drag & Drop Interface**
+   - Komponent `FileUpload` z obsługą drag & drop
+   - Wizualne feedback (hover, active states)
+   - Obsługa multiple files
+
+2. **Walidacja Plików**
+   - Sprawdzanie formatów (XLSX, PDF, CSV)
+   - Walidacja rozmiaru plików
+   - Sprawdzanie integralności plików
+
+3. **Progress Indicator**
+   - Progress bar dla uploadu
+   - Status uploadu (pending, uploading, success, error)
+   - Cancel upload functionality
+
+4. **Error Handling**
+   - Wyświetlanie błędów walidacji
+   - Retry mechanism
+   - User-friendly error messages
+
+5. **File Preview**
+   - Podgląd podstawowych informacji o pliku
+   - Lista załadowanych plików
+   - Możliwość usunięcia plików
+
+**Technologie**:
+- React Dropzone dla drag & drop
+- File API dla walidacji
+- React Hook Form dla formularzy
+- Zustand dla state management
+
+**Deliverables**:
+- Komponent `FileUpload` z pełną funkcjonalnością
+- Integracja ze stroną Analysis
+- Testy komponentu
+- Dokumentacja użycia
+
+**Czas realizacji**: 1 tydzień
+**Priorytet**: Wysoki
+**Zależności**: Brak (można rozpocząć od razu)
+
 ---
 
 *Roadmap utworzony: Styczeń 2025*  
 *Ostatnia aktualizacja: Styczeń 2025*  
-*Wersja: 1.0*
+*Wersja: 1.1*

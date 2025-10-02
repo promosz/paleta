@@ -1,7 +1,18 @@
 import React from 'react'
-import { Card, CardHeader, CardBody, Button, StatusBadge } from '../components/ui'
+import { Card, CardHeader, CardBody, StatusBadge } from '../components/ui'
+import { FileUpload } from '../components/upload'
+import { useUploadStore, type UploadFile } from '../stores/uploadStore'
 
 const Analysis: React.FC = () => {
+  const { files } = useUploadStore()
+
+  // Funkcja obsługująca zakończenie uploadu
+  const handleUploadComplete = (uploadedFiles: UploadFile[]) => {
+    console.log('Upload zakończony:', uploadedFiles)
+    // TODO: Tutaj będzie logika analizy plików
+    // Na razie tylko logujemy do konsoli
+  }
+
   return (
     <div>
       <div className="mb-8">
@@ -21,25 +32,10 @@ const Analysis: React.FC = () => {
           </h2>
         </CardHeader>
         <CardBody>
-          <div className="border-2 border-dashed border-neutral-300 rounded-lg p-8 text-center">
-            <div className="text-neutral-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-neutral-600 mb-2">
-              Przeciągnij pliki tutaj lub kliknij aby wybrać
-            </h3>
-            <p className="text-neutral-500 mb-4">
-              Obsługiwane formaty: .xlsx, .pdf, .csv
-            </p>
-            <p className="text-sm text-neutral-400 mb-6">
-              Maksymalny rozmiar: 10MB
-            </p>
-            <Button variant="primary">
-              Wybierz plik
-            </Button>
-          </div>
+          <FileUpload
+            onUploadComplete={handleUploadComplete}
+            maxFiles={5}
+          />
         </CardBody>
       </Card>
 
@@ -51,22 +47,70 @@ const Analysis: React.FC = () => {
           </h2>
         </CardHeader>
         <CardBody>
-          <div className="text-center py-12">
-            <div className="text-neutral-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+          {files.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-neutral-400 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-neutral-600 mb-2">
+                Brak analiz
+              </h3>
+              <p className="text-neutral-500 mb-4">
+                Załaduj pierwszy plik aby rozpocząć analizę
+              </p>
+              <StatusBadge status="info">
+                Użyj sekcji "Nowa analiza" powyżej
+              </StatusBadge>
             </div>
-            <h3 className="text-lg font-medium text-neutral-600 mb-2">
-              Brak analiz
-            </h3>
-            <p className="text-neutral-500 mb-4">
-              Załaduj pierwszy plik aby rozpocząć analizę
-            </p>
-            <StatusBadge status="info">
-              Użyj sekcji "Nowa analiza" powyżej
-            </StatusBadge>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium">
+                  Załadowane pliki ({files.length})
+                </h3>
+                <StatusBadge status="success">
+                  Gotowe do analizy
+                </StatusBadge>
+              </div>
+              
+              <div className="space-y-2">
+                {files.map((file) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 text-neutral-500">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{file.name}</p>
+                        <p className="text-xs text-neutral-500">
+                          {file.size} bytes • {file.type}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <StatusBadge 
+                      status={
+                        file.status === 'success' ? 'success' :
+                        file.status === 'error' ? 'danger' :
+                        file.status === 'uploading' ? 'warning' : 'info'
+                      }
+                    >
+                      {file.status === 'success' ? 'Załadowany' :
+                       file.status === 'error' ? 'Błąd' :
+                       file.status === 'uploading' ? 'W toku' : 'Oczekuje'}
+                    </StatusBadge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardBody>
       </Card>
     </div>
