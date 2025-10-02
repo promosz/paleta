@@ -1,0 +1,98 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      // Atlassian Design System inspired colors
+      colors: {
+        primary: {
+          50: '#DEEBFF',
+          100: '#B3D4FF',
+          200: '#4C9AFF',
+          300: '#2684FF',
+          400: '#0065FF',
+          500: '#0052CC',  // Main Primary
+          600: '#003D99',
+          700: '#002966',
+          800: '#001A4D',
+          900: '#000D26',
+        },
+        neutral: {
+          50: '#F4F5F7',
+          100: '#EBECF0',
+          200: '#DFE1E6',
+          300: '#C1C7D0',
+          400: '#97A0AF',
+          500: '#6B778C',
+          600: '#42526E',
+          700: '#253858',
+          800: '#172B4D',
+          900: '#091E42',
+        },
+        success: {
+          50: '#E3FCEF',
+          100: '#ABF5D1',
+          200: '#79F2C0',
+          300: '#57D9A3',
+          400: '#36B37E',
+          500: '#00875A',
+          600: '#006644',
+          700: '#004C3A',
+        },
+        warning: {
+          50: '#FFF7E6',
+          100: '#FFE0B3',
+          200: '#FFC166',
+          300: '#FFAB00',
+          400: '#E6A100',
+          500: '#CC9900',
+          600: '#B38600',
+        },
+        danger: {
+          50: '#FFEBE6',
+          100: '#FFBDAD',
+          200: '#FF8F73',
+          300: '#FF5630',
+          400: '#DE350B',
+          500: '#BF2600',
+          600: '#9F1F00',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
+      spacing: {
+        '1': '4px',
+        '2': '8px',
+        '3': '12px',
+        '4': '16px',
+        '5': '20px',
+        '6': '24px',
+        '8': '32px',
+        '10': '40px',
+        '12': '48px',
+        '16': '64px',
+        '20': '80px',
+        '24': '96px',
+      },
+      borderRadius: {
+        'sm': '2px',
+        'md': '4px',
+        'lg': '8px',
+        'xl': '12px',
+        '2xl': '16px',
+      },
+      boxShadow: {
+        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      },
+    },
+  },
+  plugins: [],
+}
