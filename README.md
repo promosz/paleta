@@ -140,13 +140,34 @@ src/
 └── index.css          # Style globalne
 ```
 
+## 🔍 **Nowe Funkcjonalności - System Reguł i Filtrowania**
+
+### **📊 Filtrowanie i wyszukiwanie produktów**
+- **Filtrowanie po kategoriach** - Wyświetlanie produktów z wybranych kategorii
+- **Wyszukiwanie tekstowe** - Szukanie produktów po nazwie, kategorii, opisie
+- **Sortowanie** - Sortowanie po nazwie, kategorii, cenie, ilości
+- **Filtry statusu** - Wyświetlanie produktów dozwolonych/ostrzeżeń/zablokowanych
+- **Statystyki na żywo** - Liczniki produktów w różnych statusach
+
+### **🛡️ System reguł analizy**
+- **Reguły kategorii** - Blokowanie/ostrzeganie całych kategorii produktów
+- **Reguły produktów** - Blokowanie/ostrzeganie konkretnych produktów
+- **Zarządzanie regułami** - Dodawanie, edycja, usuwanie reguł
+- **Analiza w czasie rzeczywistym** - Automatyczne sprawdzanie reguł podczas analizy
+- **Wizualne oznaczenia** - Kolorowe oznaczenia statusu produktów (czerwone/żółte/zielone tło)
+
+### **⚡ Akcje produktów**
+- **Dodawanie do reguł** - Bezpośrednie dodawanie produktów/kategorii do reguł
+- **Wybór działania** - Ostrzeżenie vs. blokowanie
+- **Szybki dostęp** - Przycisk "Reguły" przy każdym produkcie
+- **Zarządzanie centralne** - Panel zarządzania wszystkimi regułami
+
 ## Funkcjonalności w przygotowaniu
 
-- 🔧 **Konfiguracja reguł analizy** - Pełna funkcjonalność ustawień
-- 🤖 **Integracja z AI** - Rzeczywista analiza dokumentów przez AI
 - 💾 **Baza danych** - Przechowywanie analiz i historii
 - 📈 **Zaawansowane raporty** - Więcej szczegółów analizy
 - 🔄 **Eksport wyników** - Możliwość eksportu raportów
+- 🌐 **Integracja z zewnętrznymi API** - Rozszerzenie o więcej źródeł danych
 
 ## Użycie
 

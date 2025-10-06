@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, Shield, Filter } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import MarketPrices from '../components/MarketPrices'
+import ProductFilter from '../components/ProductFilter'
+import ProductActions from '../components/ProductActions'
+import RulesManager from '../components/RulesManager'
 
 interface Product {
   paleta: string
@@ -15,6 +18,7 @@ interface Product {
   kategoria: string
   pcs: number
   cenaRegularnaBrutto: number
+  status?: 'blocked' | 'warning' | 'allowed'
   waluta: string
   cenaSprzedazyNetto: number
   walutaSprzedazy: string
@@ -50,6 +54,107 @@ const AnalysisDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'content' | 'profitability'>('content')
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
   const [showMarketPrices, setShowMarketPrices] = useState(false)
+  const [showRulesManager, setShowRulesManager] = useState(false)
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [rules, setRules] = useState<any[]>([])
+
+  // Load rules on component mount
+  useEffect(() => {
+    loadRules()
+  }, [])
+
+  // Update filtered products when analysis data changes
+  useEffect(() => {
+    if (analysisData) {
+      setFilteredProducts(analysisData.products)
+      analyzeProductsWithRules()
+    }
+  }, [analysisData])
+
+  const loadRules = () => {
+    const savedRules = localStorage.getItem('analysis-rules')
+    if (savedRules) {
+      try {
+        setRules(JSON.parse(savedRules))
+      } catch (error) {
+        console.error('Failed to load rules:', error)
+      }
+    }
+  }
+
+  const analyzeProductsWithRules = () => {
+    if (!analysisData) return
+
+    const updatedProducts = analysisData.products.map(product => {
+      let status: 'blocked' | 'warning' | 'allowed' = 'allowed'
+
+      // Check category rules
+      const categoryRule = rules.find(rule => 
+        rule.type === 'category' && 
+        rule.name.toLowerCase() === product.kategoria.toLowerCase()
+      )
+      
+      if (categoryRule) {
+        status = categoryRule.action
+      }
+
+      // Check product rules
+      const productRule = rules.find(rule => 
+        rule.type === 'product' && 
+        rule.name.toLowerCase() === product.nazwa.toLowerCase()
+      )
+      
+      if (productRule) {
+        status = productRule.action
+      }
+
+      return { ...product, status }
+    })
+
+    setFilteredProducts(updatedProducts)
+  }
+
+  const handleAddToRules = (product: Product, action: 'block' | 'warning') => {
+    const newRule = {
+      id: Date.now().toString(),
+      type: 'product',
+      name: product.nazwa,
+      action,
+      description: `Dodano z analizy ${analysisData?.fileName}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    const updatedRules = [...rules, newRule]
+    localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
+    setRules(updatedRules)
+    analyzeProductsWithRules()
+  }
+
+  const handleAddCategoryToRules = (category: string, action: 'block' | 'warning') => {
+    const newRule = {
+      id: Date.now().toString(),
+      type: 'category',
+      name: category,
+      action,
+      description: `Dodano z analizy ${analysisData?.fileName}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    const updatedRules = [...rules, newRule]
+    localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
+    setRules(updatedRules)
+    analyzeProductsWithRules()
+  }
+
+  const handleRemoveRule = (ruleId: string) => {
+    const updatedRules = rules.filter(rule => rule.id !== ruleId)
+    localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
+    setRules(updatedRules)
+    analyzeProductsWithRules()
+  }
 
   // Pobierz dane analizy z localStorage lub mock data
   React.useEffect(() => {
@@ -178,15 +283,27 @@ const AnalysisDetailPage: React.FC = () => {
 
   const renderContentTab = () => (
     <div className="space-y-6">
+      {/* Product Filter */}
+      {analysisData && (
+        <ProductFilter
+          products={analysisData.products}
+          onFilteredProducts={setFilteredProducts}
+          onCategorySelect={setSelectedCategory}
+          selectedCategory={selectedCategory}
+        />
+      )}
 
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Wszystkie produkty z pliku
+          Wszystkie produkty z pliku ({filteredProducts.length})
         </h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Zdjęcie
                 </th>
@@ -214,11 +331,34 @@ const AnalysisDetailPage: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Kategoria
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Akcje
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {analysisData.products.map((product, index) => (
-                <tr key={index}>
+              {filteredProducts.map((product, index) => (
+                <tr key={index} className={product.status === 'blocked' ? 'bg-red-50' : product.status === 'warning' ? 'bg-yellow-50' : ''}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {product.status === 'blocked' && (
+                      <div className="flex items-center space-x-1">
+                        <X className="h-4 w-4 text-red-500" />
+                        <span className="text-xs text-red-600 font-medium">Zablokowany</span>
+                      </div>
+                    )}
+                    {product.status === 'warning' && (
+                      <div className="flex items-center space-x-1">
+                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        <span className="text-xs text-yellow-600 font-medium">Ostrzeżenie</span>
+                      </div>
+                    )}
+                    {product.status === 'allowed' && (
+                      <div className="flex items-center space-x-1">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span className="text-xs text-green-600 font-medium">Dozwolony</span>
+                      </div>
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <ProductImage 
                       foto={product.foto} 
@@ -256,6 +396,13 @@ const AnalysisDetailPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.kategoria}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <ProductActions
+                      product={product}
+                      onAddToRules={handleAddToRules}
+                      onAddCategoryToRules={handleAddCategoryToRules}
+                    />
                   </td>
                 </tr>
               ))}
@@ -533,6 +680,16 @@ const AnalysisDetailPage: React.FC = () => {
         <MarketPrices
           products={analysisData.products.map(p => p.nazwa)}
           onClose={() => setShowMarketPrices(false)}
+        />
+      )}
+
+      {/* Rules Manager Modal */}
+      {showRulesManager && (
+        <RulesManager
+          onClose={() => setShowRulesManager(false)}
+          onAddCategoryRule={handleAddCategoryToRules}
+          onAddProductRule={handleAddToRules}
+          onRemoveRule={handleRemoveRule}
         />
       )}
     </div>
