@@ -71,7 +71,7 @@ const HomePage: React.FC = () => {
       uploadDate: '2024-01-15',
       status: 'completed',
       profitability: 78.5,
-      productCount: 15,
+      productCount: 3,
       issues: 2,
       products: [
         { 
@@ -236,7 +236,8 @@ const HomePage: React.FC = () => {
           // Znajdź wiersz z nagłówkami (pierwszy wiersz)
           const headers = jsonData[0] as string[]
           const dataRows = jsonData.slice(1).filter((row: any) => 
-            row && row.length > 0 && row[0] !== null && row[0] !== undefined && row[1] !== null && row[1] !== undefined
+            row && row.length > 0 && row[0] !== null && row[0] !== undefined && row[1] !== null && row[1] !== undefined && 
+            row[1] !== '' && row[1] !== 'Nazwa produktu' // Wyklucz nagłówki i puste nazwy
           )
           
           // Mapuj kolumny na właściwe nazwy zgodnie z nowym formatem

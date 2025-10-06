@@ -570,7 +570,7 @@ const AnalysisDetailPage: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Podsumowanie analizy
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <TrendingUp className="h-6 w-6 text-green-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-green-800">
@@ -584,6 +584,13 @@ const AnalysisDetailPage: React.FC = () => {
               {analysisData.productCount}
             </h4>
             <p className="text-blue-600 text-sm">Liczba produktów</p>
+          </div>
+          <div className="text-center p-4 bg-purple-50 rounded-lg">
+            <Package className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+            <h4 className="text-lg font-semibold text-purple-800">
+              {analysisData.products.reduce((sum, product) => sum + product.pcs, 0)}
+            </h4>
+            <p className="text-purple-600 text-sm">Łączna liczba sztuk</p>
           </div>
           <div className="text-center p-4 bg-orange-50 rounded-lg">
             <AlertTriangle className="h-6 w-6 text-orange-600 mx-auto mb-2" />
