@@ -60,7 +60,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full">
       {!selectedFile ? (
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
