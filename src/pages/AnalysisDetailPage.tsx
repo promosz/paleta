@@ -176,31 +176,6 @@ const AnalysisDetailPage: React.FC = () => {
 
   const renderContentTab = () => (
     <div className="space-y-6">
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Podsumowanie finansowe
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <h4 className="text-lg font-semibold text-green-800">
-              {(totalRevenue / 1000).toFixed(0)}k PLN
-            </h4>
-            <p className="text-green-600">Całkowity przychód</p>
-          </div>
-          <div className="text-center p-4 bg-red-50 rounded-lg">
-            <h4 className="text-lg font-semibold text-red-800">
-              {(totalCost / 1000).toFixed(0)}k PLN
-            </h4>
-            <p className="text-red-600">Całkowity koszt</p>
-          </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <h4 className="text-lg font-semibold text-blue-800">
-              {averageProfitability.toFixed(1)}%
-            </h4>
-            <p className="text-blue-600">Średnia rentowność</p>
-          </div>
-        </div>
-      </div>
 
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -477,6 +452,33 @@ const AnalysisDetailPage: React.FC = () => {
             {analysisData.issues}
           </h3>
           <p className="text-gray-600">Wykryte problemy</p>
+        </div>
+      </div>
+
+      {/* Financial Summary */}
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Podsumowanie finansowe
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <h4 className="text-lg font-semibold text-green-800">
+              {(totalRevenue / 1000).toFixed(0)}k PLN
+            </h4>
+            <p className="text-green-600">Całkowity przychód</p>
+          </div>
+          <div className="text-center p-4 bg-red-50 rounded-lg">
+            <h4 className="text-lg font-semibold text-red-800">
+              {(totalCost / 1000).toFixed(0)}k PLN
+            </h4>
+            <p className="text-red-600">Całkowity koszt</p>
+          </div>
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <h4 className="text-lg font-semibold text-blue-800">
+              {averageProfitability.toFixed(1)}%
+            </h4>
+            <p className="text-blue-600">Średnia rentowność</p>
+          </div>
         </div>
       </div>
 
