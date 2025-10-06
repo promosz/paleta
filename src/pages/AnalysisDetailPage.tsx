@@ -67,7 +67,6 @@ const AnalysisDetailPage: React.FC = () => {
   // Update filtered products when analysis data changes
   useEffect(() => {
     if (analysisData) {
-      setFilteredProducts(analysisData.products)
       analyzeProductsWithRules()
     }
   }, [analysisData])
@@ -112,7 +111,15 @@ const AnalysisDetailPage: React.FC = () => {
       return { ...product, status }
     })
 
-    setFilteredProducts(updatedProducts)
+    // Update analysisData with new statuses
+    setAnalysisData(prev => prev ? { ...prev, products: updatedProducts } : null)
+    
+    // Apply current filters to updated products
+    if (selectedCategory) {
+      setFilteredProducts(updatedProducts.filter(p => p.kategoria === selectedCategory))
+    } else {
+      setFilteredProducts(updatedProducts)
+    }
   }
 
   const handleAddToRules = (product: Product, action: 'block' | 'warning') => {
@@ -302,16 +309,10 @@ const AnalysisDetailPage: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Zdjęcie
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nazwa produktu
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  EAN
+                  Nazwa produktu / Kategoria
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Cena (brutto/netto PLN)
@@ -320,7 +321,7 @@ const AnalysisDetailPage: React.FC = () => {
                   Marża (PLN)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Kategoria
+                  Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Akcje
@@ -330,6 +331,32 @@ const AnalysisDetailPage: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProducts.map((product, index) => (
                 <tr key={index} className={product.status === 'blocked' ? 'bg-red-50' : product.status === 'warning' ? 'bg-yellow-50' : ''}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <ProductImage 
+                      foto={product.foto} 
+                      nazwa={product.nazwa} 
+                      className="w-16 h-16" 
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
+                    <div className="space-y-1">
+                      <div className="truncate font-medium" title={product.nazwa}>
+                        {product.nazwa}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {product.kategoria}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="space-y-1">
+                      <div className="font-medium">{product.cenaRegularnaBrutto.toLocaleString('pl-PL')} zł</div>
+                      <div className="text-xs text-gray-400">{product.cenaSprzedazyNetto.toLocaleString('pl-PL')} zł</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {product.marza.toLocaleString('pl-PL')}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {product.status === 'blocked' && (
                       <div className="flex items-center space-x-1">
@@ -349,33 +376,6 @@ const AnalysisDetailPage: React.FC = () => {
                         <span className="text-xs text-green-600 font-medium">Dozwolony</span>
                       </div>
                     )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <ProductImage 
-                      foto={product.foto} 
-                      nazwa={product.nazwa} 
-                      className="w-16 h-16" 
-                    />
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
-                    <div className="truncate" title={product.nazwa}>
-                      {product.nazwa}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.ean || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="space-y-1">
-                      <div className="font-medium">{product.cenaRegularnaBrutto.toLocaleString('pl-PL')} zł</div>
-                      <div className="text-xs text-gray-400">{product.cenaSprzedazyNetto.toLocaleString('pl-PL')} zł</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.marza.toLocaleString('pl-PL')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.kategoria}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <ProductActions
