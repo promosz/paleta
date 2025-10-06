@@ -24,8 +24,18 @@ Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej intelig
 
 ## 📚 **Dokumentacja AI**
 
+### **📖 Dokumenty Strategiczne**
+- **[Executive Summary](./docs/EXECUTIVE_SUMMARY.md)** - Podsumowanie dla zarządu z analizą biznesową
 - **[Plan Wdrożenia AI](./docs/AI_IMPLEMENTATION_PLAN.md)** - Kompleksowy plan implementacji funkcjonalności AI
+- **[Roadmap Rozwoju](./docs/AI_ROADMAP.md)** - Timeline i etapy wdrożenia
+
+### **🔧 Dokumentacja Techniczna**
 - **[Specyfikacja Funkcjonalności](./docs/AI_FEATURES_SPECIFICATION.md)** - Szczegółowa specyfikacja techniczna
+- **[Architektura Techniczna](./docs/TECHNICAL_ARCHITECTURE.md)** - System design i infrastruktura
+
+### **💰 Analiza Finansowa**
+- **[Szczegółowy Rozkład Kosztów](./docs/COST_BREAKDOWN.md)** - Kompletna analiza kosztów i ROI
+- **[Zarządzanie Ryzykiem](./docs/RISK_MANAGEMENT.md)** - Plan zarządzania ryzykiem i mitigacji
 
 ## 🚀 **Funkcjonalności Obecne**
 
