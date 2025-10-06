@@ -402,82 +402,55 @@ const AnalysisDetailPage: React.FC = () => {
         <div className="flex items-center space-x-2">
           <FileSpreadsheet className="h-6 w-6 text-blue-600" />
           <h1 className="text-2xl font-bold text-gray-900">
-            Szczegóły analizy
+            Szczegóły analizy - {analysisData.fileName}
           </h1>
         </div>
       </div>
 
-      {/* File Info */}
-      <div className="card">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <FileSpreadsheet className="h-12 w-12 text-blue-600" />
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                {analysisData.fileName}
-              </h2>
-              <p className="text-gray-600">
-                Przesłano: {new Date(analysisData.uploadDate).toLocaleDateString('pl-PL')}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
-            <span className="text-green-600 font-medium">Analiza zakończona</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Summary Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card text-center">
-          <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-3" />
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">
-            {analysisData.profitability}%
-          </h3>
-          <p className="text-gray-600">Średnia rentowność</p>
-        </div>
-
-        <div className="card text-center">
-          <Package className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">
-            {analysisData.productCount}
-          </h3>
-          <p className="text-gray-600">Liczba produktów</p>
-        </div>
-
-        <div className="card text-center">
-          <AlertTriangle className="h-8 w-8 text-orange-600 mx-auto mb-3" />
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">
-            {analysisData.issues}
-          </h3>
-          <p className="text-gray-600">Wykryte problemy</p>
-        </div>
-      </div>
-
-      {/* Financial Summary */}
+      {/* Combined Summary */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Podsumowanie finansowe
+          Podsumowanie analizy
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <TrendingUp className="h-6 w-6 text-green-600 mx-auto mb-2" />
+            <h4 className="text-lg font-semibold text-green-800">
+              {analysisData.profitability}%
+            </h4>
+            <p className="text-green-600 text-sm">Średnia rentowność</p>
+          </div>
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <Package className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+            <h4 className="text-lg font-semibold text-blue-800">
+              {analysisData.productCount}
+            </h4>
+            <p className="text-blue-600 text-sm">Liczba produktów</p>
+          </div>
+          <div className="text-center p-4 bg-orange-50 rounded-lg">
+            <AlertTriangle className="h-6 w-6 text-orange-600 mx-auto mb-2" />
+            <h4 className="text-lg font-semibold text-orange-800">
+              {analysisData.issues}
+            </h4>
+            <p className="text-orange-600 text-sm">Wykryte problemy</p>
+          </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <h4 className="text-lg font-semibold text-green-800">
               {(totalRevenue / 1000).toFixed(0)}k PLN
             </h4>
-            <p className="text-green-600">Całkowity przychód</p>
+            <p className="text-green-600 text-sm">Całkowity przychód</p>
           </div>
           <div className="text-center p-4 bg-red-50 rounded-lg">
             <h4 className="text-lg font-semibold text-red-800">
               {(totalCost / 1000).toFixed(0)}k PLN
             </h4>
-            <p className="text-red-600">Całkowity koszt</p>
+            <p className="text-red-600 text-sm">Całkowity koszt</p>
           </div>
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <h4 className="text-lg font-semibold text-blue-800">
               {averageProfitability.toFixed(1)}%
             </h4>
-            <p className="text-blue-600">Średnia rentowność</p>
+            <p className="text-blue-600 text-sm">Średnia rentowność</p>
           </div>
         </div>
       </div>
@@ -509,6 +482,27 @@ const AnalysisDetailPage: React.FC = () => {
         <div className="mt-6">
           {activeTab === 'content' && renderContentTab()}
           {activeTab === 'profitability' && renderProfitabilityTab()}
+        </div>
+      </div>
+
+      {/* File Info - moved to bottom */}
+      <div className="card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <FileSpreadsheet className="h-12 w-12 text-blue-600" />
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                {analysisData.fileName}
+              </h2>
+              <p className="text-gray-600">
+                Przesłano: {new Date(analysisData.uploadDate).toLocaleDateString('pl-PL')}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <CheckCircle className="h-5 w-5 text-green-500" />
+            <span className="text-green-600 font-medium">Analiza zakończona</span>
+          </div>
         </div>
       </div>
     </div>
