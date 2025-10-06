@@ -9,11 +9,14 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 import logging
 import structlog
+from datetime import datetime
 
 from services.product_normalizer import ProductNormalizer
 from services.profitability_analyzer import ProfitabilityAnalyzer
 from services.palette_analyzer import PaletteAnalyzer
 from services.cache_manager import cache_manager
+from services.price_collector import PriceCollector, PriceData
+from services.price_analyzer import PriceAnalyzer
 
 # Configure structured logging
 structlog.configure(
@@ -56,6 +59,8 @@ app.add_middleware(
 product_normalizer = ProductNormalizer()
 profitability_analyzer = ProfitabilityAnalyzer()
 palette_analyzer = PaletteAnalyzer()
+price_collector = PriceCollector()
+price_analyzer = PriceAnalyzer()
 
 # Pydantic models
 class ProductRequest(BaseModel):
@@ -75,6 +80,14 @@ class ProductResponse(BaseModel):
 
 class PaletteRequest(BaseModel):
     products: List[str]
+
+class CollectPricesRequest(BaseModel):
+    products: List[str]
+    max_results_per_product: int = 5
+
+class AnalyzePricesRequest(BaseModel):
+    product_name: str
+    prices: List[Dict[str, Any]]
 
 class PaletteResponse(BaseModel):
     average_profitability: float
@@ -251,6 +264,140 @@ async def clear_cache():
     except Exception as e:
         logger.error("Error clearing cache", error=str(e))
         raise HTTPException(status_code=500, detail=f"Error clearing cache: {str(e)}")
+
+@app.post("/ai/collect-prices")
+async def collect_prices_endpoint(request: CollectPricesRequest):
+    """Collect market prices for products"""
+    try:
+        logger.info("Starting price collection", 
+                   product_count=len(request.products),
+                   max_results=request.max_results_per_product)
+        
+        # Collect prices for all products
+        price_data = await price_collector.collect_prices_for_products(
+            request.products, 
+            request.max_results_per_product
+        )
+        
+        # Convert to JSON-serializable format
+        result = {}
+        for product_name, prices in price_data.items():
+            result[product_name] = [
+                {
+                    "product_name": p.product_name,
+                    "price": p.price,
+                    "currency": p.currency,
+                    "source": p.source,
+                    "url": p.url,
+                    "timestamp": p.timestamp.isoformat(),
+                    "condition": p.condition,
+                    "seller_rating": p.seller_rating,
+                    "availability": p.availability
+                }
+                for p in prices
+            ]
+        
+        logger.info("Price collection completed", 
+                   products_with_prices=len(result))
+        
+        return {
+            "price_data": result,
+            "summary": {
+                "total_products": len(request.products),
+                "products_with_prices": len(result),
+                "collection_timestamp": datetime.now().isoformat()
+            }
+        }
+        
+    except Exception as e:
+        logger.error("Error collecting prices", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Error collecting prices: {str(e)}")
+
+@app.post("/ai/analyze-prices")
+async def analyze_prices_endpoint(request: AnalyzePricesRequest):
+    """Analyze collected price data"""
+    try:
+        logger.info("Starting price analysis", product=request.product_name)
+        
+        # Convert price data to PriceData objects
+        prices = []
+        for price_dict in request.prices:
+            price_data = PriceData(
+                product_name=price_dict["product_name"],
+                price=price_dict["price"],
+                currency=price_dict["currency"],
+                source=price_dict["source"],
+                url=price_dict["url"],
+                timestamp=datetime.fromisoformat(price_dict["timestamp"]),
+                condition=price_dict.get("condition", "new"),
+                seller_rating=price_dict.get("seller_rating"),
+                availability=price_dict.get("availability", True)
+            )
+            prices.append(price_data)
+        
+        # Analyze prices
+        insight = price_analyzer.analyze_product_prices(request.product_name, prices)
+        
+        if not insight:
+            raise HTTPException(status_code=400, detail="Insufficient price data for analysis")
+        
+        # Convert to JSON-serializable format
+        result = {
+            "product_name": insight.product_name,
+            "median_price": insight.median_price,
+            "average_price": insight.average_price,
+            "price_range": insight.price_range,
+            "market_volatility": insight.market_volatility,
+            "best_deal_ratio": insight.best_deal_ratio,
+            "market_trend": insight.market_trend,
+            "confidence_score": insight.confidence_score,
+            "data_quality": insight.data_quality,
+            "recommendations": insight.recommendations,
+            "last_updated": insight.last_updated.isoformat()
+        }
+        
+        logger.info("Price analysis completed", 
+                   product=request.product_name,
+                   median_price=insight.median_price,
+                   confidence=insight.confidence_score)
+        
+        return result
+        
+    except Exception as e:
+        logger.error("Error analyzing prices", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Error analyzing prices: {str(e)}")
+
+@app.get("/ai/market-summary")
+async def get_market_summary(products: str = ""):
+    """Get market summary for multiple products"""
+    try:
+        if not products:
+            raise HTTPException(status_code=400, detail="Products parameter is required")
+        
+        product_list = [p.strip() for p in products.split(",") if p.strip()]
+        
+        if len(product_list) > 20:
+            raise HTTPException(status_code=400, detail="Maximum 20 products allowed")
+        
+        logger.info("Generating market summary", product_count=len(product_list))
+        
+        # Collect prices for all products
+        price_data = await price_collector.collect_prices_for_products(product_list, 5)
+        
+        # Analyze all products
+        insights = price_analyzer.analyze_multiple_products(price_data)
+        
+        # Generate market summary
+        summary = price_analyzer.get_market_summary(insights)
+        
+        logger.info("Market summary generated", 
+                   insights_count=len(insights))
+        
+        return summary
+        
+    except Exception as e:
+        logger.error("Error generating market summary", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Error generating market summary: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

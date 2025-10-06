@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3 } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
+import MarketPrices from '../components/MarketPrices'
 
 interface Product {
   paleta: string
@@ -48,6 +49,7 @@ const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const [activeTab, setActiveTab] = useState<'content' | 'profitability'>('content')
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
+  const [showMarketPrices, setShowMarketPrices] = useState(false)
 
   // Pobierz dane analizy z localStorage lub mock data
   React.useEffect(() => {
@@ -399,12 +401,23 @@ const AnalysisDetailPage: React.FC = () => {
           <ArrowLeft className="h-5 w-5" />
           <span>Powrót do listy</span>
         </Link>
-        <div className="flex items-center space-x-2">
-          <FileSpreadsheet className="h-6 w-6 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">
-            Szczegóły analizy - {analysisData.fileName}
-          </h1>
-        </div>
+               <div className="flex items-center justify-between">
+                 <div className="flex items-center space-x-2">
+                   <FileSpreadsheet className="h-6 w-6 text-blue-600" />
+                   <h1 className="text-2xl font-bold text-gray-900">
+                     Szczegóły analizy - {analysisData.fileName}
+                   </h1>
+                 </div>
+                 
+                 {/* Market Prices Button */}
+                 <button
+                   onClick={() => setShowMarketPrices(true)}
+                   className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
+                 >
+                   <DollarSign className="h-4 w-4" />
+                   <span>Market Prices</span>
+                 </button>
+               </div>
       </div>
 
       {/* Combined Summary */}
@@ -506,11 +519,20 @@ const AnalysisDetailPage: React.FC = () => {
             <CheckCircle className="h-5 w-5 text-green-500" />
             <span className="text-green-600 font-medium">Analiza zakończona</span>
           </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+           </div>
+         </div>
+       </div>
 
-export default AnalysisDetailPage
+       {/* Market Prices Modal */}
+       {showMarketPrices && (
+         <MarketPrices
+           products={analysisData.products.map(p => p.nazwa)}
+           onClose={() => setShowMarketPrices(false)}
+         />
+       )}
+     </div>
+   )
+ }
+
+ export default AnalysisDetailPage
 
