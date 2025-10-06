@@ -519,20 +519,19 @@ const AnalysisDetailPage: React.FC = () => {
             <CheckCircle className="h-5 w-5 text-green-500" />
             <span className="text-green-600 font-medium">Analiza zakończona</span>
           </div>
-           </div>
-         </div>
-       </div>
+        </div>
+      </div>
 
-       {/* Market Prices Modal */}
-       {showMarketPrices && (
-         <MarketPrices
-           products={analysisData.products.map(p => p.nazwa)}
-           onClose={() => setShowMarketPrices(false)}
-         />
-       )}
-     </div>
-   )
- }
+      {/* Market Prices Modal */}
+      {showMarketPrices && (
+        <MarketPrices
+          products={analysisData.products.map(p => p.nazwa)}
+          onClose={() => setShowMarketPrices(false)}
+        />
+      )}
+    </div>
+  )
+}
 
  export default AnalysisDetailPage
 
