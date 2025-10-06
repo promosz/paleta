@@ -338,7 +338,7 @@ const AnalysisDetailPage: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProducts.map((product, index) => (
-                <tr key={index} className={product.status === 'blocked' ? 'bg-red-50' : product.status === 'warning' ? 'bg-yellow-50' : ''}>
+                <tr key={index} className={product.status === 'blocked' ? 'bg-red-100 border-l-4 border-red-500' : product.status === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' : ''}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <ProductImage 
                       foto={product.foto} 
@@ -348,11 +348,33 @@ const AnalysisDetailPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                     <div className="space-y-1">
-                      <div className="truncate font-medium" title={product.nazwa}>
-                        {product.nazwa}
+                      <div className="flex items-center space-x-2">
+                        <div className="truncate font-medium" title={product.nazwa}>
+                          {product.nazwa}
+                        </div>
+                        {product.status === 'blocked' && (
+                          <X className="h-4 w-4 text-red-500 flex-shrink-0" />
+                        )}
+                        {product.status === 'warning' && (
+                          <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />
+                        )}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {product.kategoria}
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-500">
+                          {product.kategoria}
+                        </div>
+                        {product.status === 'blocked' && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <X className="h-3 w-3 mr-1" />
+                            Zablokowany
+                          </span>
+                        )}
+                        {product.status === 'warning' && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Ostrzeżenie
+                          </span>
+                        )}
                       </div>
                     </div>
                   </td>
