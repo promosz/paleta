@@ -170,11 +170,33 @@ Aplikacja oczekuje plików Excel z następującymi kolumnami:
 
 Przykładowy plik `Przykładowy_plik_do_analizy.xlsx` jest dostępny w katalogu projektu.
 
+## Konfiguracja AI Service
+
+### **Automatyczna konfiguracja**
+1. **Otwórz aplikację** w przeglądarce (http://localhost:3003/)
+2. **Przejdź do Ustawień** (ikona koła zębatego w menu)
+3. **Kliknij "Konfiguruj"** przy sekcji "AI Service"
+4. **Testuj połączenie** - sprawdź czy AI service działa
+5. **Zapisz konfigurację** jeśli test się powiedzie
+
+### **Pomoc i dokumentacja**
+- **Strona pomocy:** http://localhost:3003/help
+- **Instrukcje instalacji:** Szczegółowe kroki w sekcji pomocy
+- **Rozwiązywanie problemów:** FAQ i diagnoza w aplikacji
+- **Diagnostyka:** Komendy sprawdzające status systemu
+
 ## Wymagania systemowe
 
+### **Frontend**
 - Node.js 16+ 
 - Przeglądarka z obsługą ES6+
 - Pliki Excel w formacie .xlsx
+
+### **AI Backend**
+- Python 3.9+
+- 4GB RAM minimum
+- Dostęp do internetu (dla modeli językowych)
+- Port 8000 dostępny
 
 ## Licencja
 

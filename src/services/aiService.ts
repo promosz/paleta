@@ -43,9 +43,17 @@ export interface CacheStats {
   }
 }
 
-const AI_API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-ai-service-domain.com' 
-  : 'http://localhost:8000'
+// Get AI API URL from localStorage or use default
+const getAIServiceURL = (): string => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('ai-service-url') || 'http://localhost:8000'
+  }
+  return process.env.NODE_ENV === 'production' 
+    ? 'https://your-ai-service-domain.com' 
+    : 'http://localhost:8000'
+}
+
+const AI_API_BASE_URL = getAIServiceURL()
 
 export class AIService {
   private static instance: AIService
@@ -86,7 +94,8 @@ export class AIService {
     }
 
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/ai/normalize-product`, {
+      const aiUrl = getAIServiceURL()
+      const response = await fetch(`${aiUrl}/ai/normalize-product`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +142,8 @@ export class AIService {
     }
 
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/ai/analyze-palette`, {
+      const aiUrl = getAIServiceURL()
+      const response = await fetch(`${aiUrl}/ai/analyze-palette`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -179,7 +189,8 @@ export class AIService {
     }
 
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/ai/brands`)
+      const aiUrl = getAIServiceURL()
+      const response = await fetch(`${aiUrl}/ai/brands`)
       if (!response.ok) {
         throw new Error(`AI service error: ${response.statusText}`)
       }
@@ -201,7 +212,8 @@ export class AIService {
     }
 
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/ai/categories`)
+      const aiUrl = getAIServiceURL()
+      const response = await fetch(`${aiUrl}/ai/categories`)
       if (!response.ok) {
         throw new Error(`AI service error: ${response.statusText}`)
       }
@@ -217,7 +229,8 @@ export class AIService {
 
   async getCacheStats(): Promise<CacheStats | null> {
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/ai/cache/stats`)
+      const aiUrl = getAIServiceURL()
+      const response = await fetch(`${aiUrl}/ai/cache/stats`)
       if (!response.ok) {
         throw new Error(`AI service error: ${response.statusText}`)
       }
@@ -230,7 +243,8 @@ export class AIService {
 
   async clearCache(): Promise<boolean> {
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/ai/cache/clear`, {
+      const aiUrl = getAIServiceURL()
+      const response = await fetch(`${aiUrl}/ai/cache/clear`, {
         method: 'DELETE'
       })
       
@@ -246,7 +260,8 @@ export class AIService {
 
   async checkHealth(): Promise<boolean> {
     try {
-      const response = await fetch(`${AI_API_BASE_URL}/health`)
+      const aiUrl = getAIServiceURL()
+      const response = await fetch(`${aiUrl}/health`)
       return response.ok
     } catch (error) {
       console.error('AI service health check failed:', error)
