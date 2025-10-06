@@ -1,12 +1,8 @@
 import React, { useState } from 'react'
 import { 
   Shield, 
-  AlertTriangle, 
-  X, 
   Tag,
-  Package,
-  CheckCircle,
-  Info
+  Package
 } from 'lucide-react'
 
 interface Product {
@@ -53,7 +49,7 @@ const ProductActions: React.FC<ProductActionsProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const handleAction = (type: 'product' | 'category', action: 'block' | 'warning') => {
+  const handleAction = (type: 'product' | 'category', action: 'warning') => {
     // Sprawdź czy reguła już istnieje
     const existingRule = existingRules.find(rule => 
       rule.type === type && 
@@ -75,15 +71,15 @@ const ProductActions: React.FC<ProductActionsProps> = ({
     setIsOpen(false)
   }
 
-  const getButtonText = (type: 'product' | 'category', action: 'block' | 'warning') => {
+  const getButtonText = (type: 'product' | 'category', action: 'warning') => {
     const existingRule = existingRules.find(rule => 
       rule.type === type && 
       rule.name.toLowerCase() === (type === 'product' ? product.nazwa.toLowerCase() : product.kategoria.toLowerCase()) &&
       rule.action === action
     )
     
-    const actionText = action === 'block' ? 'Zablokuj' : 'Ostrzeż'
-    const removeText = action === 'block' ? 'Odblokuj' : 'Usuń ostrzeżenie'
+    const actionText = 'Ostrzeż'
+    const removeText = 'Usuń ostrzeżenie'
     
     return existingRule ? removeText : actionText
   }
@@ -115,14 +111,6 @@ const ProductActions: React.FC<ProductActionsProps> = ({
               <Package className="h-4 w-4 mr-2" /> {getButtonText('product', 'warning')} ten produkt
             </button>
             
-            <button
-              onClick={() => handleAction('product', 'block')}
-              className="flex items-center w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900"
-              role="menuitem"
-            >
-              <X className="h-4 w-4 mr-2" /> {getButtonText('product', 'block')} ten produkt
-            </button>
-            
             <div className="border-t border-gray-100 my-1"></div>
             
             <button
@@ -131,14 +119,6 @@ const ProductActions: React.FC<ProductActionsProps> = ({
               role="menuitem"
             >
               <Tag className="h-4 w-4 mr-2" /> {getButtonText('category', 'warning')} kategorię "{product.kategoria}"
-            </button>
-            
-            <button
-              onClick={() => handleAction('category', 'block')}
-              className="flex items-center w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900"
-              role="menuitem"
-            >
-              <Tag className="h-4 w-4 mr-2" /> {getButtonText('category', 'block')} kategorię "{product.kategoria}"
             </button>
           </div>
         </div>

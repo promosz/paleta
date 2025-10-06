@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, X } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import MarketPrices from '../components/MarketPrices'
@@ -18,7 +18,7 @@ interface Product {
   kategoria: string
   pcs: number
   cenaRegularnaBrutto: number
-  status?: 'blocked' | 'warning' | 'allowed'
+  status?: 'warning' | 'allowed'
   appliedRule?: string
   waluta: string
   cenaSprzedazyNetto: number
@@ -87,27 +87,29 @@ const AnalysisDetailPage: React.FC = () => {
     if (!analysisData) return
 
     const updatedProducts = analysisData.products.map(product => {
-      let status: 'blocked' | 'warning' | 'allowed' = 'allowed'
+      let status: 'warning' | 'allowed' = 'allowed'
       let appliedRule: string | undefined = undefined
 
-      // Check product rules first (higher priority)
+      // Check product rules first (higher priority) - only warning rules
       const productRule = rules.find(rule => 
         rule.type === 'product' && 
-        rule.name.toLowerCase() === product.nazwa.toLowerCase()
+        rule.name.toLowerCase() === product.nazwa.toLowerCase() &&
+        rule.action === 'warning'
       )
       
       if (productRule) {
-        status = productRule.action
+        status = 'warning'
         appliedRule = 'Produkt'
       } else {
-        // Check category rules if no product rule found
+        // Check category rules if no product rule found - only warning rules
         const categoryRule = rules.find(rule => 
           rule.type === 'category' && 
-          rule.name.toLowerCase() === product.kategoria.toLowerCase()
+          rule.name.toLowerCase() === product.kategoria.toLowerCase() &&
+          rule.action === 'warning'
         )
         
         if (categoryRule) {
-          status = categoryRule.action
+          status = 'warning'
           appliedRule = 'Kategoria'
         }
       }
@@ -284,7 +286,6 @@ const AnalysisDetailPage: React.FC = () => {
   // Oblicz podsumowanie
   const totalRevenue = analysisData.products.reduce((sum, p) => sum + p.cenaRegularnaBrutto, 0)
   const totalCost = analysisData.products.reduce((sum, p) => sum + p.cenaSprzedazyNetto, 0)
-  const averageProfitability = analysisData.products.reduce((sum, p) => sum + p.rentownosc, 0) / analysisData.products.length
 
   // Podziel produkty na kategorie rentowności
   const lowProfitability = analysisData.products.filter(p => p.rentownosc < 60)
@@ -338,7 +339,7 @@ const AnalysisDetailPage: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProducts.map((product, index) => (
-                <tr key={index} className={product.status === 'blocked' ? 'bg-red-100 border-l-4 border-red-500' : product.status === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' : ''}>
+                <tr key={index} className={product.status === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' : ''}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <ProductImage 
                       foto={product.foto} 
@@ -348,33 +349,11 @@ const AnalysisDetailPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                     <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <div className="truncate font-medium" title={product.nazwa}>
-                          {product.nazwa}
-                        </div>
-                        {product.status === 'blocked' && (
-                          <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                        )}
-                        {product.status === 'warning' && (
-                          <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0" />
-                        )}
+                      <div className="truncate font-medium" title={product.nazwa}>
+                        {product.nazwa}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-gray-500">
-                          {product.kategoria}
-                        </div>
-                        {product.status === 'blocked' && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            <X className="h-3 w-3 mr-1" />
-                            Zablokowany
-                          </span>
-                        )}
-                        {product.status === 'warning' && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            <AlertTriangle className="h-3 w-3 mr-1" />
-                            Ostrzeżenie
-                          </span>
-                        )}
+                      <div className="text-xs text-gray-500">
+                        {product.kategoria}
                       </div>
                     </div>
                   </td>
@@ -388,19 +367,6 @@ const AnalysisDetailPage: React.FC = () => {
                     {product.marza.toLocaleString('pl-PL')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {product.status === 'blocked' && (
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-1">
-                          <X className="h-4 w-4 text-red-500" />
-                          <span className="text-xs text-red-600 font-medium">Zablokowany</span>
-                        </div>
-                        {product.appliedRule && (
-                          <div className="text-xs text-red-500">
-                            {product.appliedRule}
-                          </div>
-                        )}
-                      </div>
-                    )}
                     {product.status === 'warning' && (
                       <div className="space-y-1">
                         <div className="flex items-center space-x-1">
@@ -598,7 +564,7 @@ const AnalysisDetailPage: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Podsumowanie analizy
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <TrendingUp className="h-6 w-6 text-green-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-green-800">
@@ -640,13 +606,6 @@ const AnalysisDetailPage: React.FC = () => {
               {(totalCost / 1000).toFixed(0)}k PLN
             </h4>
             <p className="text-red-600 text-sm">Całkowity koszt</p>
-          </div>
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <BarChart3 className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-            <h4 className="text-lg font-semibold text-blue-800">
-              {averageProfitability.toFixed(1)}%
-            </h4>
-            <p className="text-blue-600 text-sm">Średnia rentowność</p>
           </div>
         </div>
       </div>

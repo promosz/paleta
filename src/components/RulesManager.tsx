@@ -13,7 +13,7 @@ interface Rule {
   id: string
   type: 'category' | 'product'
   name: string
-  action: 'block' | 'warning'
+  action: 'warning'
   description?: string
   createdAt: Date
   updatedAt: Date
@@ -21,8 +21,8 @@ interface Rule {
 
 interface RulesManagerProps {
   onClose: () => void
-  onAddCategoryRule?: (category: string, action: 'block' | 'warning') => void
-  onAddProductRule?: (product: string, action: 'block' | 'warning') => void
+  onAddCategoryRule?: (category: string, action: 'warning') => void
+  onAddProductRule?: (product: string, action: 'warning') => void
   onRemoveRule?: (ruleId: string) => void
 }
 
@@ -37,7 +37,7 @@ const RulesManager: React.FC<RulesManagerProps> = ({
   const [showAddRule, setShowAddRule] = useState(false)
   const [newRuleType, setNewRuleType] = useState<'category' | 'product'>('category')
   const [newRuleName, setNewRuleName] = useState('')
-  const [newRuleAction, setNewRuleAction] = useState<'block' | 'warning'>('block')
+  const [newRuleAction, setNewRuleAction] = useState<'warning'>('warning')
   const [newRuleDescription, setNewRuleDescription] = useState('')
   const [message, setMessage] = useState('')
 
@@ -95,7 +95,6 @@ const RulesManager: React.FC<RulesManagerProps> = ({
 
   const getActionIcon = (action: string) => {
     switch (action) {
-      case 'block': return <X className="h-4 w-4 text-red-500" />
       case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />
       default: return null
     }
@@ -103,7 +102,6 @@ const RulesManager: React.FC<RulesManagerProps> = ({
 
   const getActionColor = (action: string) => {
     switch (action) {
-      case 'block': return 'bg-red-100 text-red-800 border-red-200'
       case 'warning': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       default: return 'bg-gray-100 text-gray-800 border-gray-200'
     }
@@ -111,7 +109,6 @@ const RulesManager: React.FC<RulesManagerProps> = ({
 
   const getActionLabel = (action: string) => {
     switch (action) {
-      case 'block': return 'Blokowanie'
       case 'warning': return 'Ostrzeżenie'
       default: return 'Nieznane'
     }
@@ -330,11 +327,10 @@ const RulesManager: React.FC<RulesManagerProps> = ({
                   </label>
                   <select
                     value={newRuleAction}
-                    onChange={(e) => setNewRuleAction(e.target.value as 'block' | 'warning')}
+                    onChange={(e) => setNewRuleAction(e.target.value as 'warning')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="warning">Ostrzeżenie</option>
-                    <option value="block">Blokowanie</option>
                   </select>
                 </div>
 

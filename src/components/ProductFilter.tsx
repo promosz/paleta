@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Filter, X, Search, Tag, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Filter, Search, Tag } from 'lucide-react'
 
 interface Product {
   paleta: string
@@ -12,7 +12,7 @@ interface Product {
   kategoria: string
   pcs: number
   cenaRegularnaBrutto: number
-  status?: 'blocked' | 'warning' | 'allowed'
+  status?: 'warning' | 'allowed'
   waluta: string
   cenaSprzedazyNetto: number
   walutaSprzedazy: string
@@ -37,7 +37,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
   selectedCategory
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'blocked' | 'warning' | 'allowed'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'warning' | 'allowed'>('all')
   const [sortBy, setSortBy] = useState<'name' | 'category' | 'price' | 'quantity'>('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(products)
@@ -160,7 +160,6 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             <option value="all">Wszystkie statusy</option>
             <option value="allowed">Dozwolone</option>
             <option value="warning">Ostrzeżenia</option>
-            <option value="blocked">Zablokowane</option>
           </select>
         </div>
 
@@ -221,7 +220,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">
             {filteredProducts.filter(p => p.status === 'allowed').length}
@@ -233,12 +232,6 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             {filteredProducts.filter(p => p.status === 'warning').length}
           </div>
           <div className="text-sm text-gray-600">Ostrzeżenia</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-red-600">
-            {filteredProducts.filter(p => p.status === 'blocked').length}
-          </div>
-          <div className="text-sm text-gray-600">Zablokowane</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-blue-600">
