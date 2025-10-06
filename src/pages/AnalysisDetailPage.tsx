@@ -98,7 +98,7 @@ const AnalysisDetailPage: React.FC = () => {
       
       if (productRule) {
         status = productRule.action
-        appliedRule = `Produkt: ${productRule.name}`
+        appliedRule = 'Produkt'
       } else {
         // Check category rules if no product rule found
         const categoryRule = rules.find(rule => 
@@ -108,11 +108,15 @@ const AnalysisDetailPage: React.FC = () => {
         
         if (categoryRule) {
           status = categoryRule.action
-          appliedRule = `Kategoria: ${categoryRule.name}`
+          appliedRule = 'Kategoria'
         }
       }
 
-      return { ...product, status, appliedRule }
+      const result = { ...product, status, appliedRule }
+      if (status !== 'allowed') {
+        console.log(`Product ${product.nazwa} - Status: ${status}, Rule: ${appliedRule}`)
+      }
+      return result
     })
 
     // Update analysisData with new statuses
