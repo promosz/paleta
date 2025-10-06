@@ -5,11 +5,8 @@ import {
   X, 
   Plus, 
   Trash2, 
-  Edit, 
   Tag,
-  Package,
-  CheckCircle,
-  Info
+  Package
 } from 'lucide-react'
 
 interface Rule {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, Shield, Filter } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, X } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import MarketPrices from '../components/MarketPrices'
@@ -688,7 +688,7 @@ const AnalysisDetailPage: React.FC = () => {
         <RulesManager
           onClose={() => setShowRulesManager(false)}
           onAddCategoryRule={handleAddCategoryToRules}
-          onAddProductRule={handleAddToRules}
+          onAddProductRule={(product: any, action: 'block' | 'warning') => handleAddToRules(product, action)}
           onRemoveRule={handleRemoveRule}
         />
       )}

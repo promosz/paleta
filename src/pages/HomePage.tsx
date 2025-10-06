@@ -148,11 +148,11 @@ const HomePage: React.FC = () => {
   })
 
   const [aiServiceStatus, setAiServiceStatus] = useState<'checking' | 'online' | 'offline'>('checking')
-  const [hybridAIStatus, setHybridAIStatus] = useState({
-    active: 'none' as const,
-    cloud: 'checking' as const,
-    browser: 'checking' as const,
-    docker: 'checking' as const
+  const [hybridAIStatus, setHybridAIStatus] = useState<any>({
+    active: 'none',
+    cloud: 'checking',
+    browser: 'checking',
+    docker: 'checking'
   })
   const aiService = AIService.getInstance()
 

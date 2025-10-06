@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowLeft, BookOpen, Settings, AlertTriangle, CheckCircle, ExternalLink, Download, Terminal } from 'lucide-react'
+import { ArrowLeft, BookOpen, Settings, AlertTriangle, CheckCircle, ExternalLink, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const HelpPage: React.FC = () => {

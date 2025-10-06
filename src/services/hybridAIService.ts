@@ -123,7 +123,6 @@ export class HybridAIService {
     try {
       const response = await fetch('https://api.pallet-analysis.com/v1/health', {
         method: 'GET',
-        timeout: 5000
       })
       return response.ok
     } catch (error) {
@@ -146,7 +145,6 @@ export class HybridAIService {
       const dockerUrl = this.configs.find(c => c.type === 'docker')?.url || 'http://localhost:8000'
       const response = await fetch(`${dockerUrl}/health`, {
         method: 'GET',
-        timeout: 3000
       })
       return response.ok
     } catch (error) {
@@ -164,32 +162,32 @@ export class HybridAIService {
     } else {
       this.currentService = 'none'
     }
-    this.status.active = this.currentService
+    this.status.active = this.currentService as any
   }
 
-  async normalizeProduct(productName: string, description: string = ''): Promise<AIAnalysisResult> {
+  async normalizeProduct(productName: string, _description: string = ''): Promise<AIAnalysisResult> {
     switch (this.currentService) {
       case 'cloud':
-        return this.cloudNormalizeProduct(productName, description)
+        return this.cloudNormalizeProduct(productName, _description)
       case 'browser':
-        return this.browserNormalizeProduct(productName, description)
+        return this.browserNormalizeProduct(productName, _description)
       case 'docker':
-        return this.dockerNormalizeProduct(productName, description)
+        return this.dockerNormalizeProduct(productName, _description)
       default:
-        return this.mockNormalizeProduct(productName, description)
+        return this.mockNormalizeProduct(productName, _description)
     }
   }
 
-  async analyzePalette(products: string[]): Promise<PaletteAnalysisResult> {
+  async analyzePalette(_products: string[]): Promise<PaletteAnalysisResult> {
     switch (this.currentService) {
       case 'cloud':
-        return this.cloudAnalyzePalette(products)
+        return this.cloudAnalyzePalette(_products)
       case 'browser':
-        return this.browserAnalyzePalette(products)
+        return this.browserAnalyzePalette(_products)
       case 'docker':
-        return this.dockerAnalyzePalette(products)
+        return this.dockerAnalyzePalette(_products)
       default:
-        return this.mockAnalyzePalette(products)
+        return this.mockAnalyzePalette(_products)
     }
   }
 

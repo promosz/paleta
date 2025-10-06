@@ -3,7 +3,6 @@ import {
   Shield, 
   AlertTriangle, 
   X, 
-  Plus, 
   Tag,
   Package,
   CheckCircle,
@@ -13,11 +12,23 @@ import {
 interface Product {
   paleta: string
   nazwa: string
+  foto: string
+  ean: string
+  kod1: string
+  kod2: string
+  packId: string
   kategoria: string
-  cena: number
-  ilosc: number
-  opis?: string
+  pcs: number
+  cenaRegularnaBrutto: number
   status?: 'blocked' | 'warning' | 'allowed'
+  waluta: string
+  cenaSprzedazyNetto: number
+  walutaSprzedazy: string
+  link: string
+  fcSku: string
+  rentownosc: number
+  wartoscSprzedazyNetto: number
+  marza: number
 }
 
 interface ProductActionsProps {

@@ -29,7 +29,7 @@ const HybridAIConfiguration: React.FC<HybridAIConfigurationProps> = ({ onClose }
   const [isChecking, setIsChecking] = useState(false)
   const [selectedService, setSelectedService] = useState<AIServiceType>('none')
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [configs, setConfigs] = useState<AIServiceConfig[]>([])
+  const [configs] = useState<AIServiceConfig[]>([])
 
   useEffect(() => {
     loadStatus()

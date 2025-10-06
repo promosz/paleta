@@ -6,11 +6,11 @@ import { hybridAIService } from '../services/hybridAIService'
 
 const SettingsPage: React.FC = () => {
   const [showHybridAIConfig, setShowHybridAIConfig] = useState(false)
-  const [aiStatus, setAiStatus] = useState({
-    active: 'none' as const,
-    cloud: 'checking' as const,
-    browser: 'checking' as const,
-    docker: 'checking' as const
+  const [aiStatus, setAiStatus] = useState<any>({
+    active: 'none',
+    cloud: 'checking',
+    browser: 'checking',
+    docker: 'checking'
   })
 
   useEffect(() => {

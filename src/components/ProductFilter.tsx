@@ -4,11 +4,23 @@ import { Filter, X, Search, Tag, AlertTriangle, CheckCircle } from 'lucide-react
 interface Product {
   paleta: string
   nazwa: string
+  foto: string
+  ean: string
+  kod1: string
+  kod2: string
+  packId: string
   kategoria: string
-  cena: number
-  ilosc: number
-  opis?: string
+  pcs: number
+  cenaRegularnaBrutto: number
   status?: 'blocked' | 'warning' | 'allowed'
+  waluta: string
+  cenaSprzedazyNetto: number
+  walutaSprzedazy: string
+  link: string
+  fcSku: string
+  rentownosc: number
+  wartoscSprzedazyNetto: number
+  marza: number
 }
 
 interface ProductFilterProps {
@@ -45,7 +57,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       filtered = filtered.filter(p => 
         p.nazwa.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.kategoria.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.opis && p.opis.toLowerCase().includes(searchTerm.toLowerCase()))
+        p.ean.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
@@ -68,12 +80,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
           bValue = b.kategoria.toLowerCase()
           break
         case 'price':
-          aValue = a.cena
-          bValue = b.cena
+          aValue = a.cenaRegularnaBrutto
+          bValue = b.cenaRegularnaBrutto
           break
         case 'quantity':
-          aValue = a.ilosc
-          bValue = b.ilosc
+          aValue = a.pcs
+          bValue = b.pcs
           break
         default:
           aValue = a.nazwa.toLowerCase()
@@ -90,23 +102,6 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
     onFilteredProducts(filtered)
   }, [products, selectedCategory, searchTerm, statusFilter, sortBy, sortOrder, onFilteredProducts])
 
-  const getStatusIcon = (status?: string) => {
-    switch (status) {
-      case 'blocked': return <X className="h-4 w-4 text-red-500" />
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />
-      case 'allowed': return <CheckCircle className="h-4 w-4 text-green-500" />
-      default: return null
-    }
-  }
-
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'blocked': return 'text-red-600 bg-red-50'
-      case 'warning': return 'text-yellow-600 bg-yellow-50'
-      case 'allowed': return 'text-green-600 bg-green-50'
-      default: return 'text-gray-600 bg-gray-50'
-    }
-  }
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
