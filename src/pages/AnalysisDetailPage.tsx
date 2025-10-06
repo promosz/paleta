@@ -19,6 +19,7 @@ interface Product {
   pcs: number
   cenaRegularnaBrutto: number
   status?: 'blocked' | 'warning' | 'allowed'
+  appliedRule?: string
   waluta: string
   cenaSprzedazyNetto: number
   walutaSprzedazy: string
@@ -87,18 +88,9 @@ const AnalysisDetailPage: React.FC = () => {
 
     const updatedProducts = analysisData.products.map(product => {
       let status: 'blocked' | 'warning' | 'allowed' = 'allowed'
+      let appliedRule: string | undefined = undefined
 
-      // Check category rules
-      const categoryRule = rules.find(rule => 
-        rule.type === 'category' && 
-        rule.name.toLowerCase() === product.kategoria.toLowerCase()
-      )
-      
-      if (categoryRule) {
-        status = categoryRule.action
-      }
-
-      // Check product rules
+      // Check product rules first (higher priority)
       const productRule = rules.find(rule => 
         rule.type === 'product' && 
         rule.name.toLowerCase() === product.nazwa.toLowerCase()
@@ -106,9 +98,21 @@ const AnalysisDetailPage: React.FC = () => {
       
       if (productRule) {
         status = productRule.action
+        appliedRule = `Produkt: ${productRule.name}`
+      } else {
+        // Check category rules if no product rule found
+        const categoryRule = rules.find(rule => 
+          rule.type === 'category' && 
+          rule.name.toLowerCase() === product.kategoria.toLowerCase()
+        )
+        
+        if (categoryRule) {
+          status = categoryRule.action
+          appliedRule = `Kategoria: ${categoryRule.name}`
+        }
       }
 
-      return { ...product, status }
+      return { ...product, status, appliedRule }
     })
 
     // Update analysisData with new statuses
@@ -359,15 +363,29 @@ const AnalysisDetailPage: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {product.status === 'blocked' && (
-                      <div className="flex items-center space-x-1">
-                        <X className="h-4 w-4 text-red-500" />
-                        <span className="text-xs text-red-600 font-medium">Zablokowany</span>
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-1">
+                          <X className="h-4 w-4 text-red-500" />
+                          <span className="text-xs text-red-600 font-medium">Zablokowany</span>
+                        </div>
+                        {product.appliedRule && (
+                          <div className="text-xs text-red-500">
+                            {product.appliedRule}
+                          </div>
+                        )}
                       </div>
                     )}
                     {product.status === 'warning' && (
-                      <div className="flex items-center space-x-1">
-                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                        <span className="text-xs text-yellow-600 font-medium">Ostrzeżenie</span>
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-1">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          <span className="text-xs text-yellow-600 font-medium">Ostrzeżenie</span>
+                        </div>
+                        {product.appliedRule && (
+                          <div className="text-xs text-yellow-500">
+                            {product.appliedRule}
+                          </div>
+                        )}
                       </div>
                     )}
                     {product.status === 'allowed' && (
