@@ -435,18 +435,21 @@ const AnalysisDetailPage: React.FC = () => {
             <p className="text-orange-600 text-sm">Wykryte problemy</p>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
+            <TrendingUp className="h-6 w-6 text-green-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-green-800">
               {(totalRevenue / 1000).toFixed(0)}k PLN
             </h4>
             <p className="text-green-600 text-sm">Całkowity przychód</p>
           </div>
           <div className="text-center p-4 bg-red-50 rounded-lg">
+            <AlertTriangle className="h-6 w-6 text-red-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-red-800">
               {(totalCost / 1000).toFixed(0)}k PLN
             </h4>
             <p className="text-red-600 text-sm">Całkowity koszt</p>
           </div>
           <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <BarChart3 className="h-6 w-6 text-blue-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-blue-800">
               {averageProfitability.toFixed(1)}%
             </h4>
