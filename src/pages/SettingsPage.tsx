@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowLeft, Settings, Brain, HelpCircle, Zap } from 'lucide-react'
+import { ArrowLeft, Settings, HelpCircle, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import AIConfiguration from '../components/AIConfiguration'
 import HybridAIConfiguration from '../components/HybridAIConfiguration'
 import { hybridAIService } from '../services/hybridAIService'
 
 const SettingsPage: React.FC = () => {
-  const [showAIConfig, setShowAIConfig] = useState(false)
   const [showHybridAIConfig, setShowHybridAIConfig] = useState(false)
   const [aiStatus, setAiStatus] = useState({
     active: 'none' as const,
@@ -113,39 +111,6 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Legacy AI Service Configuration */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <Brain className="h-6 w-6 text-gray-600" />
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Legacy AI Service
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Stara konfiguracja (zalecane: Hybrid AI)
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setShowAIConfig(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              <Settings className="h-4 w-4" />
-              <span>Konfiguruj</span>
-            </button>
-          </div>
-          
-          <div className="bg-yellow-50 rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span className="text-sm font-medium text-yellow-800">Przestarzałe</span>
-            </div>
-            <p className="text-sm text-yellow-700">
-              Ta konfiguracja jest przestarzała. Zalecamy użycie Hybrid AI Service powyżej.
-            </p>
-          </div>
-        </div>
 
         {/* Help and Documentation */}
         <div className="card">
@@ -221,12 +186,9 @@ const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Configuration Modals */}
+      {/* AI Configuration Modal */}
       {showHybridAIConfig && (
         <HybridAIConfiguration onClose={() => setShowHybridAIConfig(false)} />
-      )}
-      {showAIConfig && (
-        <AIConfiguration onClose={() => setShowAIConfig(false)} />
       )}
     </div>
   )

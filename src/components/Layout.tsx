@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FileSpreadsheet, Settings, BarChart3, Brain } from 'lucide-react'
-import AIAnalytics from './AIAnalytics'
+import { FileSpreadsheet, Settings } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -9,7 +8,6 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation()
-  const [showAIAnalytics, setShowAIAnalytics] = useState(false)
 
   const navItems = [
     { path: '/', label: 'Pallet Analysis', icon: FileSpreadsheet },
@@ -44,15 +42,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <span>{label}</span>
                       </Link>
                     ))}
-                    
-                    {/* AI Analytics Button */}
-                    <button
-                      onClick={() => setShowAIAnalytics(true)}
-                      className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-purple-600 hover:text-purple-900 hover:bg-purple-100"
-                    >
-                      <Brain className="h-4 w-4" />
-                      <span>AI Analytics</span>
-                    </button>
                   </nav>
           </div>
         </div>
@@ -63,10 +52,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </main>
 
-      {/* AI Analytics Modal */}
-      {showAIAnalytics && (
-        <AIAnalytics onClose={() => setShowAIAnalytics(false)} />
-      )}
     </div>
   )
 }

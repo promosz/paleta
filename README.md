@@ -45,16 +45,19 @@ Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej intelig
 - 🔍 **Szczegółowe raporty z zakładkami** - Dwie zakładki: zawartość pliku i analiza rentowności
 - 📈 **Podział na kategorie rentowności** - Produkty podzielone na niską, średnią i wysoką rentowność
 
-### **🤖 AI Features (Sprint 1-3 COMPLETED)**
-- 🧠 **Product Recognition** - AI rozpoznaje i normalizuje nazwy produktów (80%+ accuracy)
-- 🎯 **Brand Classification** - Automatyczna klasyfikacja marek z obsługą błędów pisowni
-- 📋 **Category Detection** - Inteligentne przypisywanie kategorii produktów (75%+ accuracy)
-- ⚡ **Performance Optimization** - Zaawansowany system cache (5x+ speedup)
-- 📊 **AI Analytics Dashboard** - Real-time monitoring AI services
-- 🔄 **Real-time Integration** - Seamless integration z React frontend
+### **🤖 AI Features (Hybrid AI Service)**
+- ☁️ **Cloud AI Service** - Główny serwis AI w chmurze (zalecany)
+- 🌐 **Browser AI Service** - Offline AI w przeglądarce (WebAssembly)
+- 🐳 **Docker AI Service** - Lokalny serwer AI dla zaawansowanych użytkowników
+- 🔄 **Auto-selection** - Automatyczny wybór najlepszego dostępnego serwisu
+- ⚙️ **Easy Configuration** - Prosta konfiguracja przez panel ustawień
+- 🧠 **Product Recognition** - AI rozpoznaje i normalizuje nazwy produktów
+- 🎯 **Brand Classification** - Automatyczna klasyfikacja marek
+- 📊 **Category Detection** - Inteligentne wykrywanie kategorii produktów
+- 💰 **Market Valuation** - Analiza cen rynkowych z Allegro.pl
 - 📈 **Enhanced UX** - Status indicators i notifications
 - 💰 **Metryki finansowe** - Automatyczne obliczanie przychodów, kosztów i marż
-- ⚙️ **Konfiguracja reguł** - Ustawienia reguł analizy (w przygotowaniu)
+- ⚙️ **Konfiguracja reguł** - Pełny system reguł analizy (ukończony)
 
 ### **📈 Performance Metrics (Achieved)**
 - **Brand Recognition Accuracy**: >80%
@@ -191,14 +194,14 @@ Aplikacja oczekuje plików Excel z następującymi kolumnami:
 
 Przykładowy plik `Przykładowy_plik_do_analizy.xlsx` jest dostępny w katalogu projektu.
 
-## Konfiguracja AI Service
+## Konfiguracja Hybrid AI Service
 
 ### **Automatyczna konfiguracja**
 1. **Otwórz aplikację** w przeglądarce (http://localhost:3003/)
 2. **Przejdź do Ustawień** (ikona koła zębatego w menu)
-3. **Kliknij "Konfiguruj"** przy sekcji "AI Service"
-4. **Testuj połączenie** - sprawdź czy AI service działa
-5. **Zapisz konfigurację** jeśli test się powiedzie
+3. **Kliknij "Konfiguruj"** przy sekcji "Hybrid AI Service"
+4. **Wybierz serwis AI** - Cloud (zalecany), Browser (offline) lub Docker (zaawansowany)
+5. **System automatycznie** wybierze najlepszy dostępny serwis
 
 ### **Pomoc i dokumentacja**
 - **Strona pomocy:** http://localhost:3003/help
