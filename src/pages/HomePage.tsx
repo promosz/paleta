@@ -305,11 +305,11 @@ const HomePage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="text-center">
+      <div className="text-left">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           Pallet Analysis
         </h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="text-lg text-gray-600 max-w-2xl">
           Prześlij dokument Excel z zestawami produktów, aby przeprowadzić analizę rentowności 
           i sprawdzić zgodność z ustalonymi regułami.
         </p>
@@ -319,12 +319,6 @@ const HomePage: React.FC = () => {
       <div className="card">
         <div className="text-center">
           <FileSpreadsheet className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            Prześlij nowy dokument
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Wybierz plik Excel (.xlsx) zawierający informacje o produktach i zestawach
-          </p>
           <FileUpload onFileUpload={handleFileUpload} />
         </div>
       </div>
