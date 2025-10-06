@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FileSpreadsheet, Settings, BarChart3 } from 'lucide-react'
+import { FileSpreadsheet, Settings, BarChart3, Brain } from 'lucide-react'
+import AIAnalytics from './AIAnalytics'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -8,6 +9,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation()
+  const [showAIAnalytics, setShowAIAnalytics] = useState(false)
 
   const navItems = [
     { path: '/', label: 'Pallet Analysis', icon: FileSpreadsheet },
@@ -27,22 +29,31 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </h1>
             </Link>
             
-            <nav className="flex space-x-8">
-              {navItems.map(({ path, label, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    location.pathname === path
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{label}</span>
-                </Link>
-              ))}
-            </nav>
+                  <nav className="flex space-x-8">
+                    {navItems.map(({ path, label, icon: Icon }) => (
+                      <Link
+                        key={path}
+                        to={path}
+                        className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          location.pathname === path
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{label}</span>
+                      </Link>
+                    ))}
+                    
+                    {/* AI Analytics Button */}
+                    <button
+                      onClick={() => setShowAIAnalytics(true)}
+                      className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-purple-600 hover:text-purple-900 hover:bg-purple-100"
+                    >
+                      <Brain className="h-4 w-4" />
+                      <span>AI Analytics</span>
+                    </button>
+                  </nav>
           </div>
         </div>
       </header>
@@ -51,6 +62,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* AI Analytics Modal */}
+      {showAIAnalytics && (
+        <AIAnalytics onClose={() => setShowAIAnalytics(false)} />
+      )}
     </div>
   )
 }

@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import * as XLSX from 'xlsx'
 import FileUpload from '../components/FileUpload'
 import AnalysisList from '../components/AnalysisList'
+import { AIService, AIAnalysisResult, PaletteAnalysisResult } from '../services/aiService'
+import { Brain, Zap, TrendingUp } from 'lucide-react'
 
 interface Product {
   paleta: string
@@ -41,6 +43,10 @@ interface AnalysisResult {
     lowProfitability: Product[]
     mediumProfitability: Product[]
     highProfitability: Product[]
+  }
+  aiAnalysis?: {
+    productAnalyses: AIAnalysisResult[]
+    paletteAnalysis: PaletteAnalysisResult
   }
 }
 
@@ -139,6 +145,47 @@ const HomePage: React.FC = () => {
     }
     ]
   })
+
+  const [aiServiceStatus, setAiServiceStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+  const aiService = AIService.getInstance()
+
+  useEffect(() => {
+    // Check AI service health on component mount
+    checkAIServiceHealth()
+  }, [])
+
+  const checkAIServiceHealth = async () => {
+    try {
+      const isHealthy = await aiService.checkHealth()
+      setAiServiceStatus(isHealthy ? 'online' : 'offline')
+    } catch (error) {
+      setAiServiceStatus('offline')
+    }
+  }
+
+  // Enhanced AI-powered analysis function
+  const performAIAnalysis = async (products: Product[]): Promise<{
+    productAnalyses: AIAnalysisResult[]
+    paletteAnalysis: PaletteAnalysisResult
+  }> => {
+    try {
+      // Analyze each product with AI
+      const productAnalyses = await Promise.all(
+        products.map(async (product) => {
+          return await aiService.normalizeProduct(product.nazwa, product.kategoria)
+        })
+      )
+
+      // Analyze the entire palette
+      const productNames = products.map(p => p.nazwa)
+      const paletteAnalysis = await aiService.analyzePalette(productNames)
+
+      return { productAnalyses, paletteAnalysis }
+    } catch (error) {
+      console.error('AI analysis failed:', error)
+      throw error
+    }
+  }
 
   const analyzeExcelFile = (file: File): Promise<AnalysisResult> => {
     return new Promise((resolve, reject) => {
@@ -294,10 +341,24 @@ const HomePage: React.FC = () => {
       // Przeprowadź rzeczywistą analizę
       const result = await analyzeExcelFile(file)
       
+      // Enhanced with AI analysis if service is available
+      let enhancedResult = result
+      if (aiServiceStatus === 'online') {
+        try {
+          const aiAnalysis = await performAIAnalysis(result.products)
+          enhancedResult = {
+            ...result,
+            aiAnalysis: aiAnalysis
+          }
+        } catch (aiError) {
+          console.warn('AI analysis failed, using basic analysis:', aiError)
+        }
+      }
+      
       // Zaktualizuj listę analiz
       setAnalyses(prev => {
         const updated = prev.map(analysis => 
-          analysis.id === tempAnalysis.id ? result : analysis
+          analysis.id === tempAnalysis.id ? enhancedResult : analysis
         )
         // Zapisz do localStorage
         localStorage.setItem('pallet-analyses', JSON.stringify(updated))
@@ -319,18 +380,36 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Pallet Analysis
-        </h2>
-        <div className="w-full">
-          <p className="text-base text-gray-600 text-center">
-            Prześlij dokument Excel z zestawami produktów, aby przeprowadzić analizę rentowności 
-            i sprawdzić zgodność z ustalonymi regułami.
-          </p>
-        </div>
-      </div>
+            {/* Header */}
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Pallet Analysis
+              </h2>
+              <div className="w-full">
+                <p className="text-base text-gray-600 text-center">
+                  Prześlij dokument Excel z zestawami produktów, aby przeprowadzić analizę rentowności
+                  i sprawdzić zgodność z ustalonymi regułami.
+                </p>
+              </div>
+              
+              {/* AI Status Indicator */}
+              <div className="mt-4 flex items-center justify-center space-x-2">
+                <Brain className="h-5 w-5 text-purple-600" />
+                <span className="text-sm text-gray-600">AI Services:</span>
+                <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
+                  aiServiceStatus === 'online' 
+                    ? 'bg-green-100 text-green-800' 
+                    : aiServiceStatus === 'offline'
+                    ? 'bg-red-100 text-red-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {aiServiceStatus === 'online' && <Zap className="h-3 w-3" />}
+                  {aiServiceStatus === 'offline' && <TrendingUp className="h-3 w-3" />}
+                  {aiServiceStatus === 'checking' && <Brain className="h-3 w-3 animate-pulse" />}
+                  <span>{aiServiceStatus.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
 
       {/* Upload Section - Main Focus */}
       <div className="card">
