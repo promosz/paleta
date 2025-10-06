@@ -42,17 +42,15 @@ const ProductActions: React.FC<ProductActionsProps> = ({
   onAddToRules,
   onAddCategoryToRules
 }) => {
-  const [showActions, setShowActions] = useState(false)
-  const [selectedAction, setSelectedAction] = useState<'block' | 'warning'>('warning')
+  const [isOpen, setIsOpen] = useState(false)
 
-  const handleAddProduct = () => {
-    onAddToRules(product, selectedAction)
-    setShowActions(false)
-  }
-
-  const handleAddCategory = () => {
-    onAddCategoryToRules(product.kategoria, selectedAction)
-    setShowActions(false)
+  const handleAction = (type: 'product' | 'category', action: 'block' | 'warning') => {
+    if (type === 'product') {
+      onAddToRules(product, action)
+    } else {
+      onAddCategoryToRules(product.kategoria, action)
+    }
+    setIsOpen(false)
   }
 
   const getStatusIcon = (status?: string) => {
@@ -83,121 +81,55 @@ const ProductActions: React.FC<ProductActionsProps> = ({
   }
 
   return (
-    <div className="relative">
-      {/* Action Button */}
-      <button
-        onClick={() => setShowActions(!showActions)}
-        className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
-      >
-        <Shield className="h-4 w-4" />
-        <span className="text-sm">Reguły</span>
-        <svg 
-          className={`h-3 w-3 transition-transform ${showActions ? 'rotate-180' : ''}`}
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke="currentColor"
+    <div className="relative inline-block text-left">
+      <div>
+        <button
+          type="button"
+          className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
+          onClick={() => setIsOpen(!isOpen)}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+          <Shield className="h-5 w-5 mr-2" />
+          Reguły
+        </button>
+      </div>
 
-      {/* Status Indicator */}
-      {product.status && (
-        <div className={`mt-2 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(product.status)}`}>
-          <div className="flex items-center space-x-1">
-            {getStatusIcon(product.status)}
-            <span>{getStatusLabel(product.status)}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Actions Dropdown */}
-      {showActions && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-          <div className="p-4">
-            <h4 className="font-medium text-gray-900 mb-3">Dodaj do reguł analizy</h4>
+      {isOpen && (
+        <div className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+          <div className="py-1" role="none">
+            <span className="block px-4 py-2 text-xs text-gray-500">Dodaj do reguł analizy:</span>
             
-            {/* Action Type Selection */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Typ działania
-              </label>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setSelectedAction('warning')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    selectedAction === 'warning'
-                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-1">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span>Ostrzeżenie</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setSelectedAction('block')}
-                  className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    selectedAction === 'block'
-                      ? 'bg-red-100 text-red-800 border border-red-300'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-1">
-                    <X className="h-4 w-4" />
-                    <span>Blokowanie</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Product Info */}
-            <div className="bg-gray-50 rounded-lg p-3 mb-4">
-              <h5 className="font-medium text-gray-900 mb-2">Produkt:</h5>
-              <p className="text-sm text-gray-700 mb-1">{product.nazwa}</p>
-              <div className="flex items-center space-x-2 text-xs text-gray-500">
-                <Tag className="h-3 w-3" />
-                <span>Kategoria: {product.kategoria}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-2">
-              <button
-                onClick={handleAddProduct}
-                className="w-full flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                <Package className="h-4 w-4" />
-                <span>Dodaj ten produkt do reguł</span>
-              </button>
-              
-              <button
-                onClick={handleAddCategory}
-                className="w-full flex items-center space-x-2 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-              >
-                <Tag className="h-4 w-4" />
-                <span>Dodaj kategorię "{product.kategoria}" do reguł</span>
-              </button>
-            </div>
-
-            {/* Info */}
-            <div className="mt-3 p-2 bg-blue-50 rounded-md">
-              <div className="flex items-start space-x-2">
-                <Info className="h-4 w-4 text-blue-600 mt-0.5" />
-                <div className="text-xs text-blue-800">
-                  <p><strong>Ostrzeżenie:</strong> Produkty będą oznaczone ale dozwolone</p>
-                  <p><strong>Blokowanie:</strong> Produkty będą całkowicie zablokowane</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Close Button */}
             <button
-              onClick={() => setShowActions(false)}
-              className="w-full mt-3 px-3 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              onClick={() => handleAction('product', 'warning')}
+              className="flex items-center w-full text-left px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-50 hover:text-yellow-900"
+              role="menuitem"
             >
-              Zamknij
+              <Package className="h-4 w-4 mr-2" /> Ostrzeż ten produkt
+            </button>
+            
+            <button
+              onClick={() => handleAction('product', 'block')}
+              className="flex items-center w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900"
+              role="menuitem"
+            >
+              <X className="h-4 w-4 mr-2" /> Zablokuj ten produkt
+            </button>
+            
+            <div className="border-t border-gray-100 my-1"></div>
+            
+            <button
+              onClick={() => handleAction('category', 'warning')}
+              className="flex items-center w-full text-left px-4 py-2 text-sm text-yellow-700 hover:bg-yellow-50 hover:text-yellow-900"
+              role="menuitem"
+            >
+              <Tag className="h-4 w-4 mr-2" /> Ostrzeż kategorię "{product.kategoria}"
+            </button>
+            
+            <button
+              onClick={() => handleAction('category', 'block')}
+              className="flex items-center w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 hover:text-red-900"
+              role="menuitem"
+            >
+              <Tag className="h-4 w-4 mr-2" /> Zablokuj kategorię "{product.kategoria}"
             </button>
           </div>
         </div>

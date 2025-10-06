@@ -311,22 +311,13 @@ const AnalysisDetailPage: React.FC = () => {
                   Nazwa produktu
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Paleta
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   EAN
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cena brutto (PLN)
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cena netto (PLN)
+                  Cena (brutto/netto PLN)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Marża (PLN)
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rentowność (%)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Kategoria
@@ -372,27 +363,16 @@ const AnalysisDetailPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.paleta}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.ean || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.cenaRegularnaBrutto.toLocaleString('pl-PL')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.cenaSprzedazyNetto.toLocaleString('pl-PL')}
+                    <div className="space-y-1">
+                      <div className="font-medium">{product.cenaRegularnaBrutto.toLocaleString('pl-PL')} zł</div>
+                      <div className="text-xs text-gray-400">{product.cenaSprzedazyNetto.toLocaleString('pl-PL')} zł</div>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.marza.toLocaleString('pl-PL')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className={`font-medium ${
-                      product.rentownosc >= 80 ? 'text-green-600' : 
-                      product.rentownosc >= 60 ? 'text-yellow-600' : 'text-red-600'
-                    }`}>
-                      {product.rentownosc.toFixed(1)}%
-                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.kategoria}

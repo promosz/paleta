@@ -39,6 +39,7 @@ const RulesManager: React.FC<RulesManagerProps> = ({
   const [newRuleName, setNewRuleName] = useState('')
   const [newRuleAction, setNewRuleAction] = useState<'block' | 'warning'>('block')
   const [newRuleDescription, setNewRuleDescription] = useState('')
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     loadRules()
@@ -69,40 +70,26 @@ const RulesManager: React.FC<RulesManagerProps> = ({
   const addRule = () => {
     if (!newRuleName.trim()) return
 
-    const newRule: Rule = {
-      id: Date.now().toString(),
-      type: newRuleType,
-      name: newRuleName.trim(),
-      action: newRuleAction,
-      description: newRuleDescription.trim() || undefined,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-
-    const updatedRules = [...rules, newRule]
-    saveRules(updatedRules)
-
-    // Call parent callbacks
+    // Call parent callbacks to handle the rule addition
     if (newRuleType === 'category' && onAddCategoryRule) {
       onAddCategoryRule(newRuleName.trim(), newRuleAction)
     } else if (newRuleType === 'product' && onAddProductRule) {
-      onAddProductRule(newRuleName.trim(), newRuleAction)
+      onAddProductRule({ nazwa: newRuleName.trim() } as any, newRuleAction)
     }
 
     // Reset form
     setNewRuleName('')
     setNewRuleDescription('')
     setShowAddRule(false)
+    setMessage('Reguła dodana pomyślnie.')
   }
 
   const removeRule = (ruleId: string) => {
     if (window.confirm('Czy na pewno chcesz usunąć tę regułę?')) {
-      const updatedRules = rules.filter(rule => rule.id !== ruleId)
-      saveRules(updatedRules)
-      
       if (onRemoveRule) {
         onRemoveRule(ruleId)
       }
+      setMessage('Reguła usunięta.')
     }
   }
 

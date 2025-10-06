@@ -311,3 +311,4 @@ class PriceAnalyzer:
             "period1_count": len(prices1),
             "period2_count": len(prices2)
         }
+

@@ -439,3 +439,4 @@ class ProfitabilityAnalyzer:
     def get_brand_reputation_data(self, brand: str) -> Dict[str, Any]:
         """Get reputation data for specific brand"""
         return self.brand_reputation.get(brand, {})
+

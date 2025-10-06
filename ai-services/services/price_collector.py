@@ -339,3 +339,4 @@ class PriceCollector:
             "sources": list(set(p.source for p in prices)),
             "latest_update": max(p.timestamp for p in prices).isoformat()
         }
+
