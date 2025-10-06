@@ -2,7 +2,32 @@
 
 Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej inteligencji. Pozwala na przesyłanie plików .xlsx, przeprowadzanie analizy rentowności zestawów produktów i sprawdzanie zgodności z ustalonymi regułami.
 
-## Funkcjonalności
+## 🤖 **Funkcjonalności AI (Planowane)**
+
+### **A. Rozpoznawanie Produktów**
+- **Dopasowywanie nazw do baz rynkowych** - Automatyczna normalizacja i standaryzacja nazw produktów
+- **Analiza opisów przy pomocy NLP** - Ekstrakcja specyfikacji technicznych i kluczowych cech
+- **Szukanie odpowiedników** - Integracja z Allegro, Amazon, Ceneo dla dopasowywania produktów
+
+### **B. Wycena Rynkowa**
+- **Zbieranie danych cenowych** - Real-time scraping z serwisów e-commerce
+- **Ustalanie mediany cen** - Algorytmy statystyczne z filtrowaniem outlier'ów
+- **Oznaczanie braku danych** - System flagowania i estymacji na podstawie kategorii
+
+### **C. Ocena Rentowności i Ryzyka**
+- **Zaawansowane metryki ROI** - Marża brutto/netto, koszty ukryte, udział stratnych pozycji
+- **Wskaźnik ryzyka** - ML model oceny ryzyka z predykcją trendów
+
+### **D. Uczenie Adaptacyjne**
+- **Personalizacja** - Rekomendacje dopasowane do stylu zakupowego użytkownika
+- **Rozpoznawanie preferencji** - Analiza wzorców zakupowych i segmentacja użytkowników
+
+## 📚 **Dokumentacja AI**
+
+- **[Plan Wdrożenia AI](./docs/AI_IMPLEMENTATION_PLAN.md)** - Kompleksowy plan implementacji funkcjonalności AI
+- **[Specyfikacja Funkcjonalności](./docs/AI_FEATURES_SPECIFICATION.md)** - Szczegółowa specyfikacja techniczna
+
+## 🚀 **Funkcjonalności Obecne**
 
 - 📁 **Upload plików Excel** - Przesyłanie dokumentów .xlsx przez drag & drop lub wybór pliku
 - 📊 **Rzeczywista analiza Excel** - Automatyczne parsowanie i analiza zawartości plików Excel
