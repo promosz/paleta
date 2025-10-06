@@ -304,17 +304,19 @@ const HomePage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="text-left">
+      <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           Pallet Analysis
         </h2>
-        <p className="text-lg text-gray-600 max-w-2xl">
-          Prześlij dokument Excel z zestawami produktów, aby przeprowadzić analizę rentowności 
-          i sprawdzić zgodność z ustalonymi regułami.
-        </p>
+        <div className="w-full">
+          <p className="text-base text-gray-600 text-center">
+            Prześlij dokument Excel z zestawami produktów, aby przeprowadzić analizę rentowności 
+            i sprawdzić zgodność z ustalonymi regułami.
+          </p>
+        </div>
       </div>
 
-      {/* Upload Section */}
+      {/* Upload Section - Main Focus */}
       <div className="card">
         <div className="text-center">
           <FileUpload onFileUpload={handleFileUpload} />
@@ -322,12 +324,14 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Analysis List */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-6">
-          Wcześniejsze analizy
-        </h3>
-        <AnalysisList analyses={analyses} />
-      </div>
+      {analyses.length > 0 && (
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">
+            Wcześniejsze analizy
+          </h3>
+          <AnalysisList analyses={analyses} />
+        </div>
+      )}
     </div>
   )
 }
