@@ -40,9 +40,15 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
   const [statusFilter, setStatusFilter] = useState<'all' | 'blocked' | 'warning' | 'allowed'>('all')
   const [sortBy, setSortBy] = useState<'name' | 'category' | 'price' | 'quantity'>('name')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products)
 
   // Extract unique categories from products
   const categories = Array.from(new Set(products.map(p => p.kategoria).filter(Boolean)))
+
+  // Initialize filteredProducts when products change
+  useEffect(() => {
+    setFilteredProducts(products)
+  }, [products])
 
   useEffect(() => {
     let filtered = [...products]
@@ -99,6 +105,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       }
     })
 
+    setFilteredProducts(filtered)
     onFilteredProducts(filtered)
   }, [products, selectedCategory, searchTerm, statusFilter, sortBy, sortOrder, onFilteredProducts])
 
@@ -217,27 +224,27 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">
-            {products.filter(p => p.status === 'allowed').length}
+            {filteredProducts.filter(p => p.status === 'allowed').length}
           </div>
           <div className="text-sm text-gray-600">Dozwolone</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-yellow-600">
-            {products.filter(p => p.status === 'warning').length}
+            {filteredProducts.filter(p => p.status === 'warning').length}
           </div>
           <div className="text-sm text-gray-600">Ostrzeżenia</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-red-600">
-            {products.filter(p => p.status === 'blocked').length}
+            {filteredProducts.filter(p => p.status === 'blocked').length}
           </div>
           <div className="text-sm text-gray-600">Zablokowane</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-blue-600">
-            {categories.length}
+            {filteredProducts.length}
           </div>
-          <div className="text-sm text-gray-600">Kategorie</div>
+          <div className="text-sm text-gray-600">Wszystkie</div>
         </div>
       </div>
     </div>
