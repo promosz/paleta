@@ -20,12 +20,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <BarChart3 className="h-8 w-8 text-blue-600" />
               <h1 className="text-xl font-semibold text-gray-900">
                 Pallet Analysis
               </h1>
-            </div>
+            </Link>
             
             <nav className="flex space-x-8">
               {navItems.map(({ path, label, icon: Icon }) => (

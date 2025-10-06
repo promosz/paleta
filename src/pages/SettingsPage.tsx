@@ -6,21 +6,19 @@ const SettingsPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link
-            to="/"
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span>Powrót</span>
-          </Link>
-          <div className="flex items-center space-x-2">
-            <Settings className="h-6 w-6 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">
-              Ustawienia reguł analizy
-            </h1>
-          </div>
+      <div className="space-y-4">
+        <Link
+          to="/"
+          className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span>Powrót</span>
+        </Link>
+        <div className="flex items-center space-x-2">
+          <Settings className="h-6 w-6 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-900">
+            Ustawienia reguł analizy
+          </h1>
         </div>
       </div>
 
