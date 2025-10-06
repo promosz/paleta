@@ -1,10 +1,28 @@
-import React, { useState } from 'react'
-import { ArrowLeft, Settings, Brain, HelpCircle } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ArrowLeft, Settings, Brain, HelpCircle, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import AIConfiguration from '../components/AIConfiguration'
+import HybridAIConfiguration from '../components/HybridAIConfiguration'
+import { hybridAIService } from '../services/hybridAIService'
 
 const SettingsPage: React.FC = () => {
   const [showAIConfig, setShowAIConfig] = useState(false)
+  const [showHybridAIConfig, setShowHybridAIConfig] = useState(false)
+  const [aiStatus, setAiStatus] = useState({
+    active: 'none' as const,
+    cloud: 'checking' as const,
+    browser: 'checking' as const,
+    docker: 'checking' as const
+  })
+
+  useEffect(() => {
+    // Load AI status on component mount
+    const loadAIStatus = async () => {
+      const status = hybridAIService.getStatus()
+      setAiStatus(status)
+    }
+    loadAIStatus()
+  }, [])
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -27,22 +45,22 @@ const SettingsPage: React.FC = () => {
 
       {/* Settings Sections */}
       <div className="space-y-6">
-        {/* AI Service Configuration */}
+        {/* Hybrid AI Service Configuration */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <Brain className="h-6 w-6 text-purple-600" />
+              <Zap className="h-6 w-6 text-purple-600" />
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Konfiguracja AI Service
+                  Hybrid AI Service
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Ustawienia połączenia z serwisem sztucznej inteligencji
+                  Wybierz najlepszy serwis AI: Cloud, Browser lub Docker
                 </p>
               </div>
             </div>
             <button
-              onClick={() => setShowAIConfig(true)}
+              onClick={() => setShowHybridAIConfig(true)}
               className="flex items-center space-x-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
             >
               <Settings className="h-4 w-4" />
@@ -51,25 +69,81 @@ const SettingsPage: React.FC = () => {
           </div>
           
           <div className="bg-gray-50 rounded-lg p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-gray-600">URL AI Service</p>
+                <p className="text-sm text-gray-600">Aktywny serwis</p>
                 <p className="font-medium text-gray-900">
-                  {localStorage.getItem('ai-service-url') || 'http://localhost:8000'}
+                  {aiStatus.active === 'cloud' && '☁️ Cloud AI'}
+                  {aiStatus.active === 'browser' && '🌐 Browser AI'}
+                  {aiStatus.active === 'docker' && '🐳 Docker AI'}
+                  {aiStatus.active === 'none' && '❌ Wyłączony'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Status połączenia</p>
+                <p className="text-sm text-gray-600">Cloud AI</p>
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <span className="text-sm text-gray-600">Nie sprawdzono</span>
+                  <div className={`w-2 h-2 rounded-full ${
+                    aiStatus.cloud === 'online' ? 'bg-green-500' : 
+                    aiStatus.cloud === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
+                  }`}></div>
+                  <span className="text-sm text-gray-600">{aiStatus.cloud}</span>
                 </div>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Funkcjonalności</p>
-                <p className="text-sm text-gray-900">Rozpoznawanie produktów, Analiza cen</p>
+                <p className="text-sm text-gray-600">Browser AI</p>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    aiStatus.browser === 'online' ? 'bg-green-500' : 
+                    aiStatus.browser === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
+                  }`}></div>
+                  <span className="text-sm text-gray-600">{aiStatus.browser}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Docker AI</p>
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    aiStatus.docker === 'online' ? 'bg-green-500' : 
+                    aiStatus.docker === 'offline' ? 'bg-red-500' : 'bg-yellow-500'
+                  }`}></div>
+                  <span className="text-sm text-gray-600">{aiStatus.docker}</span>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Legacy AI Service Configuration */}
+        <div className="card">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <Brain className="h-6 w-6 text-gray-600" />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Legacy AI Service
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Stara konfiguracja (zalecane: Hybrid AI)
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowAIConfig(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              <Settings className="h-4 w-4" />
+              <span>Konfiguruj</span>
+            </button>
+          </div>
+          
+          <div className="bg-yellow-50 rounded-lg p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <span className="text-sm font-medium text-yellow-800">Przestarzałe</span>
+            </div>
+            <p className="text-sm text-yellow-700">
+              Ta konfiguracja jest przestarzała. Zalecamy użycie Hybrid AI Service powyżej.
+            </p>
           </div>
         </div>
 
@@ -147,7 +221,10 @@ const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Configuration Modal */}
+      {/* AI Configuration Modals */}
+      {showHybridAIConfig && (
+        <HybridAIConfiguration onClose={() => setShowHybridAIConfig(false)} />
+      )}
       {showAIConfig && (
         <AIConfiguration onClose={() => setShowAIConfig(false)} />
       )}

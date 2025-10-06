@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx'
 import FileUpload from '../components/FileUpload'
 import AnalysisList from '../components/AnalysisList'
 import { AIService, AIAnalysisResult, PaletteAnalysisResult } from '../services/aiService'
+import { hybridAIService } from '../services/hybridAIService'
 import { Brain, Zap, TrendingUp } from 'lucide-react'
 
 interface Product {
@@ -147,12 +148,28 @@ const HomePage: React.FC = () => {
   })
 
   const [aiServiceStatus, setAiServiceStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+  const [hybridAIStatus, setHybridAIStatus] = useState({
+    active: 'none' as const,
+    cloud: 'checking' as const,
+    browser: 'checking' as const,
+    docker: 'checking' as const
+  })
   const aiService = AIService.getInstance()
 
   useEffect(() => {
     // Check AI service health on component mount
     checkAIServiceHealth()
+    checkHybridAIHealth()
   }, [])
+
+  const checkHybridAIHealth = async () => {
+    try {
+      const status = await hybridAIService.checkAllServices()
+      setHybridAIStatus(status)
+    } catch (error) {
+      console.error('Hybrid AI health check failed:', error)
+    }
+  }
 
   const checkAIServiceHealth = async () => {
     try {
@@ -169,21 +186,34 @@ const HomePage: React.FC = () => {
     paletteAnalysis: PaletteAnalysisResult
   }> => {
     try {
-      // Analyze each product with AI
+      // Use Hybrid AI Service for analysis
       const productAnalyses = await Promise.all(
         products.map(async (product) => {
-          return await aiService.normalizeProduct(product.nazwa, product.kategoria)
+          return await hybridAIService.normalizeProduct(product.nazwa, product.kategoria)
         })
       )
 
       // Analyze the entire palette
       const productNames = products.map(p => p.nazwa)
-      const paletteAnalysis = await aiService.analyzePalette(productNames)
+      const paletteAnalysis = await hybridAIService.analyzePalette(productNames)
 
       return { productAnalyses, paletteAnalysis }
     } catch (error) {
-      console.error('AI analysis failed:', error)
-      throw error
+      console.error('Hybrid AI analysis failed:', error)
+      // Fallback to legacy AI service
+      try {
+        const productAnalyses = await Promise.all(
+          products.map(async (product) => {
+            return await aiService.normalizeProduct(product.nazwa, product.kategoria)
+          })
+        )
+        const productNames = products.map(p => p.nazwa)
+        const paletteAnalysis = await aiService.analyzePalette(productNames)
+        return { productAnalyses, paletteAnalysis }
+      } catch (fallbackError) {
+        console.error('Fallback AI analysis also failed:', fallbackError)
+        throw error
+      }
     }
   }
 
@@ -343,7 +373,7 @@ const HomePage: React.FC = () => {
       
       // Enhanced with AI analysis if service is available
       let enhancedResult = result
-      if (aiServiceStatus === 'online') {
+      if (aiServiceStatus === 'online' || hybridAIStatus.active !== 'none') {
         try {
           const aiAnalysis = await performAIAnalysis(result.products)
           enhancedResult = {
@@ -397,16 +427,21 @@ const HomePage: React.FC = () => {
                 <Brain className="h-5 w-5 text-purple-600" />
                 <span className="text-sm text-gray-600">AI Services:</span>
                 <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
-                  aiServiceStatus === 'online' 
+                  hybridAIStatus.active !== 'none'
                     ? 'bg-green-100 text-green-800' 
-                    : aiServiceStatus === 'offline'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-yellow-100 text-yellow-800'
+                    : aiServiceStatus === 'online'
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-red-100 text-red-800'
                 }`}>
-                  {aiServiceStatus === 'online' && <Zap className="h-3 w-3" />}
-                  {aiServiceStatus === 'offline' && <TrendingUp className="h-3 w-3" />}
-                  {aiServiceStatus === 'checking' && <Brain className="h-3 w-3 animate-pulse" />}
-                  <span>{aiServiceStatus.toUpperCase()}</span>
+                  {hybridAIStatus.active !== 'none' && <Zap className="h-3 w-3" />}
+                  {hybridAIStatus.active === 'none' && aiServiceStatus === 'online' && <Brain className="h-3 w-3" />}
+                  {hybridAIStatus.active === 'none' && aiServiceStatus === 'offline' && <TrendingUp className="h-3 w-3" />}
+                  <span>
+                    {hybridAIStatus.active !== 'none' 
+                      ? `HYBRID ${hybridAIStatus.active.toUpperCase()}`
+                      : aiServiceStatus.toUpperCase()
+                    }
+                  </span>
                 </div>
               </div>
             </div>
