@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import * as XLSX from 'xlsx'
-import { Upload, FileSpreadsheet, Clock, CheckCircle, AlertCircle, TrendingUp, Package, AlertTriangle } from 'lucide-react'
+import { FileSpreadsheet } from 'lucide-react'
 import FileUpload from '../components/FileUpload'
 import AnalysisList from '../components/AnalysisList'
 
@@ -170,7 +170,7 @@ const HomePage: React.FC = () => {
           })
           
           // Przetwórz dane
-          const products: Product[] = dataRows.map((row: any[]) => {
+          const products: Product[] = (dataRows as any[][]).map((row: any[]) => {
             const paleta = row[columnMap.paleta] || ''
             const nazwa = row[columnMap.nazwa] || 'Nieznany produkt'
             const foto = row[columnMap.foto] || ''
@@ -307,7 +307,7 @@ const HomePage: React.FC = () => {
       {/* Header */}
       <div className="text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Analiza Dokumentów Excel
+          Pallet Analysis
         </h2>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           Prześlij dokument Excel z zestawami produktów, aby przeprowadzić analizę rentowności 

@@ -1,4 +1,4 @@
-# Aplikacja Analizy Dokumentów Excel
+# Pallet Analysis
 
 Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej inteligencji. Pozwala na przesyłanie plików .xlsx, przeprowadzanie analizy rentowności zestawów produktów i sprawdzanie zgodności z ustalonymi regułami.
 

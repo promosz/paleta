@@ -1,7 +1,7 @@
 {
-  "name": "excel-analysis-app",
+  "name": "pallet-analysis",
   "version": "1.0.0",
-  "description": "Aplikacja do analizy dokumentów Excel z wykorzystaniem AI",
+  "description": "Pallet analysis - Aplikacja do analizy dokumentów Excel z wykorzystaniem AI",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -13,13 +13,19 @@
   "dependencies": {
     "clsx": "^2.0.0",
     "lucide-react": "^0.263.1",
+    "papaparse": "^5.5.3",
+    "pdfjs-dist": "^5.4.296",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.3.8",
+    "react-hook-form": "^7.64.0",
     "react-router-dom": "^6.8.1",
     "tailwind-merge": "^1.14.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@types/papaparse": "^5.3.16",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",

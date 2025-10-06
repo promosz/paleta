@@ -169,7 +169,7 @@ export class ParserService {
         skipEmptyLines: this.config.options.skipEmptyRows,
         encoding: this.config.options.encoding,
         delimiter: this.config.options.delimiter,
-        complete: (results) => {
+        complete: (results: any) => {
           try {
             onProgress?.(60, 'Normalizacja danych...')
             
@@ -189,7 +189,7 @@ export class ParserService {
             reject(error)
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           reject(new Error(`Błąd parsowania CSV: ${error.message}`))
         }
       })

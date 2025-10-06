@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowLeft, Settings, Save } from 'lucide-react'
+import { ArrowLeft, Settings } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const SettingsPage: React.FC = () => {

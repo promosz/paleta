@@ -10,7 +10,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation()
 
   const navItems = [
-    { path: '/', label: 'Analiza Dokumentów', icon: FileSpreadsheet },
+    { path: '/', label: 'Pallet Analysis', icon: FileSpreadsheet },
     { path: '/settings', label: 'Ustawienia', icon: Settings },
   ]
 
@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex items-center space-x-2">
               <BarChart3 className="h-8 w-8 text-blue-600" />
               <h1 className="text-xl font-semibold text-gray-900">
-                Analiza Dokumentów Excel
+                Pallet Analysis
               </h1>
             </div>
             
