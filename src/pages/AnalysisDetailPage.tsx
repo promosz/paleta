@@ -47,9 +47,24 @@ interface AnalysisResult {
 const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const [activeTab, setActiveTab] = useState<'content' | 'profitability'>('content')
+  const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
 
-  // Mock data - w rzeczywistej aplikacji dane będą pobierane z API na podstawie ID
-  const analysisData: AnalysisResult = {
+  // Pobierz dane analizy z localStorage lub mock data
+  React.useEffect(() => {
+    if (id) {
+      // Spróbuj pobrać z localStorage
+      const savedAnalyses = localStorage.getItem('pallet-analyses')
+      if (savedAnalyses) {
+        const analyses: AnalysisResult[] = JSON.parse(savedAnalyses)
+        const foundAnalysis = analyses.find(analysis => analysis.id === id)
+        if (foundAnalysis) {
+          setAnalysisData(foundAnalysis)
+          return
+        }
+      }
+      
+      // Fallback do mock data jeśli nie znaleziono w localStorage
+      const mockData: AnalysisResult = {
     id: id || '1',
     fileName: 'Przykładowy_plik_do_analizy.xlsx',
     uploadDate: '2024-01-15',
@@ -127,6 +142,21 @@ const AnalysisDetailPage: React.FC = () => {
       mediumProfitability: [],
       highProfitability: []
     }
+      }
+      setAnalysisData(mockData)
+    }
+  }, [id])
+
+  // Jeśli nie ma danych, pokaż loading
+  if (!analysisData) {
+    return (
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Ładowanie szczegółów analizy...</p>
+        </div>
+      </div>
+    )
   }
 
   // Oblicz podsumowanie

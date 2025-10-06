@@ -45,7 +45,19 @@ interface AnalysisResult {
 }
 
 const HomePage: React.FC = () => {
-  const [analyses, setAnalyses] = useState<AnalysisResult[]>([
+  const [analyses, setAnalyses] = useState<AnalysisResult[]>(() => {
+    // Spróbuj załadować z localStorage
+    const savedAnalyses = localStorage.getItem('pallet-analyses')
+    if (savedAnalyses) {
+      try {
+        return JSON.parse(savedAnalyses)
+      } catch (error) {
+        console.error('Błąd ładowania analiz z localStorage:', error)
+      }
+    }
+    
+    // Fallback do przykładowych danych
+    return [
     {
       id: '1',
       fileName: 'Przykładowy_plik_do_analizy.xlsx',
@@ -125,7 +137,8 @@ const HomePage: React.FC = () => {
         highProfitability: []
       }
     }
-  ])
+    ]
+  })
 
   const analyzeExcelFile = (file: File): Promise<AnalysisResult> => {
     return new Promise((resolve, reject) => {
@@ -282,11 +295,14 @@ const HomePage: React.FC = () => {
       const result = await analyzeExcelFile(file)
       
       // Zaktualizuj listę analiz
-      setAnalyses(prev => 
-        prev.map(analysis => 
+      setAnalyses(prev => {
+        const updated = prev.map(analysis => 
           analysis.id === tempAnalysis.id ? result : analysis
         )
-      )
+        // Zapisz do localStorage
+        localStorage.setItem('pallet-analyses', JSON.stringify(updated))
+        return updated
+      })
     } catch (error) {
       console.error('Błąd analizy pliku:', error)
       
