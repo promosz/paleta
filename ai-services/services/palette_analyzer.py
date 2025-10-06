@@ -6,6 +6,7 @@ Analyzes entire palettes for profitability and risk assessment
 from typing import Dict, List, Any
 import statistics
 import structlog
+from .cache_manager import cache_manager
 
 logger = structlog.get_logger()
 
@@ -17,7 +18,7 @@ class PaletteAnalyzer:
     
     def analyze_palette(self, product_analyses: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Analyze entire palette for profitability and risk
+        Analyze entire palette for profitability and risk with caching
         
         Args:
             product_analyses: List of product analysis results
@@ -29,6 +30,15 @@ class PaletteAnalyzer:
         
         if not product_analyses:
             return self._empty_analysis()
+        
+        # Create cache key from product list
+        product_names = [p.get("original_name", "") for p in product_analyses]
+        
+        # Check cache first
+        cached_result = cache_manager.get_cached_palette_analysis(product_names)
+        if cached_result:
+            self.logger.info("Palette analysis served from cache", product_count=len(product_analyses))
+            return cached_result
         
         # Calculate aggregate metrics
         profitability_scores = [p.get("profitability_score", 0) for p in product_analyses]
@@ -74,6 +84,9 @@ class PaletteAnalyzer:
             "total_products": len(product_analyses),
             "profitability_distribution": self._analyze_profitability_distribution(profitability_scores)
         }
+        
+        # Cache the result
+        cache_manager.cache_palette_analysis(product_names, result)
         
         self.logger.info("Palette analysis completed",
                         average_profitability=average_profitability,

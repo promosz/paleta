@@ -9,6 +9,7 @@ import json
 from typing import Dict, List, Any, Optional
 from pathlib import Path
 import structlog
+from .cache_manager import cache_manager
 
 logger = structlog.get_logger()
 
@@ -32,9 +33,19 @@ class ProductNormalizer:
         self.categories = self._load_categories()
         self.specifications = self._load_specifications()
         
+        # Load fuzzy matching patterns for better brand recognition
+        self.brand_patterns = self._load_brand_patterns()
+        
+        # Load model patterns for better model extraction
+        self.model_patterns = self._load_model_patterns()
+        
+        # Load common misspellings and variations
+        self.variations = self._load_variations()
+        
         self.logger.info("Product normalizer initialized", 
                         brands_count=len(self.brands),
-                        categories_count=len(self.categories))
+                        categories_count=len(self.categories),
+                        brand_patterns_count=len(self.brand_patterns))
     
     def _load_brands(self) -> Dict[str, List[str]]:
         """Load brand recognition data"""
@@ -120,6 +131,69 @@ class ProductNormalizer:
         }
         return categories_data
     
+    def _load_brand_patterns(self) -> Dict[str, List[str]]:
+        """Load advanced brand recognition patterns"""
+        return {
+            "Apple": [
+                r"iphone\s*\d+", r"ipad\s*\w*", r"macbook\s*\w*", r"airpods\s*\w*",
+                r"apple\s*watch", r"imac\s*\w*", r"mac\s*mini", r"apple\s*tv"
+            ],
+            "Samsung": [
+                r"galaxy\s*s\d+", r"galaxy\s*note\s*\d+", r"samsung\s*tv", 
+                r"galaxy\s*buds", r"galaxy\s*watch", r"samsung\s*refrigerator"
+            ],
+            "Sony": [
+                r"playstation\s*\d+", r"ps\d+", r"sony\s*wh-\d+", r"sony\s*wf-\d+",
+                r"xperia\s*\w*", r"sony\s*tv", r"sony\s*camera"
+            ],
+            "Nike": [
+                r"air\s*max\s*\d+", r"jordan\s*\d+", r"nike\s*react", r"nike\s*zoom",
+                r"nike\s*dunk", r"nike\s*blazer", r"nike\s*air\s*force"
+            ],
+            "Adidas": [
+                r"ultraboost\s*\d*", r"stan\s*smith", r"yeezy\s*\w*", r"adidas\s*nmd",
+                r"adidas\s*continental", r"adidas\s*ozweego"
+            ]
+        }
+    
+    def _load_model_patterns(self) -> Dict[str, str]:
+        """Load model extraction patterns"""
+        return {
+            "phone_models": r"(iphone|galaxy|pixel|oneplus|xiaomi|huawei)\s*([a-z0-9\s]+)",
+            "laptop_models": r"(macbook|thinkpad|pavilion|inspiron|zenbook|vivobook)\s*([a-z0-9\s]+)",
+            "shoe_models": r"(air\s*max|ultraboost|stan\s*smith|jordan|yeezy|dunk)\s*([a-z0-9\s]+)",
+            "headphone_models": r"(wh-\d+|wf-\d+|airpods|buds|studio)\s*([a-z0-9\s]+)",
+            "tv_models": r"(\d+\")?\s*(oled|led|qled|4k|8k)\s*([a-z0-9\s]+)"
+        }
+    
+    def _load_variations(self) -> Dict[str, str]:
+        """Load common misspellings and variations"""
+        return {
+            # Common misspellings
+            "iphone": "iPhone",
+            "samsung": "Samsung", 
+            "nike": "Nike",
+            "adidas": "Adidas",
+            "sony": "Sony",
+            "lg": "LG",
+            "huawei": "Huawei",
+            "xiaomi": "Xiaomi",
+            
+            # Common abbreviations
+            "mbp": "MacBook Pro",
+            "airpods": "AirPods",
+            "ps5": "PlayStation 5",
+            "ps4": "PlayStation 4",
+            "galaxy s": "Galaxy S",
+            
+            # Polish variations
+            "telefon": "smartphone",
+            "laptop": "notebook",
+            "słuchawki": "headphones",
+            "telewizor": "television",
+            "buty": "shoes"
+        }
+    
     def _load_specifications(self) -> Dict[str, str]:
         """Load specification extraction patterns"""
         return {
@@ -134,7 +208,7 @@ class ProductNormalizer:
     
     def normalize_product(self, product_name: str, description: str = "") -> Dict[str, Any]:
         """
-        Normalize product name and extract key information
+        Normalize product name and extract key information with caching
         
         Args:
             product_name: Original product name
@@ -144,6 +218,12 @@ class ProductNormalizer:
             Dict with normalized product data
         """
         self.logger.info("Normalizing product", product_name=product_name)
+        
+        # Check cache first
+        cached_result = cache_manager.get_cached_product_analysis(product_name, description)
+        if cached_result:
+            self.logger.info("Product analysis served from cache", product_name=product_name)
+            return cached_result
         
         # Clean and prepare text
         text = f"{product_name} {description}".lower().strip()
@@ -180,6 +260,9 @@ class ProductNormalizer:
             "processed_text": text
         }
         
+        # Cache the result
+        cache_manager.cache_product_analysis(product_name, description, result)
+        
         self.logger.info("Product normalized", 
                         original_name=product_name,
                         normalized_name=normalized_name,
@@ -190,37 +273,74 @@ class ProductNormalizer:
         return result
     
     def _extract_brand(self, text: str, doc) -> str:
-        """Extract brand from product text"""
+        """Extract brand from product text with improved accuracy"""
         text_lower = text.lower()
+        
+        # Apply variations first
+        normalized_text = self._apply_variations(text_lower)
         
         # Check for exact brand matches
         for brand, keywords in self.brands.items():
             for keyword in keywords:
-                if keyword.lower() in text_lower:
+                if keyword.lower() in normalized_text:
+                    return brand
+        
+        # Check for regex patterns
+        for brand, patterns in self.brand_patterns.items():
+            for pattern in patterns:
+                if re.search(pattern, normalized_text, re.IGNORECASE):
                     return brand
         
         # Try to extract brand from capitalized words
         for token in doc:
             if token.is_alpha and token.is_title and len(token.text) > 2:
+                token_lower = token.text.lower()
                 # Check if this looks like a brand name
-                if any(keyword in token.text.lower() for brand_keywords in self.brands.values() 
+                if any(keyword in token_lower for brand_keywords in self.brands.values() 
                       for keyword in brand_keywords):
                     return token.text.title()
+        
+        # Fuzzy matching for common misspellings
+        for variation, correct in self.variations.items():
+            if variation in normalized_text:
+                # Check if this variation matches a known brand
+                for brand in self.brands.keys():
+                    if correct.lower() in brand.lower():
+                        return brand
         
         return "Unknown"
     
     def _extract_model(self, text: str, doc) -> str:
-        """Extract model from product text"""
-        # Look for model patterns like "iPhone 15", "Galaxy S23", etc.
-        model_patterns = [
+        """Extract model from product text with improved patterns"""
+        text_lower = text.lower()
+        
+        # Apply variations first
+        normalized_text = self._apply_variations(text_lower)
+        
+        # Try specific model patterns first
+        for pattern_name, pattern in self.model_patterns.items():
+            matches = re.findall(pattern, normalized_text, re.IGNORECASE)
+            if matches:
+                for match in matches:
+                    if isinstance(match, tuple):
+                        model = " ".join(match).title()
+                    else:
+                        model = match.title()
+                    
+                    # Filter out common words that aren't models
+                    if not any(word in model.lower() for word in ["the", "and", "or", "for", "with", "pro", "max"]):
+                        return model
+        
+        # Fallback to general patterns
+        general_patterns = [
             r"(\w+)\s*(\d+)",  # Word + number
             r"(\w+)\s*(\w+)\s*(\d+)",  # Word + word + number
+            r"(\w+)\s*(\w+)\s*(\w+)\s*(\d+)",  # Word + word + word + number
         ]
         
-        for pattern in model_patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE)
+        for pattern in general_patterns:
+            matches = re.findall(pattern, normalized_text, re.IGNORECASE)
             if matches:
-                # Return the most likely model match
                 for match in matches:
                     if isinstance(match, tuple):
                         model = " ".join(match).title()
@@ -317,6 +437,16 @@ class ProductNormalizer:
             parts.append(specifications["color"].title())
         
         return " ".join(parts) if parts else "Unknown Product"
+    
+    def _apply_variations(self, text: str) -> str:
+        """Apply common variations and misspellings to text"""
+        normalized_text = text
+        
+        for variation, correct in self.variations.items():
+            # Replace variation with correct form
+            normalized_text = re.sub(r'\b' + re.escape(variation) + r'\b', correct, normalized_text, flags=re.IGNORECASE)
+        
+        return normalized_text
     
     def get_available_brands(self) -> List[str]:
         """Get list of available brands"""

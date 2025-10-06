@@ -1,0 +1,407 @@
+{
+  "extended_test_products": [
+    {
+      "name": "iPhone 15 Pro Max 256GB Space Black",
+      "description": "Najnowszy iPhone z zaawansowanymi funkcjami",
+      "expected_brand": "Apple",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 87
+    },
+    {
+      "name": "iphone 15 pro max 256gb czarny",
+      "description": "Telefon Apple iPhone 15 Pro Max",
+      "expected_brand": "Apple",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 85
+    },
+    {
+      "name": "Samsung Galaxy S23 Ultra 512GB Phantom Black",
+      "description": "Flagowy smartfon Samsung z doskonałym aparatem",
+      "expected_brand": "Samsung",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 85
+    },
+    {
+      "name": "galaxy s23 ultra 512gb czarny",
+      "description": "Smartfon Samsung Galaxy S23 Ultra",
+      "expected_brand": "Samsung",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 83
+    },
+    {
+      "name": "MacBook Air M2 13-inch 256GB Space Gray",
+      "description": "Ultrabook Apple z procesorem M2",
+      "expected_brand": "Apple",
+      "expected_category": "Elektronika/Laptopy",
+      "expected_score": 88
+    },
+    {
+      "name": "macbook air m2 13 cali 256gb szary",
+      "description": "Laptop Apple MacBook Air M2",
+      "expected_brand": "Apple",
+      "expected_category": "Elektronika/Laptopy",
+      "expected_score": 86
+    },
+    {
+      "name": "Sony WH-1000XM5 Wireless Headphones Black",
+      "description": "Najlepsze słuchawki Sony z redukcją szumów",
+      "expected_brand": "Sony",
+      "expected_category": "Elektronika/Słuchawki",
+      "expected_score": 82
+    },
+    {
+      "name": "sony wh-1000xm5 słuchawki bezprzewodowe czarne",
+      "description": "Słuchawki Sony WH-1000XM5",
+      "expected_brand": "Sony",
+      "expected_category": "Elektronika/Słuchawki",
+      "expected_score": 80
+    },
+    {
+      "name": "Nike Air Max 270 React White Black",
+      "description": "Buty sportowe Nike z amortyzacją Air Max",
+      "expected_brand": "Nike",
+      "expected_category": "Odzież/Obuwie",
+      "expected_score": 88
+    },
+    {
+      "name": "nike air max 270 react białe czarne",
+      "description": "Buty Nike Air Max 270 React",
+      "expected_brand": "Nike",
+      "expected_category": "Odzież/Obuwie",
+      "expected_score": 86
+    },
+    {
+      "name": "Adidas Ultraboost 22 Running Shoes Core Black",
+      "description": "Buty do biegania Adidas z technologią Boost",
+      "expected_brand": "Adidas",
+      "expected_category": "Odzież/Obuwie",
+      "expected_score": 85
+    },
+    {
+      "name": "adidas ultraboost 22 buty do biegania czarne",
+      "description": "Buty Adidas Ultraboost 22",
+      "expected_brand": "Adidas",
+      "expected_category": "Odzież/Obuwie",
+      "expected_score": 83
+    },
+    {
+      "name": "L'Oréal Paris True Match Foundation 30ml",
+      "description": "Podkład L'Oréal z naturalnym wykończeniem",
+      "expected_brand": "L'Oréal",
+      "expected_category": "Kosmetyki/Twarz",
+      "expected_score": 85
+    },
+    {
+      "name": "loreal paris true match podkład 30ml",
+      "description": "Podkład L'Oréal True Match",
+      "expected_brand": "L'Oréal",
+      "expected_category": "Kosmetyki/Twarz",
+      "expected_score": 83
+    },
+    {
+      "name": "Zara Basic T-Shirt Cotton White M",
+      "description": "Podstawowa koszulka Zara z bawełny",
+      "expected_brand": "Zara",
+      "expected_category": "Odzież/Męska",
+      "expected_score": 75
+    },
+    {
+      "name": "zara basic t-shirt bawełna biała m",
+      "description": "Koszulka Zara Basic T-Shirt",
+      "expected_brand": "Zara",
+      "expected_category": "Odzież/Męska",
+      "expected_score": 73
+    },
+    {
+      "name": "Xiaomi Redmi Note 12 128GB Blue",
+      "description": "Smartfon Xiaomi z dobrym stosunkiem ceny do jakości",
+      "expected_brand": "Xiaomi",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 72
+    },
+    {
+      "name": "xiaomi redmi note 12 128gb niebieski",
+      "description": "Telefon Xiaomi Redmi Note 12",
+      "expected_brand": "Xiaomi",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 70
+    },
+    {
+      "name": "LG OLED C2 55-inch 4K Smart TV",
+      "description": "Telewizor LG OLED z technologią 4K",
+      "expected_brand": "LG",
+      "expected_category": "Elektronika/Telewizory",
+      "expected_score": 78
+    },
+    {
+      "name": "lg oled c2 55 cali 4k smart tv",
+      "description": "Telewizor LG OLED C2",
+      "expected_brand": "LG",
+      "expected_category": "Elektronika/Telewizory",
+      "expected_score": 76
+    },
+    {
+      "name": "Canon EOS R6 Mark II Mirrorless Camera",
+      "description": "Aparat Canon z pełnoklatkowym sensorem",
+      "expected_brand": "Canon",
+      "expected_category": "Elektronika/Kamery",
+      "expected_score": 80
+    },
+    {
+      "name": "canon eos r6 mark ii aparat bezlusterkowy",
+      "description": "Aparat Canon EOS R6 Mark II",
+      "expected_brand": "Canon",
+      "expected_category": "Elektronika/Kamery",
+      "expected_score": 78
+    },
+    {
+      "name": "Maybelline New York Fit Me Foundation 30ml",
+      "description": "Podkład Maybelline dla wszystkich typów skóry",
+      "expected_brand": "Maybelline",
+      "expected_category": "Kosmetyki/Twarz",
+      "expected_score": 80
+    },
+    {
+      "name": "maybelline new york fit me podkład 30ml",
+      "description": "Podkład Maybelline Fit Me",
+      "expected_brand": "Maybelline",
+      "expected_category": "Kosmetyki/Twarz",
+      "expected_score": 78
+    },
+    {
+      "name": "H&M Basic Hoodie Cotton Gray L",
+      "description": "Bluza H&M z kapturem w kolorze szarym",
+      "expected_brand": "H&M",
+      "expected_category": "Odzież/Męska",
+      "expected_score": 70
+    },
+    {
+      "name": "hm basic hoodie bawełna szary l",
+      "description": "Bluza H&M Basic Hoodie",
+      "expected_brand": "H&M",
+      "expected_category": "Odzież/Męska",
+      "expected_score": 68
+    },
+    {
+      "name": "Uniqlo Heattech T-Shirt Long Sleeve White",
+      "description": "Koszulka Uniqlo z technologią Heattech",
+      "expected_brand": "Uniqlo",
+      "expected_category": "Odzież/Męska",
+      "expected_score": 75
+    },
+    {
+      "name": "uniqlo heattech t-shirt długi rękaw biały",
+      "description": "Koszulka Uniqlo Heattech",
+      "expected_brand": "Uniqlo",
+      "expected_category": "Odzież/Męska",
+      "expected_score": 73
+    },
+    {
+      "name": "Sony PlayStation 5 Console",
+      "description": "Konsola do gier Sony PS5",
+      "expected_brand": "Sony",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 85
+    },
+    {
+      "name": "sony playstation 5 konsola do gier",
+      "description": "Konsola Sony PlayStation 5",
+      "expected_brand": "Sony",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 83
+    },
+    {
+      "name": "OnePlus 11 5G 256GB Titan Black",
+      "description": "Smartfon OnePlus z 5G i szybkim ładowaniem",
+      "expected_brand": "OnePlus",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 75
+    },
+    {
+      "name": "oneplus 11 5g 256gb czarny tytan",
+      "description": "Telefon OnePlus 11 5G",
+      "expected_brand": "OnePlus",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 73
+    },
+    {
+      "name": "Revlon ColorStay Foundation 30ml",
+      "description": "Podkład Revlon z długotrwałym trzymaniem",
+      "expected_brand": "Revlon",
+      "expected_category": "Kosmetyki/Twarz",
+      "expected_score": 78
+    },
+    {
+      "name": "revlon colorstay podkład 30ml",
+      "description": "Podkład Revlon ColorStay",
+      "expected_brand": "Revlon",
+      "expected_category": "Kosmetyki/Twarz",
+      "expected_score": 76
+    },
+    {
+      "name": "Huawei P50 Pro 256GB Golden Black",
+      "description": "Flagowy smartfon Huawei z doskonałym aparatem",
+      "expected_brand": "Huawei",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 75
+    },
+    {
+      "name": "huawei p50 pro 256gb złoty czarny",
+      "description": "Telefon Huawei P50 Pro",
+      "expected_brand": "Huawei",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 73
+    },
+    {
+      "name": "Generic Smartwatch Fitness Tracker Black",
+      "description": "Tani smartwatch do monitorowania aktywności",
+      "expected_brand": "Generic",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 45
+    },
+    {
+      "name": "generic smartwatch fitness tracker czarny",
+      "description": "Smartwatch Generic Fitness Tracker",
+      "expected_brand": "Generic",
+      "expected_category": "Elektronika/Telefony",
+      "expected_score": 43
+    },
+    {
+      "name": "Unknown Brand Bluetooth Headphones",
+      "description": "Słuchawki Bluetooth nieznanej marki",
+      "expected_brand": "Unknown",
+      "expected_category": "Elektronika/Słuchawki",
+      "expected_score": 35
+    },
+    {
+      "name": "nieznana marka słuchawki bluetooth",
+      "description": "Słuchawki nieznanej marki Bluetooth",
+      "expected_brand": "Unknown",
+      "expected_category": "Elektronika/Słuchawki",
+      "expected_score": 33
+    }
+  ],
+  "performance_test_palettes": [
+    {
+      "name": "High Quality Electronics Palette",
+      "products": [
+        "iPhone 15 Pro Max 256GB Space Black",
+        "Samsung Galaxy S23 Ultra 512GB Phantom Black",
+        "MacBook Air M2 13-inch 256GB Space Gray",
+        "Sony WH-1000XM5 Wireless Headphones Black",
+        "LG OLED C2 55-inch 4K Smart TV",
+        "Canon EOS R6 Mark II Mirrorless Camera"
+      ],
+      "expected_avg_score": 83,
+      "expected_recommendation": "YES",
+      "expected_risk": "LOW"
+    },
+    {
+      "name": "Mixed Quality Palette",
+      "products": [
+        "Nike Air Max 270 React White Black",
+        "L'Oréal Paris True Match Foundation 30ml",
+        "Zara Basic T-Shirt Cotton White M",
+        "Xiaomi Redmi Note 12 128GB Blue",
+        "H&M Basic Hoodie Cotton Gray L",
+        "Generic Smartwatch Fitness Tracker Black"
+      ],
+      "expected_avg_score": 68,
+      "expected_recommendation": "CAUTION",
+      "expected_risk": "MEDIUM"
+    },
+    {
+      "name": "Low Quality Risk Palette",
+      "products": [
+        "Generic Smartwatch Fitness Tracker Black",
+        "Unknown Brand Bluetooth Headphones",
+        "Cheap Electronics No Name",
+        "Random Product Without Brand"
+      ],
+      "expected_avg_score": 40,
+      "expected_recommendation": "NO",
+      "expected_risk": "HIGH"
+    }
+  ],
+  "accuracy_test_cases": [
+    {
+      "category": "Brand Recognition",
+      "test_cases": [
+        {
+          "input": "iphone 15 pro max",
+          "expected_brand": "Apple",
+          "expected_confidence": 0.8
+        },
+        {
+          "input": "galaxy s23 ultra",
+          "expected_brand": "Samsung",
+          "expected_confidence": 0.8
+        },
+        {
+          "input": "nike air max",
+          "expected_brand": "Nike",
+          "expected_confidence": 0.9
+        },
+        {
+          "input": "sony playstation",
+          "expected_brand": "Sony",
+          "expected_confidence": 0.9
+        },
+        {
+          "input": "loreal foundation",
+          "expected_brand": "L'Oréal",
+          "expected_confidence": 0.8
+        }
+      ]
+    },
+    {
+      "category": "Category Classification",
+      "test_cases": [
+        {
+          "input": "smartphone iphone",
+          "expected_category": "Elektronika/Telefony",
+          "expected_confidence": 0.9
+        },
+        {
+          "input": "laptop macbook",
+          "expected_category": "Elektronika/Laptopy",
+          "expected_confidence": 0.9
+        },
+        {
+          "input": "headphones sony",
+          "expected_category": "Elektronika/Słuchawki",
+          "expected_confidence": 0.8
+        },
+        {
+          "input": "shoes nike",
+          "expected_category": "Odzież/Obuwie",
+          "expected_confidence": 0.9
+        },
+        {
+          "input": "foundation makeup",
+          "expected_category": "Kosmetyki/Twarz",
+          "expected_confidence": 0.8
+        }
+      ]
+    },
+    {
+      "category": "Specification Extraction",
+      "test_cases": [
+        {
+          "input": "256gb storage",
+          "expected_storage": "256",
+          "expected_unit": "gb"
+        },
+        {
+          "input": "black color",
+          "expected_color": "black"
+        },
+        {
+          "input": "13 inch screen",
+          "expected_size": "13",
+          "expected_unit": "inch"
+        }
+      ]
+    }
+  ]
+}

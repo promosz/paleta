@@ -13,6 +13,7 @@ import structlog
 from services.product_normalizer import ProductNormalizer
 from services.profitability_analyzer import ProfitabilityAnalyzer
 from services.palette_analyzer import PaletteAnalyzer
+from services.cache_manager import cache_manager
 
 # Configure structured logging
 structlog.configure(
@@ -222,6 +223,34 @@ async def get_brands():
     except Exception as e:
         logger.error("Error getting brands", error=str(e))
         raise HTTPException(status_code=500, detail=f"Error getting brands: {str(e)}")
+
+@app.get("/ai/cache/stats")
+async def get_cache_stats():
+    """Get cache statistics and performance metrics"""
+    try:
+        stats = cache_manager.get_stats()
+        return {
+            "cache_stats": stats,
+            "performance": {
+                "cache_hit_rate": "N/A",  # Would need to track hits/misses
+                "average_response_time": "N/A",  # Would need timing
+                "total_requests": "N/A"
+            }
+        }
+    except Exception as e:
+        logger.error("Error getting cache stats", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Error getting cache stats: {str(e)}")
+
+@app.delete("/ai/cache/clear")
+async def clear_cache():
+    """Clear all cache"""
+    try:
+        cache_manager.clear()
+        logger.info("Cache cleared via API")
+        return {"message": "Cache cleared successfully"}
+    except Exception as e:
+        logger.error("Error clearing cache", error=str(e))
+        raise HTTPException(status_code=500, detail=f"Error clearing cache: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
