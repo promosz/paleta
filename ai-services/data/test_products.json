@@ -1,0 +1,161 @@
+{
+  "test_products": [
+    {
+      "name": "iPhone 15 Pro Max 256GB Space Black",
+      "description": "Najnowszy iPhone z zaawansowanymi funkcjami",
+      "expected_brand": "Apple",
+      "expected_category": "Elektronika/Telefony"
+    },
+    {
+      "name": "Samsung Galaxy S23 Ultra 512GB Phantom Black",
+      "description": "Flagowy smartfon Samsung z doskonałym aparatem",
+      "expected_brand": "Samsung",
+      "expected_category": "Elektronika/Telefony"
+    },
+    {
+      "name": "MacBook Air M2 13-inch 256GB Space Gray",
+      "description": "Ultrabook Apple z procesorem M2",
+      "expected_brand": "Apple",
+      "expected_category": "Elektronika/Laptopy"
+    },
+    {
+      "name": "Sony WH-1000XM5 Wireless Headphones Black",
+      "description": "Najlepsze słuchawki Sony z redukcją szumów",
+      "expected_brand": "Sony",
+      "expected_category": "Elektronika/Słuchawki"
+    },
+    {
+      "name": "Nike Air Max 270 React White Black",
+      "description": "Buty sportowe Nike z amortyzacją Air Max",
+      "expected_brand": "Nike",
+      "expected_category": "Odzież/Obuwie"
+    },
+    {
+      "name": "Adidas Ultraboost 22 Running Shoes Core Black",
+      "description": "Buty do biegania Adidas z technologią Boost",
+      "expected_brand": "Adidas",
+      "expected_category": "Odzież/Obuwie"
+    },
+    {
+      "name": "L'Oréal Paris True Match Foundation 30ml",
+      "description": "Podkład L'Oréal z naturalnym wykończeniem",
+      "expected_brand": "L'Oréal",
+      "expected_category": "Kosmetyki/Twarz"
+    },
+    {
+      "name": "Zara Basic T-Shirt Cotton White M",
+      "description": "Podstawowa koszulka Zara z bawełny",
+      "expected_brand": "Zara",
+      "expected_category": "Odzież/Męska"
+    },
+    {
+      "name": "Xiaomi Redmi Note 12 128GB Blue",
+      "description": "Smartfon Xiaomi z dobrym stosunkiem ceny do jakości",
+      "expected_brand": "Xiaomi",
+      "expected_category": "Elektronika/Telefony"
+    },
+    {
+      "name": "LG OLED C2 55-inch 4K Smart TV",
+      "description": "Telewizor LG OLED z technologią 4K",
+      "expected_brand": "LG",
+      "expected_category": "Elektronika/Telewizory"
+    },
+    {
+      "name": "Canon EOS R6 Mark II Mirrorless Camera",
+      "description": "Aparat Canon z pełnoklatkowym sensorem",
+      "expected_brand": "Canon",
+      "expected_category": "Elektronika/Kamery"
+    },
+    {
+      "name": "Maybelline New York Fit Me Foundation 30ml",
+      "description": "Podkład Maybelline dla wszystkich typów skóry",
+      "expected_brand": "Maybelline",
+      "expected_category": "Kosmetyki/Twarz"
+    },
+    {
+      "name": "H&M Basic Hoodie Cotton Gray L",
+      "description": "Bluza H&M z kapturem w kolorze szarym",
+      "expected_brand": "H&M",
+      "expected_category": "Odzież/Męska"
+    },
+    {
+      "name": "Uniqlo Heattech T-Shirt Long Sleeve White",
+      "description": "Koszulka Uniqlo z technologią Heattech",
+      "expected_brand": "Uniqlo",
+      "expected_category": "Odzież/Męska"
+    },
+    {
+      "name": "Sony PlayStation 5 Console",
+      "description": "Konsola do gier Sony PS5",
+      "expected_brand": "Sony",
+      "expected_category": "Elektronika/Telefony"
+    },
+    {
+      "name": "OnePlus 11 5G 256GB Titan Black",
+      "description": "Smartfon OnePlus z 5G i szybkim ładowaniem",
+      "expected_brand": "OnePlus",
+      "expected_category": "Elektronika/Telefony"
+    },
+    {
+      "name": "Revlon ColorStay Foundation 30ml",
+      "description": "Podkład Revlon z długotrwałym trzymaniem",
+      "expected_brand": "Revlon",
+      "expected_category": "Kosmetyki/Twarz"
+    },
+    {
+      "name": "Huawei P50 Pro 256GB Golden Black",
+      "description": "Flagowy smartfon Huawei z doskonałym aparatem",
+      "expected_brand": "Huawei",
+      "expected_category": "Elektronika/Telefony"
+    },
+    {
+      "name": "Generic Smartwatch Fitness Tracker Black",
+      "description": "Tani smartwatch do monitorowania aktywności",
+      "expected_brand": "Generic",
+      "expected_category": "Elektronika/Telefony"
+    },
+    {
+      "name": "Unknown Brand Bluetooth Headphones",
+      "description": "Słuchawki Bluetooth nieznanej marki",
+      "expected_brand": "Unknown",
+      "expected_category": "Elektronika/Słuchawki"
+    }
+  ],
+  "test_palettes": [
+    {
+      "name": "Electronics Palette",
+      "products": [
+        "iPhone 15 Pro Max 256GB Space Black",
+        "Samsung Galaxy S23 Ultra 512GB Phantom Black",
+        "MacBook Air M2 13-inch 256GB Space Gray",
+        "Sony WH-1000XM5 Wireless Headphones Black",
+        "LG OLED C2 55-inch 4K Smart TV"
+      ],
+      "expected_avg_score": 80,
+      "expected_recommendation": "YES"
+    },
+    {
+      "name": "Mixed Risk Palette",
+      "products": [
+        "Nike Air Max 270 React White Black",
+        "L'Oréal Paris True Match Foundation 30ml",
+        "Generic Smartwatch Fitness Tracker Black",
+        "Unknown Brand Bluetooth Headphones",
+        "H&M Basic Hoodie Cotton Gray L"
+      ],
+      "expected_avg_score": 65,
+      "expected_recommendation": "CAUTION"
+    },
+    {
+      "name": "High Risk Palette",
+      "products": [
+        "Generic Smartwatch Fitness Tracker Black",
+        "Unknown Brand Bluetooth Headphones",
+        "Unknown Product Without Brand",
+        "Cheap Electronics No Name"
+      ],
+      "expected_avg_score": 40,
+      "expected_recommendation": "NO"
+    }
+  ]
+}
