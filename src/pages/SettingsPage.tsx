@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowLeft, Settings, HelpCircle, Zap } from 'lucide-react'
+import { ArrowLeft, Settings, HelpCircle, Zap, Shield, Trash2, Tag, Package } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import HybridAIConfiguration from '../components/HybridAIConfiguration'
 import { hybridAIService } from '../services/hybridAIService'
@@ -12,6 +12,15 @@ const SettingsPage: React.FC = () => {
     browser: 'checking',
     docker: 'checking'
   })
+  const [rules, setRules] = useState<Array<{
+    id: string
+    type: 'category' | 'product'
+    name: string
+    action: 'block' | 'warning'
+    description?: string
+    createdAt: string
+    updatedAt: string
+  }>>([])
 
   useEffect(() => {
     // Load AI status on component mount
@@ -20,7 +29,30 @@ const SettingsPage: React.FC = () => {
       setAiStatus(status)
     }
     loadAIStatus()
+    
+    // Load rules on component mount
+    loadRules()
   }, [])
+
+  const loadRules = () => {
+    const savedRules = localStorage.getItem('analysis-rules')
+    if (savedRules) {
+      try {
+        const parsedRules = JSON.parse(savedRules)
+        setRules(parsedRules)
+      } catch (error) {
+        console.error('Failed to load rules:', error)
+      }
+    }
+  }
+
+  const handleRemoveRule = (ruleId: string) => {
+    if (window.confirm('Czy na pewno chcesz usunąć tę regułę?')) {
+      const updatedRules = rules.filter(rule => rule.id !== ruleId)
+      localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
+      setRules(updatedRules)
+    }
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -160,29 +192,102 @@ const SettingsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Analysis Rules */}
+        {/* Analysis Rules Management */}
         <div className="card">
-          <div className="flex items-center space-x-3 mb-4">
-            <Settings className="h-6 w-6 text-gray-600" />
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Reguły analizy
-              </h3>
-              <p className="text-sm text-gray-600">
-                Konfiguracja parametrów analizy rentowności
-              </p>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <Shield className="h-6 w-6 text-red-600" />
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Reguły analizy
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Zarządzanie regułami blokowania i ostrzeżeń
+                </p>
+              </div>
+            </div>
+            <div className="text-sm text-gray-500">
+              Łącznie: {rules.length} reguł
             </div>
           </div>
           
-          <div className="text-center py-8">
-            <Settings className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-            <h4 className="text-md font-medium text-gray-900 mb-2">
-              Reguły analizy w przygotowaniu
-            </h4>
-            <p className="text-sm text-gray-500">
-              Ta funkcjonalność będzie dostępna w przyszłych wersjach
-            </p>
-          </div>
+          {rules.length === 0 ? (
+            <div className="text-center py-8">
+              <Shield className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <h4 className="text-md font-medium text-gray-900 mb-2">
+                Brak zdefiniowanych reguł
+              </h4>
+              <p className="text-sm text-gray-500">
+                Dodaj reguły w szczegółach analizy, aby zarządzać produktami
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="bg-red-50 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Shield className="h-5 w-5 text-red-600" />
+                    <h4 className="font-medium text-red-900">Reguły blokowania</h4>
+                  </div>
+                  <p className="text-sm text-red-700">
+                    {rules.filter(r => r.action === 'block').length} reguł
+                  </p>
+                </div>
+                <div className="bg-yellow-50 rounded-lg p-4">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Shield className="h-5 w-5 text-yellow-600" />
+                    <h4 className="font-medium text-yellow-900">Reguły ostrzeżeń</h4>
+                  </div>
+                  <p className="text-sm text-yellow-700">
+                    {rules.filter(r => r.action === 'warning').length} reguł
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {rules.map(rule => (
+                  <div key={rule.id} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {rule.type === 'category' ? (
+                          <Tag className="h-5 w-5 text-blue-600" />
+                        ) : (
+                          <Package className="h-5 w-5 text-green-600" />
+                        )}
+                        <div>
+                          <h4 className="font-medium text-gray-900">{rule.name}</h4>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <span>{rule.type === 'category' ? 'Kategoria' : 'Produkt'}</span>
+                            <span>•</span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              rule.action === 'block' 
+                                ? 'bg-red-100 text-red-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {rule.action === 'block' ? 'Blokowanie' : 'Ostrzeżenie'}
+                            </span>
+                          </div>
+                          {rule.description && (
+                            <p className="text-xs text-gray-500 mt-1">{rule.description}</p>
+                          )}
+                          <p className="text-xs text-gray-500 mt-1">
+                            Dodano: {new Date(rule.createdAt).toLocaleString('pl-PL')}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveRule(rule.id)}
+                        className="text-red-600 hover:text-red-800 transition-colors"
+                        title="Usuń regułę"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

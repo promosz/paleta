@@ -404,6 +404,8 @@ const AnalysisDetailPage: React.FC = () => {
                       product={product}
                       onAddToRules={handleAddToRules}
                       onAddCategoryToRules={handleAddCategoryToRules}
+                      onRemoveRule={handleRemoveRule}
+                      existingRules={rules}
                     />
                   </td>
                 </tr>

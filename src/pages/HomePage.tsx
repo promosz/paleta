@@ -235,10 +235,29 @@ const HomePage: React.FC = () => {
           
           // Znajdź wiersz z nagłówkami (pierwszy wiersz)
           const headers = jsonData[0] as string[]
-          const dataRows = jsonData.slice(1).filter((row: any) => 
-            row && row.length > 0 && row[0] !== null && row[0] !== undefined && row[1] !== null && row[1] !== undefined && 
-            row[1] !== '' && row[1] !== 'Nazwa produktu' // Wyklucz nagłówki i puste nazwy
-          )
+          const dataRows = jsonData.slice(1).filter((row: any) => {
+            // Sprawdź czy wiersz ma wystarczającą liczbę kolumn
+            if (!row || row.length < 3) return false
+            
+            // Sprawdź czy pierwsze 3 kolumny nie są puste
+            const paleta = row[0]
+            const nazwa = row[1]
+            
+            // Wyklucz puste wiersze, nagłówki i wiersze z niepełnymi danymi
+            if (!paleta || !nazwa || paleta === '' || nazwa === '' || 
+                paleta === 'Paleta' || nazwa === 'Nazwa produktu' || nazwa === 'Nazwa') {
+              return false
+            }
+            
+            // Sprawdź czy nazwa nie jest tylko liczbą lub przecinkiem
+            if (typeof nazwa === 'number' || nazwa === ',' || nazwa === '.') {
+              return false
+            }
+            
+            return true
+          })
+          
+          console.log(`Parsed ${dataRows.length} valid product rows from Excel file`)
           
           // Mapuj kolumny na właściwe nazwy zgodnie z nowym formatem
           const columnMap: { [key: string]: number } = {}
@@ -300,17 +319,30 @@ const HomePage: React.FC = () => {
               marza: Number(marza),
               rentownosc: Number(rentownosc)
             }
-          }).filter(product => product.nazwa !== 'Nieznany produkt' && product.nazwa.trim() !== '')
+          })
           
-          // Oblicz podsumowanie
-          const totalRevenue = products.reduce((sum, p) => sum + p.cenaRegularnaBrutto, 0)
-          const totalCost = products.reduce((sum, p) => sum + p.cenaSprzedazyNetto, 0)
-          const averageProfitability = products.reduce((sum, p) => sum + p.rentownosc, 0) / products.length
+          console.log(`Created ${products.length} products from ${dataRows.length} rows`)
+          console.log('First few products:', products.slice(0, 3).map(p => ({ nazwa: p.nazwa, paleta: p.paleta })))
+          
+          // Filtruj produkty z prawidłowymi nazwami
+          const validProducts = products.filter(product => 
+            product.nazwa !== 'Nieznany produkt' && 
+            product.nazwa.trim() !== '' && 
+            product.nazwa !== ',' && 
+            product.nazwa !== '.'
+          )
+          
+          console.log(`Valid products: ${validProducts.length} (filtered from ${products.length})`)
+          
+          // Oblicz podsumowanie używając tylko prawidłowych produktów
+          const totalRevenue = validProducts.reduce((sum, p) => sum + p.cenaRegularnaBrutto, 0)
+          const totalCost = validProducts.reduce((sum, p) => sum + p.cenaSprzedazyNetto, 0)
+          const averageProfitability = validProducts.length > 0 ? validProducts.reduce((sum, p) => sum + p.rentownosc, 0) / validProducts.length : 0
           
           // Podziel produkty na kategorie rentowności
-          const lowProfitability = products.filter(p => p.rentownosc < 60)
-          const mediumProfitability = products.filter(p => p.rentownosc >= 60 && p.rentownosc < 80)
-          const highProfitability = products.filter(p => p.rentownosc >= 80)
+          const lowProfitability = validProducts.filter(p => p.rentownosc < 60)
+          const mediumProfitability = validProducts.filter(p => p.rentownosc >= 60 && p.rentownosc < 80)
+          const highProfitability = validProducts.filter(p => p.rentownosc >= 80)
           
           // Policz problemy (produkty o niskiej rentowności)
           const issues = lowProfitability.length
@@ -321,9 +353,9 @@ const HomePage: React.FC = () => {
             uploadDate: new Date().toISOString(),
             status: 'completed',
             profitability: Number(averageProfitability.toFixed(1)),
-            productCount: products.length,
+            productCount: validProducts.length,
             issues: issues,
-            products: products,
+            products: validProducts,
             summary: {
               totalRevenue,
               totalCost,
