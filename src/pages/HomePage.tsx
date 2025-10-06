@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import * as XLSX from 'xlsx'
-import { FileSpreadsheet } from 'lucide-react'
 import FileUpload from '../components/FileUpload'
 import AnalysisList from '../components/AnalysisList'
 
@@ -318,7 +317,6 @@ const HomePage: React.FC = () => {
       {/* Upload Section */}
       <div className="card">
         <div className="text-center">
-          <FileSpreadsheet className="h-12 w-12 text-blue-600 mx-auto mb-4" />
           <FileUpload onFileUpload={handleFileUpload} />
         </div>
       </div>
