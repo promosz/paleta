@@ -240,10 +240,22 @@ export const RulesList: React.FC<RulesListProps> = ({
                   {renderConditions(rule)}
 
                   <div className="text-xs text-neutral-400 mt-2">
-                    Utworzona: {new Date(rule.createdAt).toLocaleDateString('pl-PL')}
+                    Utworzona: {new Date(rule.createdAt).toLocaleString('pl-PL', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                     {rule.updatedAt !== rule.createdAt && (
                       <span className="ml-2">
-                        • Zaktualizowana: {new Date(rule.updatedAt).toLocaleDateString('pl-PL')}
+                        • Zaktualizowana: {new Date(rule.updatedAt).toLocaleString('pl-PL', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </span>
                     )}
                   </div>

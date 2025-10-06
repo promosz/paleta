@@ -511,7 +511,13 @@ const AnalysisDetailPage: React.FC = () => {
                 {analysisData.fileName}
               </h2>
               <p className="text-gray-600">
-                Przesłano: {new Date(analysisData.uploadDate).toLocaleDateString('pl-PL')}
+                Przesłano: {new Date(analysisData.uploadDate).toLocaleString('pl-PL', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </p>
             </div>
           </div>

@@ -323,15 +323,33 @@ export const AnalysisList: React.FC<AnalysisListProps> = ({
                   )}
 
                   <div className="text-xs text-neutral-400">
-                    Utworzona: {new Date(analysis.createdAt).toLocaleDateString('pl-PL')}
+                    Utworzona: {new Date(analysis.createdAt).toLocaleString('pl-PL', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                     {analysis.updatedAt !== analysis.createdAt && (
                       <span className="ml-2">
-                        • Zaktualizowana: {new Date(analysis.updatedAt).toLocaleDateString('pl-PL')}
+                        • Zaktualizowana: {new Date(analysis.updatedAt).toLocaleString('pl-PL', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </span>
                     )}
                     {analysis.completedAt && (
                       <span className="ml-2">
-                        • Zakończona: {new Date(analysis.completedAt).toLocaleDateString('pl-PL')}
+                        • Zakończona: {new Date(analysis.completedAt).toLocaleString('pl-PL', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </span>
                     )}
                   </div>

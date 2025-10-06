@@ -287,7 +287,7 @@ const HomePage: React.FC = () => {
           const result: AnalysisResult = {
             id: Date.now().toString(),
             fileName: file.name,
-            uploadDate: new Date().toISOString().split('T')[0],
+            uploadDate: new Date().toISOString(),
             status: 'completed',
             profitability: Number(averageProfitability.toFixed(1)),
             productCount: products.length,
@@ -319,7 +319,7 @@ const HomePage: React.FC = () => {
     const tempAnalysis: AnalysisResult = {
       id: Date.now().toString(),
       fileName: file.name,
-      uploadDate: new Date().toISOString().split('T')[0],
+      uploadDate: new Date().toISOString(),
       status: 'processing',
       profitability: null,
       productCount: null,

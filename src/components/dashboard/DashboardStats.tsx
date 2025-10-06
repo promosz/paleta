@@ -109,7 +109,13 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
                 <span className="text-neutral-600">Ostatnia analiza:</span>
                 <span className="font-semibold">
                   {stats.lastAnalysisAt 
-                    ? new Date(stats.lastAnalysisAt).toLocaleDateString('pl-PL')
+                    ? new Date(stats.lastAnalysisAt).toLocaleString('pl-PL', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })
                     : 'Brak'
                   }
                 </span>

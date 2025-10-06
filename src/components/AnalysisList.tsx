@@ -105,7 +105,13 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
               <div>
                 <h4 className="font-medium text-gray-900">{analysis.fileName}</h4>
                 <p className="text-sm text-gray-500">
-                  Przesłano: {new Date(analysis.uploadDate).toLocaleDateString('pl-PL')}
+                  Przesłano: {new Date(analysis.uploadDate).toLocaleString('pl-PL', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </p>
               </div>
             </div>
