@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
@@ -56,22 +56,12 @@ const AnalysisDetailPage: React.FC = () => {
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
   const [showMarketPrices, setShowMarketPrices] = useState(false)
   const [showRulesManager, setShowRulesManager] = useState(false)
+  const [productsWithStatus, setProductsWithStatus] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [rules, setRules] = useState<any[]>([])
 
   // Load rules on component mount
-  useEffect(() => {
-    loadRules()
-  }, [])
-
-  // Update filtered products when analysis data changes
-  useEffect(() => {
-    if (analysisData) {
-      analyzeProductsWithRules()
-    }
-  }, [analysisData])
-
   const loadRules = () => {
     const savedRules = localStorage.getItem('analysis-rules')
     if (savedRules) {
@@ -83,7 +73,7 @@ const AnalysisDetailPage: React.FC = () => {
     }
   }
 
-  const analyzeProductsWithRules = () => {
+  const analyzeProductsWithRules = useCallback(() => {
     if (!analysisData) return
 
     const updatedProducts = analysisData.products.map(product => {
@@ -120,17 +110,19 @@ const AnalysisDetailPage: React.FC = () => {
       }
       return result
     })
-
-    // Update analysisData with new statuses
-    setAnalysisData(prev => prev ? { ...prev, products: updatedProducts } : null)
     
-    // Apply current filters to updated products
-    if (selectedCategory) {
-      setFilteredProducts(updatedProducts.filter(p => p.kategoria === selectedCategory))
-    } else {
-      setFilteredProducts(updatedProducts)
-    }
-  }
+    // Store products with status
+    setProductsWithStatus(updatedProducts)
+  }, [analysisData, rules])
+
+  useEffect(() => {
+    loadRules()
+  }, [])
+
+  // Update products with status when analysis data or rules change
+  useEffect(() => {
+    analyzeProductsWithRules()
+  }, [analyzeProductsWithRules])
 
   const handleAddToRules = (product: Product, action: 'block' | 'warning') => {
     const newRule = {
@@ -146,7 +138,6 @@ const AnalysisDetailPage: React.FC = () => {
     const updatedRules = [...rules, newRule]
     localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
     setRules(updatedRules)
-    analyzeProductsWithRules()
   }
 
   const handleAddCategoryToRules = (category: string, action: 'block' | 'warning') => {
@@ -163,14 +154,12 @@ const AnalysisDetailPage: React.FC = () => {
     const updatedRules = [...rules, newRule]
     localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
     setRules(updatedRules)
-    analyzeProductsWithRules()
   }
 
   const handleRemoveRule = (ruleId: string) => {
     const updatedRules = rules.filter(rule => rule.id !== ruleId)
     localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
     setRules(updatedRules)
-    analyzeProductsWithRules()
   }
 
   // Pobierz dane analizy z localStorage lub mock data
@@ -297,22 +286,26 @@ const AnalysisDetailPage: React.FC = () => {
     { id: 'profitability', label: 'Analiza rentowności', icon: BarChart3 },
   ]
 
-  const renderContentTab = () => (
-    <div className="space-y-6">
-      {/* Product Filter */}
-      {analysisData && (
-        <ProductFilter
-          products={analysisData.products}
-          onFilteredProducts={setFilteredProducts}
-          onCategorySelect={setSelectedCategory}
-          selectedCategory={selectedCategory}
-        />
-      )}
+  const renderContentTab = () => {
+    // Use productsWithStatus if available, otherwise use analysisData.products
+    const displayProducts = productsWithStatus.length > 0 ? productsWithStatus : analysisData?.products || []
+    
+    return (
+      <div className="space-y-6">
+        {/* Product Filter */}
+        {displayProducts.length > 0 && (
+          <ProductFilter
+            products={displayProducts}
+            onFilteredProducts={setFilteredProducts}
+            onCategorySelect={setSelectedCategory}
+            selectedCategory={selectedCategory}
+          />
+        )}
 
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Wszystkie produkty z pliku ({filteredProducts.length})
-        </h3>
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Wszystkie produkty z pliku ({filteredProducts.length})
+          </h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -338,72 +331,78 @@ const AnalysisDetailPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProducts.map((product, index) => (
-                <tr key={index} className={product.status === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' : ''}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <ProductImage 
-                      foto={product.foto} 
-                      nazwa={product.nazwa} 
-                      className="w-16 h-16" 
-                    />
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
-                    <div className="space-y-1">
-                      <div className="truncate font-medium" title={product.nazwa}>
-                        {product.nazwa}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {product.kategoria}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="space-y-1">
-                      <div className="font-medium">{product.cenaRegularnaBrutto.toLocaleString('pl-PL')} zł</div>
-                      <div className="text-xs text-gray-400">{product.cenaSprzedazyNetto.toLocaleString('pl-PL')} zł</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {product.marza.toLocaleString('pl-PL')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {product.status === 'warning' && (
+              {filteredProducts.map((product, index) => {
+                // Ensure product has status, default to 'allowed' if not present
+                const productStatus = product.status || 'allowed'
+                
+                return (
+                  <tr key={index} className={productStatus === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' : ''}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <ProductImage 
+                        foto={product.foto} 
+                        nazwa={product.nazwa} 
+                        className="w-16 h-16" 
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                       <div className="space-y-1">
-                        <div className="flex items-center space-x-1">
-                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                          <span className="text-xs text-yellow-600 font-medium">Ostrzeżenie</span>
+                        <div className="truncate font-medium" title={product.nazwa}>
+                          {product.nazwa}
                         </div>
-                        {product.appliedRule && (
-                          <div className="text-xs text-yellow-500">
-                            {product.appliedRule}
+                        <div className="text-xs text-gray-500">
+                          {product.kategoria}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="space-y-1">
+                        <div className="font-medium">{product.cenaRegularnaBrutto.toLocaleString('pl-PL')} zł</div>
+                        <div className="text-xs text-gray-400">{product.cenaSprzedazyNetto.toLocaleString('pl-PL')} zł</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {product.marza.toLocaleString('pl-PL')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {productStatus === 'warning' && (
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-1">
+                            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                            <span className="text-xs text-yellow-600 font-medium">Ostrzeżenie</span>
                           </div>
-                        )}
-                      </div>
-                    )}
-                    {product.status === 'allowed' && (
-                      <div className="flex items-center space-x-1">
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                        <span className="text-xs text-green-600 font-medium">Dozwolony</span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <ProductActions
-                      product={product}
-                      onAddToRules={handleAddToRules}
-                      onAddCategoryToRules={handleAddCategoryToRules}
-                      onRemoveRule={handleRemoveRule}
-                      existingRules={rules}
-                    />
-                  </td>
-                </tr>
-              ))}
+                          {product.appliedRule && (
+                            <div className="text-xs text-yellow-500">
+                              {product.appliedRule}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {productStatus === 'allowed' && (
+                        <div className="flex items-center space-x-1">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="text-xs text-green-600 font-medium">Dozwolony</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <ProductActions
+                        product={product}
+                        onAddToRules={handleAddToRules}
+                        onAddCategoryToRules={handleAddCategoryToRules}
+                        onRemoveRule={handleRemoveRule}
+                        existingRules={rules}
+                      />
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
       </div>
     </div>
-  )
+    )
+  }
 
   const renderProfitabilityTab = () => (
     <div className="space-y-6">

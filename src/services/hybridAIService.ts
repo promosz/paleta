@@ -1,4 +1,4 @@
-import { AIAnalysisResult, PaletteAnalysisResult } from '../types/ai'
+import { AIAnalysisResult, PaletteAnalysisResult } from './aiService'
 
 export type AIServiceType = 'cloud' | 'browser' | 'docker' | 'none'
 export type AIServiceStatus = 'online' | 'offline' | 'checking' | 'error'
@@ -279,13 +279,17 @@ export class HybridAIService {
   // Mock implementations for fallback
   private mockNormalizeProduct(productName: string, description: string): AIAnalysisResult {
     return {
+      original_name: productName,
       normalized_name: productName,
       brand: 'Unknown',
       model: 'Unknown',
       category: 'Unknown',
+      specifications: {},
       confidence: 0.5,
+      processed_text: productName,
       profitability_score: 50,
-      risk_level: 'MEDIUM'
+      risk_level: 'MEDIUM',
+      recommendation: 'CAUTION'
     }
   }
 
@@ -293,10 +297,15 @@ export class HybridAIService {
     return {
       average_profitability: 60,
       high_risk_count: 2,
+      medium_risk_count: 3,
+      low_risk_count: 5,
       recommended_categories: ['Electronics', 'Tools'],
       buy_recommendation: 'CAUTION',
       risk_assessment: 'MEDIUM',
-      estimated_roi: 15.5
+      estimated_roi: 15.5,
+      category_distribution: {},
+      total_products: products.length,
+      profitability_distribution: {}
     }
   }
 

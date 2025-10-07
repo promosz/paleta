@@ -369,3 +369,4 @@ const MarketPrices: React.FC<MarketPricesProps> = ({ products, onClose }) => {
 
 export default MarketPrices
 
+
