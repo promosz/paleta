@@ -9,7 +9,6 @@ export interface ImageSearchResult {
 export class ImageService {
   private static instance: ImageService
   private cache: Map<string, ImageSearchResult[]> = new Map()
-  private readonly CACHE_TTL = 24 * 60 * 60 * 1000 // 24 godziny
 
   static getInstance(): ImageService {
     if (!ImageService.instance) {

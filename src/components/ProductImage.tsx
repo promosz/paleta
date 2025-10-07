@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Image, Eye, X, ExternalLink, Search } from 'lucide-react'
+import { Image, Eye, X, ExternalLink } from 'lucide-react'
 import { imageService, ImageSearchResult } from '../services/imageService'
 
 interface ProductImageProps {
@@ -81,14 +81,6 @@ const ProductImage: React.FC<ProductImageProps> = ({ foto, nazwa, className = ''
 
   const handleImageError = () => {
     setImageError(true)
-  }
-
-  const openExternalLink = () => {
-    if (isImageLink) {
-      window.open(foto, '_blank')
-    } else if (isGoogleSearchLink) {
-      window.open(foto, '_blank')
-    }
   }
 
   const nextImage = () => {
