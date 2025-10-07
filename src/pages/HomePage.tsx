@@ -353,7 +353,7 @@ const HomePage: React.FC = () => {
             uploadDate: new Date().toISOString(),
             status: 'completed',
             profitability: Number(averageProfitability.toFixed(1)),
-            productCount: validProducts.length,
+            productCount: parseInt(validProducts.length.toString(), 10),
             issues: issues,
             products: validProducts,
             summary: {
@@ -446,7 +446,7 @@ const HomePage: React.FC = () => {
             {/* Header */}
             <div className="text-center">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Pallet Analysis
+                Analizator palet
               </h2>
               <div className="w-full">
                 <p className="text-base text-gray-600 text-center">

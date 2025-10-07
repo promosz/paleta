@@ -81,6 +81,19 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
     }
   }
 
+  // Funkcja do bezpiecznego wyświetlania liczby produktów
+  const formatProductCount = (count: number | null): string => {
+    if (count === null || count === undefined) return '0'
+    
+    // Konwertuj na liczbę i usuń wszystkie niepotrzebne znaki
+    const num = parseInt(String(count).replace(/[^0-9]/g, ''), 10)
+    
+    // Sprawdź czy liczba jest poprawna
+    if (isNaN(num) || num < 0) return '0'
+    
+    return String(num)
+  }
+
   if (analyses.length === 0) {
     return (
       <div className="text-center py-12">
@@ -137,7 +150,7 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
                   <div className="flex items-center space-x-1">
                     <Package className="h-4 w-4 text-blue-600" />
                     <span className="text-gray-600">
-                      Produkty: <span className="font-medium">{analysis.productCount}</span>
+                      Produkty: <span className="font-medium text-blue-600">{formatProductCount(analysis.productCount)}</span>
                     </span>
                   </div>
                   {analysis.issues && analysis.issues > 0 && (

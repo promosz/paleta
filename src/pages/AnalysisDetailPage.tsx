@@ -331,12 +331,12 @@ const AnalysisDetailPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProducts.map((product, index) => {
+              {displayProducts.map((product, index) => {
                 // Ensure product has status, default to 'allowed' if not present
                 const productStatus = product.status || 'allowed'
                 
                 return (
-                  <tr key={index} className={productStatus === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500' : ''}>
+                  <tr key={index} className={productStatus === 'warning' ? 'bg-yellow-50' : ''}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <ProductImage 
                         foto={product.foto} 
@@ -365,16 +365,11 @@ const AnalysisDetailPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {productStatus === 'warning' && (
-                        <div className="space-y-1">
-                          <div className="flex items-center space-x-1">
-                            <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                            <span className="text-xs text-yellow-600 font-medium">Ostrzeżenie</span>
-                          </div>
-                          {product.appliedRule && (
-                            <div className="text-xs text-yellow-500">
-                              {product.appliedRule}
-                            </div>
-                          )}
+                        <div className="flex items-center space-x-1">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          <span className="text-xs text-yellow-600 font-medium">
+                            {product.appliedRule || 'Ostrzeżenie'}
+                          </span>
                         </div>
                       )}
                       {productStatus === 'allowed' && (
