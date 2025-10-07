@@ -12,7 +12,7 @@ import {
   ExternalLink,
   Download
 } from 'lucide-react'
-import { hybridAIService, HybridAIStatus, AIServiceType, AIServiceConfig } from '../services/hybridAIService'
+import { hybridAIService, HybridAIStatus, AIServiceType } from '../services/hybridAIService'
 
 interface HybridAIConfigurationProps {
   onClose: () => void
@@ -29,7 +29,6 @@ const HybridAIConfiguration: React.FC<HybridAIConfigurationProps> = ({ onClose }
   const [isChecking, setIsChecking] = useState(false)
   const [selectedService, setSelectedService] = useState<AIServiceType>('none')
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [configs] = useState<AIServiceConfig[]>([])
 
   useEffect(() => {
     loadStatus()
@@ -43,8 +42,7 @@ const HybridAIConfiguration: React.FC<HybridAIConfigurationProps> = ({ onClose }
   }
 
   const loadConfigs = () => {
-    const allConfigs = hybridAIService.getAllConfigs()
-    setConfigs(allConfigs)
+    // Configs are loaded but not used in this simplified version
   }
 
   const checkAllServices = async () => {

@@ -53,8 +53,6 @@ const getAIServiceURL = (): string => {
     : 'http://localhost:8000'
 }
 
-const AI_API_BASE_URL = getAIServiceURL()
-
 export class AIService {
   private static instance: AIService
   private cache: Map<string, { data: any; timestamp: number }> = new Map()

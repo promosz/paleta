@@ -154,7 +154,7 @@ export class HybridAIService {
 
   private autoSelectService(): void {
     const availableServices = this.configs
-      .filter(config => config.enabled && this.status[config.type] === 'online')
+      .filter(config => config.enabled && config.type !== 'none' && this.status[config.type] === 'online')
       .sort((a, b) => a.priority - b.priority)
 
     if (availableServices.length > 0) {
@@ -277,7 +277,7 @@ export class HybridAIService {
   }
 
   // Mock implementations for fallback
-  private mockNormalizeProduct(productName: string, description: string): AIAnalysisResult {
+  private mockNormalizeProduct(productName: string, _description: string): AIAnalysisResult {
     return {
       original_name: productName,
       normalized_name: productName,

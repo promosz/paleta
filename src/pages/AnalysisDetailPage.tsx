@@ -18,7 +18,7 @@ interface Product {
   kategoria: string
   pcs: number
   cenaRegularnaBrutto: number
-  status?: 'warning' | 'allowed'
+  status?: 'warning' | 'allowed' | 'blocked'
   appliedRule?: string
   waluta: string
   cenaSprzedazyNetto: number

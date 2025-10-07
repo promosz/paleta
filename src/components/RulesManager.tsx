@@ -39,7 +39,6 @@ const RulesManager: React.FC<RulesManagerProps> = ({
   const [newRuleName, setNewRuleName] = useState('')
   const [newRuleAction, setNewRuleAction] = useState<'warning'>('warning')
   const [newRuleDescription, setNewRuleDescription] = useState('')
-  const [message, setMessage] = useState('')
 
   useEffect(() => {
     loadRules()
@@ -62,11 +61,6 @@ const RulesManager: React.FC<RulesManagerProps> = ({
     }
   }
 
-  const saveRules = (newRules: Rule[]) => {
-    localStorage.setItem('analysis-rules', JSON.stringify(newRules))
-    setRules(newRules)
-  }
-
   const addRule = () => {
     if (!newRuleName.trim()) return
 
@@ -81,7 +75,6 @@ const RulesManager: React.FC<RulesManagerProps> = ({
     setNewRuleName('')
     setNewRuleDescription('')
     setShowAddRule(false)
-    setMessage('Reguła dodana pomyślnie.')
   }
 
   const removeRule = (ruleId: string) => {
@@ -89,7 +82,6 @@ const RulesManager: React.FC<RulesManagerProps> = ({
       if (onRemoveRule) {
         onRemoveRule(ruleId)
       }
-      setMessage('Reguła usunięta.')
     }
   }
 
@@ -262,7 +254,7 @@ const RulesManager: React.FC<RulesManagerProps> = ({
             </div>
             <div className="bg-red-50 rounded-lg p-4 text-center">
               <div className="text-2xl font-bold text-red-600">
-                {rules.filter(r => r.action === 'block').length}
+                0
               </div>
               <div className="text-sm text-red-700">Blokujące</div>
             </div>
