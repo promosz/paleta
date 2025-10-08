@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, Brain, Loader } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import MarketPrices from '../components/MarketPrices'
 import ProductFilter from '../components/ProductFilter'
 import ProductActions from '../components/ProductActions'
 import RulesManager from '../components/RulesManager'
+import { hybridAIService } from '../services/hybridAIService'
 
 interface Product {
   paleta: string
@@ -60,6 +61,14 @@ const AnalysisDetailPage: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [rules, setRules] = useState<any[]>([])
+  const [aiReport, setAiReport] = useState<{
+    summary: string
+    productAnalysis: string
+    recommendations: string
+    buyDecision: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'CAUTION' | 'AVOID'
+    confidenceScore: number
+  } | null>(null)
+  const [isLoadingReport, setIsLoadingReport] = useState(false)
 
   // Load rules on component mount
   const loadRules = () => {
@@ -123,6 +132,30 @@ const AnalysisDetailPage: React.FC = () => {
   useEffect(() => {
     analyzeProductsWithRules()
   }, [analyzeProductsWithRules])
+
+  // Generate AI report when analysis data is available
+  useEffect(() => {
+    if (analysisData && analysisData.products.length > 0 && !aiReport) {
+      generateAIReport()
+    }
+  }, [analysisData])
+
+  const generateAIReport = async () => {
+    if (!analysisData || analysisData.products.length === 0) return
+    
+    setIsLoadingReport(true)
+    try {
+      const report = await hybridAIService.generatePaletteReport(analysisData.products)
+      setAiReport(report)
+    } catch (error) {
+      console.error('Failed to generate AI report:', error)
+      // If AI fails, still show a basic report using mock data
+      const report = await hybridAIService.generatePaletteReport(analysisData.products)
+      setAiReport(report)
+    } finally {
+      setIsLoadingReport(false)
+    }
+  }
 
   const handleAddToRules = (product: Product, action: 'block' | 'warning') => {
     const newRule = {
@@ -276,11 +309,6 @@ const AnalysisDetailPage: React.FC = () => {
   const totalRevenue = analysisData.products.reduce((sum, p) => sum + p.cenaRegularnaBrutto, 0)
   const totalCost = analysisData.products.reduce((sum, p) => sum + p.cenaSprzedazyNetto, 0)
 
-  // Podziel produkty na kategorie rentowności
-  const lowProfitability = analysisData.products.filter(p => p.rentownosc < 60)
-  const mediumProfitability = analysisData.products.filter(p => p.rentownosc >= 60 && p.rentownosc < 80)
-  const highProfitability = analysisData.products.filter(p => p.rentownosc >= 80)
-
   const tabs = [
     { id: 'content', label: 'Zawartość pliku', icon: Table },
     { id: 'profitability', label: 'Analiza rentowności', icon: BarChart3 },
@@ -399,129 +427,153 @@ const AnalysisDetailPage: React.FC = () => {
     )
   }
 
-  const renderProfitabilityTab = () => (
-    <div className="space-y-6">
-      {/* Podsumowanie kategorii */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card text-center">
-          <div className="flex items-center justify-center mb-3">
-            <div className="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-            <h3 className="text-lg font-semibold text-gray-900">Niska rentowność</h3>
+  const renderProfitabilityTab = () => {
+    if (isLoadingReport) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader className="h-12 w-12 text-blue-600 animate-spin mb-4" />
+          <p className="text-gray-600">AI analizuje zestawienie...</p>
+        </div>
+      )
+    }
+
+    if (!aiReport) {
+      return (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Brain className="h-12 w-12 text-gray-400 mb-4" />
+          <p className="text-gray-600">Brak dostępnej analizy AI</p>
+          <button
+            onClick={generateAIReport}
+            className="mt-4 btn-primary"
+          >
+            Wygeneruj analizę
+          </button>
+        </div>
+      )
+    }
+
+    const getBuyDecisionColor = (decision: string) => {
+      switch (decision) {
+        case 'STRONG_BUY': return 'bg-green-100 text-green-800 border-green-300'
+        case 'BUY': return 'bg-green-50 text-green-700 border-green-200'
+        case 'HOLD': return 'bg-yellow-100 text-yellow-800 border-yellow-300'
+        case 'CAUTION': return 'bg-orange-100 text-orange-800 border-orange-300'
+        case 'AVOID': return 'bg-red-100 text-red-800 border-red-300'
+        default: return 'bg-gray-100 text-gray-800 border-gray-300'
+      }
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* AI Header */}
+        <div className="card bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <Brain className="h-8 w-8 text-blue-600" />
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Analiza AI</h3>
+                <p className="text-sm text-gray-600">Inteligentna ocena zestawienia produktów</p>
+              </div>
+            </div>
+            <div className={`px-4 py-2 rounded-lg border-2 ${getBuyDecisionColor(aiReport.buyDecision)}`}>
+              <div className="text-xs font-medium mb-1">Rekomendacja</div>
+              <div className="text-lg font-bold">{aiReport.buyDecision.replace('_', ' ')}</div>
+            </div>
           </div>
-          <div className="text-3xl font-bold text-red-600 mb-2">
-            {lowProfitability.length}
+          <div className="flex items-center space-x-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${aiReport.confidenceScore}%` }}
+              />
+            </div>
+            <span className="text-sm font-medium text-gray-600">
+              Pewność: {aiReport.confidenceScore}%
+            </span>
           </div>
-          <p className="text-gray-600">produktów (&lt; 60%)</p>
         </div>
 
-        <div className="card text-center">
-          <div className="flex items-center justify-center mb-3">
-            <div className="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
-            <h3 className="text-lg font-semibold text-gray-900">Średnia rentowność</h3>
+        {/* Podsumowanie */}
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <FileSpreadsheet className="h-5 w-5 mr-2 text-blue-600" />
+            Podsumowanie zestawienia
+          </h3>
+          <div className="prose max-w-none">
+            <p className="text-gray-700 whitespace-pre-line">{aiReport.summary}</p>
           </div>
-          <div className="text-3xl font-bold text-yellow-600 mb-2">
-            {mediumProfitability.length}
-          </div>
-          <p className="text-gray-600">produktów (60-80%)</p>
         </div>
 
-        <div className="card text-center">
-          <div className="flex items-center justify-center mb-3">
-            <div className="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-            <h3 className="text-lg font-semibold text-gray-900">Wysoka rentowność</h3>
+        {/* Analiza produktów */}
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
+            Analiza produktów
+          </h3>
+          <div className="prose max-w-none">
+            <div className="text-gray-700 whitespace-pre-line space-y-2">
+              {aiReport.productAnalysis.split('\n').map((line, idx) => {
+                if (line.startsWith('**')) {
+                  return <div key={idx} className="font-semibold text-gray-900 mt-3">{line.replace(/\*\*/g, '')}</div>
+                }
+                if (line.startsWith('•')) {
+                  return <div key={idx} className="ml-4 text-gray-700">{line}</div>
+                }
+                if (line.match(/^\d+\./)) {
+                  return <div key={idx} className="ml-4 text-gray-700">{line}</div>
+                }
+                if (line.trim() === '') {
+                  return <div key={idx} className="h-2"></div>
+                }
+                return <div key={idx} className="ml-6 text-gray-600 text-sm">{line}</div>
+              })}
+            </div>
           </div>
-          <div className="text-3xl font-bold text-green-600 mb-2">
-            {highProfitability.length}
+        </div>
+
+        {/* Rekomendacje */}
+        <div className="card border-2 border-blue-200 bg-blue-50">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
+            Rekomendacje zakupu
+          </h3>
+          <div className="prose max-w-none">
+            <div className="text-gray-700 whitespace-pre-line space-y-2">
+              {aiReport.recommendations.split('\n').map((line, idx) => {
+                if (line.startsWith('**Rekomendacja')) {
+                  return <div key={idx} className="text-xl font-bold text-gray-900 mb-4">{line.replace(/\*\*/g, '')}</div>
+                }
+                if (line.startsWith('**')) {
+                  return <div key={idx} className="font-semibold text-gray-900 mt-3">{line.replace(/\*\*/g, '')}</div>
+                }
+                if (line.startsWith('✅') || line.startsWith('⚠️') || line.startsWith('🔴')) {
+                  return <div key={idx} className="text-base font-medium text-gray-800 mt-2">{line}</div>
+                }
+                if (line.startsWith('•')) {
+                  return <div key={idx} className="ml-4 text-gray-700">{line}</div>
+                }
+                if (line.trim() === '') {
+                  return <div key={idx} className="h-2"></div>
+                }
+                return <div key={idx} className="text-gray-600">{line}</div>
+              })}
+            </div>
           </div>
-          <p className="text-gray-600">produktów (&gt; 80%)</p>
+        </div>
+
+        {/* Refresh button */}
+        <div className="flex justify-center">
+          <button
+            onClick={generateAIReport}
+            className="btn-secondary flex items-center space-x-2"
+          >
+            <Brain className="h-4 w-4" />
+            <span>Wygeneruj ponownie analizę AI</span>
+          </button>
         </div>
       </div>
-
-      {/* Produkty o niskiej rentowności */}
-      {lowProfitability.length > 0 && (
-        <div className="card">
-          <h3 className="text-lg font-semibold text-red-700 mb-4 flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            Produkty o niskiej rentowności ({lowProfitability.length})
-          </h3>
-          <div className="space-y-3">
-            {lowProfitability.map((product, index) => (
-              <div key={index} className="p-4 bg-red-50 rounded-lg border-l-4 border-red-400">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{product.nazwa}</h4>
-                    <p className="text-sm text-gray-600">Kategoria: {product.kategoria}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-red-600">{product.rentownosc.toFixed(1)}%</div>
-                    <div className="text-sm text-gray-600">
-                      {product.cenaRegularnaBrutto.toLocaleString('pl-PL')} PLN
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Produkty o średniej rentowności */}
-      {mediumProfitability.length > 0 && (
-        <div className="card">
-          <h3 className="text-lg font-semibold text-yellow-700 mb-4 flex items-center">
-            <TrendingUp className="h-5 w-5 mr-2" />
-            Produkty o średniej rentowności ({mediumProfitability.length})
-          </h3>
-          <div className="space-y-3">
-            {mediumProfitability.map((product, index) => (
-              <div key={index} className="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{product.nazwa}</h4>
-                    <p className="text-sm text-gray-600">Kategoria: {product.kategoria}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-yellow-600">{product.rentownosc.toFixed(1)}%</div>
-                    <div className="text-sm text-gray-600">
-                      {product.cenaRegularnaBrutto.toLocaleString('pl-PL')} PLN
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Produkty o wysokiej rentowności */}
-      {highProfitability.length > 0 && (
-        <div className="card">
-          <h3 className="text-lg font-semibold text-green-700 mb-4 flex items-center">
-            <CheckCircle className="h-5 w-5 mr-2" />
-            Produkty o wysokiej rentowności ({highProfitability.length})
-          </h3>
-          <div className="space-y-3">
-            {highProfitability.map((product, index) => (
-              <div key={index} className="p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{product.nazwa}</h4>
-                    <p className="text-sm text-gray-600">Kategoria: {product.kategoria}</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-green-600">{product.rentownosc.toFixed(1)}%</div>
-                    <div className="text-sm text-gray-600">
-                      {product.cenaRegularnaBrutto.toLocaleString('pl-PL')} PLN
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
+    )
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">

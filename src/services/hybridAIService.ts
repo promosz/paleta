@@ -191,6 +191,25 @@ export class HybridAIService {
     }
   }
 
+  async generatePaletteReport(products: any[]): Promise<{
+    summary: string
+    productAnalysis: string
+    recommendations: string
+    buyDecision: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'CAUTION' | 'AVOID'
+    confidenceScore: number
+  }> {
+    switch (this.currentService) {
+      case 'cloud':
+        return this.cloudGeneratePaletteReport(products)
+      case 'browser':
+        return this.browserGeneratePaletteReport(products)
+      case 'docker':
+        return this.dockerGeneratePaletteReport(products)
+      default:
+        return this.mockGeneratePaletteReport(products)
+    }
+  }
+
   // Cloud AI Implementation
   private async cloudNormalizeProduct(productName: string, description: string): Promise<AIAnalysisResult> {
     const config = this.configs.find(c => c.type === 'cloud')
@@ -306,6 +325,155 @@ export class HybridAIService {
       category_distribution: {},
       total_products: products.length,
       profitability_distribution: {}
+    }
+  }
+
+  // Cloud report generation
+  private async cloudGeneratePaletteReport(products: any[]): Promise<any> {
+    const config = this.configs.find(c => c.type === 'cloud')
+    const response = await fetch(`${config?.url}/ai/generate-report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config?.apiKey && { 'Authorization': `Bearer ${config.apiKey}` })
+      },
+      body: JSON.stringify({ products })
+    })
+
+    if (!response.ok) {
+      return this.mockGeneratePaletteReport(products)
+    }
+
+    return await response.json()
+  }
+
+  // Browser report generation
+  private async browserGeneratePaletteReport(products: any[]): Promise<any> {
+    return this.mockGeneratePaletteReport(products)
+  }
+
+  // Docker report generation
+  private async dockerGeneratePaletteReport(products: any[]): Promise<any> {
+    const config = this.configs.find(c => c.type === 'docker')
+    const response = await fetch(`${config?.url}/ai/generate-report`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ products })
+    })
+
+    if (!response.ok) {
+      return this.mockGeneratePaletteReport(products)
+    }
+
+    return await response.json()
+  }
+
+  // Mock report generation
+  private mockGeneratePaletteReport(products: any[]): {
+    summary: string
+    productAnalysis: string
+    recommendations: string
+    buyDecision: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'CAUTION' | 'AVOID'
+    confidenceScore: number
+  } {
+    const totalProducts = products.length
+    const avgProfitability = products.reduce((sum, p) => sum + (p.rentownosc || 0), 0) / totalProducts
+    const totalValue = products.reduce((sum, p) => sum + (p.cenaRegularnaBrutto || 0), 0)
+    const categories = [...new Set(products.map(p => p.kategoria))].filter(c => c && c !== 'Brak kategorii')
+    
+    const highProfitCount = products.filter(p => p.rentownosc >= 80).length
+    const mediumProfitCount = products.filter(p => p.rentownosc >= 60 && p.rentownosc < 80).length
+    const lowProfitCount = products.filter(p => p.rentownosc < 60).length
+
+    let buyDecision: 'STRONG_BUY' | 'BUY' | 'HOLD' | 'CAUTION' | 'AVOID' = 'HOLD'
+    if (avgProfitability >= 80) buyDecision = 'STRONG_BUY'
+    else if (avgProfitability >= 70) buyDecision = 'BUY'
+    else if (avgProfitability >= 60) buyDecision = 'HOLD'
+    else if (avgProfitability >= 50) buyDecision = 'CAUTION'
+    else buyDecision = 'AVOID'
+
+    const summary = `
+Zestawienie zawiera ${totalProducts} ${totalProducts === 1 ? 'produkt' : totalProducts < 5 ? 'produkty' : 'produktów'} o łącznej wartości ${totalValue.toLocaleString('pl-PL')} PLN. 
+Średnia rentowność zestawienia wynosi ${avgProfitability.toFixed(1)}%, co wskazuje na ${avgProfitability >= 70 ? 'bardzo dobry' : avgProfitability >= 60 ? 'dobry' : avgProfitability >= 50 ? 'przeciętny' : 'słaby'} potencjał zyskowności.
+
+Produkty pochodzą z ${categories.length} ${categories.length === 1 ? 'kategorii' : 'kategorii'}: ${categories.slice(0, 3).join(', ')}${categories.length > 3 ? ' i inne' : ''}.
+    `.trim()
+
+    const productAnalysis = `
+**Analiza produktów według rentowności:**
+
+• **Wysoka rentowność (≥80%):** ${highProfitCount} ${highProfitCount === 1 ? 'produkt' : 'produktów'}
+  ${highProfitCount > 0 ? `Te produkty stanowią mocną podstawę zestawienia i powinny generować stabilne zyski.` : 'Brak produktów w tej kategorii może ograniczać potencjał zyskowności.'}
+
+• **Średnia rentowność (60-79%):** ${mediumProfitCount} ${mediumProfitCount === 1 ? 'produkt' : 'produktów'}
+  ${mediumProfitCount > 0 ? `Produkty o akceptowalnej marży, które mogą wspierać ogólną rentowność palety.` : 'Brak produktów w tej kategorii.'}
+
+• **Niska rentowność (<60%):** ${lowProfitCount} ${lowProfitCount === 1 ? 'produkt' : 'produktów'}
+  ${lowProfitCount > 0 ? `⚠️ Produkty wymagające szczególnej uwagi - mogą obniżać ogólną rentowność zestawienia.` : '✅ Bardzo dobry wynik - brak produktów o niskiej rentowności.'}
+
+**Główne kategorie produktów:**
+${categories.slice(0, 5).map((cat, idx) => {
+  const catProducts = products.filter(p => p.kategoria === cat)
+  const catAvgProfit = catProducts.reduce((sum, p) => sum + (p.rentownosc || 0), 0) / catProducts.length
+  return `${idx + 1}. ${cat}: ${catProducts.length} ${catProducts.length === 1 ? 'produkt' : 'produktów'} (śr. rentowność: ${catAvgProfit.toFixed(1)}%)`
+}).join('\n')}
+    `.trim()
+
+    const recommendations = `
+**Rekomendacja zakupu: ${buyDecision === 'STRONG_BUY' ? '🟢 ZDECYDOWANIE KUP' : buyDecision === 'BUY' ? '🟢 KUP' : buyDecision === 'HOLD' ? '🟡 ROZWAŻ' : buyDecision === 'CAUTION' ? '🟠 OSTROŻNIE' : '🔴 UNIKAJ'}**
+
+${buyDecision === 'STRONG_BUY' ? `
+✅ Zestawienie wykazuje doskonałą rentowność powyżej 80%. To bardzo atrakcyjna oferta z wysokim potencjałem zysku.
+
+**Zalecenia:**
+• Priorytetowo rozważ zakup tego zestawienia
+• Rentowność znacznie przewyższa średnie wartości rynkowe
+• Niska ekspozycja na produkty o niskiej marży minimalizuje ryzyko
+` : ''}${buyDecision === 'BUY' ? `
+✅ Zestawienie oferuje dobrą rentowność w przedziale 70-80%. Atrakcyjna oferta warta zakupu.
+
+**Zalecenia:**
+• Zestawienie powinno generować stabilne zyski
+• Rozważ negocjację ceny dla zwiększenia marży
+• Sprawdź konkurencyjność produktów na rynku
+` : ''}${buyDecision === 'HOLD' ? `
+⚠️ Zestawienie oferuje przeciętną rentowność 60-70%. Wymaga dokładniejszej analizy.
+
+**Zalecenia:**
+• Dokładnie przeanalizuj produkty o niskiej rentowności
+• Sprawdź możliwość negocjacji ceny zakupu
+• Rozważ sprzedaż wybranych produktów po wyższych cenach
+• Oceń popyt na produkty przed podjęciem decyzji
+` : ''}${buyDecision === 'CAUTION' ? `
+⚠️ Zestawienie wykazuje rentowność poniżej 60%. Wysoki poziom ryzyka.
+
+**Ostrzeżenia:**
+• Znaczna liczba produktów o niskiej marży
+• Możliwe problemy z osiągnięciem zakładanych zysków
+• Wymagana szczegółowa analiza kosztów dodatkowych
+• Rozważ negocjację znacznie niższej ceny zakupu
+` : ''}${buyDecision === 'AVOID' ? `
+🔴 Zestawienie wykazuje niską rentowność poniżej 50%. Wysokie ryzyko straty.
+
+**Ostrzeżenia:**
+• Większość produktów ma niską marżę zysku
+• Duże ryzyko generowania strat zamiast zysków
+• NIE ZALECAMY zakupu bez znacznej obniżki ceny
+• Poszukaj alternatywnych zestawień o lepszej rentowności
+` : ''}
+
+**Dodatkowe wskazówki:**
+• ${lowProfitCount === 0 ? '✅ Brak produktów problematycznych' : `⚠️ Szczególną uwagę zwróć na ${lowProfitCount} ${lowProfitCount === 1 ? 'produkt' : 'produktów'} o niskiej rentowności`}
+• ${categories.length > 3 ? '✅ Dobra dywersyfikacja kategorii produktowych' : '⚠️ Ograniczona dywersyfikacja - wyższe ryzyko'}
+• Przed zakupem zweryfikuj aktualne ceny rynkowe i popyt na kluczowe produkty
+    `.trim()
+
+    return {
+      summary,
+      productAnalysis,
+      recommendations,
+      buyDecision,
+      confidenceScore: avgProfitability >= 70 ? 85 : avgProfitability >= 60 ? 70 : avgProfitability >= 50 ? 55 : 40
     }
   }
 
