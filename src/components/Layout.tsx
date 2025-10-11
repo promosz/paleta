@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FileSpreadsheet, Settings, BarChart3, Info } from 'lucide-react'
+import { FileSpreadsheet, Settings, BarChart3, Info, LogIn, UserPlus } from 'lucide-react'
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -28,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </h1>
             </Link>
             
-            <nav className="flex space-x-8">
+            <nav className="flex items-center space-x-4">
               {navItems.map(({ path, label, icon: Icon }) => (
                 <Link
                   key={path}
@@ -43,6 +44,35 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <span>{label}</span>
                 </Link>
               ))}
+              
+              {/* Clerk Authentication Buttons */}
+              <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-300">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
+                      <LogIn className="h-4 w-4" />
+                      <span>Zaloguj się</span>
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                      <UserPlus className="h-4 w-4" />
+                      <span>Zarejestruj się</span>
+                    </button>
+                  </SignUpButton>
+                </SignedOut>
+                
+                <SignedIn>
+                  <UserButton 
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-10 h-10"
+                      }
+                    }}
+                  />
+                </SignedIn>
+              </div>
             </nav>
           </div>
         </div>
