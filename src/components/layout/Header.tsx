@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react'
 import { Button } from '../ui'
 
 interface HeaderProps {
@@ -66,13 +67,31 @@ const Header: React.FC<HeaderProps> = ({ onNewAnalysis }) => {
           
           {/* Actions */}
           <div className="flex items-center space-x-3">
-            <Button 
-              variant="primary" 
-              size="sm"
-              onClick={handleNewAnalysis}
-            >
-              Nowa analiza
-            </Button>
+            <SignedIn>
+              <Button 
+                variant="primary" 
+                size="sm"
+                onClick={handleNewAnalysis}
+              >
+                Nowa analiza
+              </Button>
+              <UserButton 
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "w-10 h-10"
+                  }
+                }}
+              />
+            </SignedIn>
+            
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button variant="outline" size="sm">
+                  Zaloguj się
+                </Button>
+              </SignInButton>
+            </SignedOut>
             
             {/* Mobile menu button */}
             <button className="md:hidden p-2 text-neutral-600 hover:text-primary-500">
