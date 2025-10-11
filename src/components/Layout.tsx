@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FileSpreadsheet, Settings, BarChart3 } from 'lucide-react'
+import { FileSpreadsheet, Settings, BarChart3, Info } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -12,6 +12,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navItems = [
     { path: '/', label: 'Analizator palet', icon: FileSpreadsheet },
     { path: '/settings', label: 'Ustawienia', icon: Settings },
+    { path: '/about', label: 'O aplikacji', icon: Info },
   ]
 
   return (
