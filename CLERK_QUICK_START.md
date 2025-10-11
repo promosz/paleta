@@ -96,3 +96,4 @@ Po tych 3 krokach masz:
 
 **Następny krok**: Stage 2 - Database (Supabase)
 
+

@@ -87,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({ onNewAnalysis }) => {
             
             <SignedOut>
               <SignInButton mode="modal">
-                <Button variant="outline" size="sm">
+                <Button variant="secondary" size="sm">
                   Zaloguj się
                 </Button>
               </SignInButton>
