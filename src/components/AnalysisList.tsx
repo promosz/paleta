@@ -196,7 +196,7 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
                         </span>
                       </div>
                     )}
-                    {analysis.issues && analysis.issues > 0 && (
+                    {(analysis.issues ?? 0) > 0 && (
                       <div className="flex items-center space-x-1">
                         <AlertTriangle className="h-4 w-4 text-orange-600" />
                         <span className="text-gray-600">
