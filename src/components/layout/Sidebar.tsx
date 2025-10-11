@@ -10,10 +10,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation()
   
   const navigationItems = [
-    { name: 'Dashboard', icon: '📊', href: '/dashboard' },
+    { name: 'Dashboard', icon: '📊', href: '/' },
     { name: 'Analizy', icon: '📁', href: '/analysis' },
     { name: 'Reguły', icon: '⚙️', href: '/rules' },
     { name: 'Ustawienia', icon: '🔧', href: '/settings' },
+    { name: 'O aplikacji', icon: 'ℹ️', href: '/about' },
   ]
 
   return (
