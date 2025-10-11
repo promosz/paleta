@@ -210,9 +210,10 @@ const HybridAIConfiguration: React.FC<HybridAIConfigurationProps> = ({ onClose }
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-gray-900">Cloud AI Service</h4>
                       <div className="flex items-center space-x-2">
-                        {getStatusIcon(status.cloud)}
-                        {selectedService === 'cloud' && (
+                        {selectedService === 'cloud' ? (
                           <CheckCircle className="h-5 w-5 text-blue-600" />
+                        ) : (
+                          getStatusIcon(status.cloud)
                         )}
                       </div>
                     </div>
@@ -243,9 +244,10 @@ const HybridAIConfiguration: React.FC<HybridAIConfigurationProps> = ({ onClose }
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-gray-900">Browser AI (Offline)</h4>
                       <div className="flex items-center space-x-2">
-                        {getStatusIcon(status.browser)}
-                        {selectedService === 'browser' && (
+                        {selectedService === 'browser' ? (
                           <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          getStatusIcon(status.browser)
                         )}
                       </div>
                     </div>
@@ -276,9 +278,10 @@ const HybridAIConfiguration: React.FC<HybridAIConfigurationProps> = ({ onClose }
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-gray-900">Docker AI Service</h4>
                       <div className="flex items-center space-x-2">
-                        {getStatusIcon(status.docker)}
-                        {selectedService === 'docker' && (
+                        {selectedService === 'docker' ? (
                           <CheckCircle className="h-5 w-5 text-purple-600" />
+                        ) : (
+                          getStatusIcon(status.docker)
                         )}
                       </div>
                     </div>
@@ -308,9 +311,13 @@ const HybridAIConfiguration: React.FC<HybridAIConfigurationProps> = ({ onClose }
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h4 className="font-semibold text-gray-900">Wyłącz AI</h4>
-                      {selectedService === 'none' && (
-                        <CheckCircle className="h-5 w-5 text-red-600" />
-                      )}
+                      <div className="flex items-center space-x-2">
+                        {selectedService === 'none' ? (
+                          <CheckCircle className="h-5 w-5 text-red-600" />
+                        ) : (
+                          <div className="h-5 w-5"></div>
+                        )}
+                      </div>
                     </div>
                     <p className="text-sm text-gray-600 mt-1">
                       Użyj tylko podstawowych funkcji bez AI.
