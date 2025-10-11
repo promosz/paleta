@@ -32,7 +32,7 @@ Wypełnij:
 VITE_CLERK_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY_HERE
 
 # Zmień na (twój prawdziwy key):
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxxx
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_Z3JlYXQtcGVyY2gtMTcuY2xlcmsuYWNjb3VudHMuZGV2JA
 
 # Zapisz (Cmd+S)
 ```
