@@ -46,6 +46,7 @@ const ProductDetailPage: React.FC = () => {
   const [isLoadingImages, setIsLoadingImages] = useState(false)
 
   useEffect(() => {
+    console.log('📄 ProductDetailPage loaded:', { analysisId, productIndex })
     if (analysisId && productIndex !== undefined) {
       loadProductDetails()
     }

@@ -80,18 +80,18 @@ function App() {
               } 
             />
             <Route 
-              path="/analysis/:id" 
-              element={
-                <ProtectedRoute>
-                  <AnalysisDetailPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
               path="/analysis/:analysisId/product/:productIndex" 
               element={
                 <ProtectedRoute>
                   <ProductDetailPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/analysis/:id" 
+              element={
+                <ProtectedRoute>
+                  <AnalysisDetailPage />
                 </ProtectedRoute>
               } 
             />

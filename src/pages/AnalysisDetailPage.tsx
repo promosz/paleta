@@ -368,15 +368,20 @@ const AnalysisDetailPage: React.FC = () => {
                   <tr 
                     key={index} 
                     className={`${productStatus === 'warning' ? 'bg-yellow-50' : ''} hover:bg-gray-50 cursor-pointer transition-colors group`}
-                    onClick={() => navigate(`/analysis/${id}/product/${index}`)}
+                    onClick={() => {
+                      console.log('🖱️ Kliknięto w produkt:', { analysisId: id, productIndex: index, productName: product.nazwa })
+                      navigate(`/analysis/${id}/product/${index}`)
+                    }}
                     title="Kliknij aby zobaczyć szczegóły produktu"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <ProductImage 
-                        foto={product.foto} 
-                        nazwa={product.nazwa} 
-                        className="w-16 h-16" 
-                      />
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <ProductImage 
+                          foto={product.foto} 
+                          nazwa={product.nazwa} 
+                          className="w-16 h-16" 
+                        />
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                       <div className="space-y-1">
@@ -415,13 +420,15 @@ const AnalysisDetailPage: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <ProductActions
-                        product={product}
-                        onAddToRules={handleAddToRules}
-                        onAddCategoryToRules={handleAddCategoryToRules}
-                        onRemoveRule={handleRemoveRule}
-                        existingRules={rules}
-                      />
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <ProductActions
+                          product={product}
+                          onAddToRules={handleAddToRules}
+                          onAddCategoryToRules={handleAddCategoryToRules}
+                          onRemoveRule={handleRemoveRule}
+                          existingRules={rules}
+                        />
+                      </div>
                     </td>
                   </tr>
                 )
