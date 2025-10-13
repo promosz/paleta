@@ -1,47 +1,15 @@
 <!DOCTYPE html>
 <html lang="pl">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Paleta - Analiza Produktów</title>
-    <meta name="description" content="Aplikacja do analizy zestawów produktów z plików XLSX, PDF, CSV" />
-    <script>
-      // GitHub Pages SPA redirect
-      // This script takes the current URL and converts the path and query
-      // string into just a query string, and then redirects the browser
-      // to the new URL with only a query string and hash fragment,
-      // e.g. https://www.foo.tld/one/two?a=b&c=d#qwe, becomes
-      // https://www.foo.tld/?/one/two&a=b~and~c=d#qwe
-      // Note: this 404.html file must be at least 512 bytes for it to work
-      // with Internet Explorer (it is currently > 512 bytes)
-
-      // For GitHub Pages project sites (like username.github.io/repo-name)
-      // we need to keep the repository name in the path
-      var pathSegmentsToKeep = 1;
-
-      var l = window.location;
-      var redirectPath = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash;
-
-      // Fallback: if the above doesn't work, try a simpler approach
-      if (l.pathname.includes('/about')) {
-        window.location.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/paleta/?/about');
-      } else if (l.pathname.includes('/settings')) {
-        window.location.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/paleta/?/settings');
-      } else if (l.pathname.includes('/analysis/')) {
-        var analysisId = l.pathname.split('/analysis/')[1];
-        window.location.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/paleta/?/analysis/' + analysisId);
-      } else {
-        window.location.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/paleta/');
-      }
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <title>Pallet Analysis</title>
+  <script>
+    // GitHub Pages SPA redirect solution
+    // Store the path and redirect to index.html
+    sessionStorage.redirect = location.href;
+  </script>
+  <meta http-equiv="refresh" content="0;URL='/paleta/'">
+</head>
+<body>
+</body>
 </html>
