@@ -2,7 +2,6 @@ import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FileSpreadsheet, Settings, BarChart3, Info, LogIn, UserPlus } from 'lucide-react'
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/clerk-react'
-import ProductDropdown from './landing/ProductDropdown'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -45,10 +44,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </button>
             
             <nav className="flex items-center space-x-4">
-              {/* Show Product dropdown and protected nav items only when signed in */}
+              {/* Show protected nav items only when signed in */}
               {isSignedIn && (
                 <>
-                  <ProductDropdown />
                   {protectedNavItems.map(({ path, label, icon: Icon }) => (
                     <Link
                       key={path}
