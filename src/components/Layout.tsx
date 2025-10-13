@@ -1,7 +1,8 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FileSpreadsheet, Settings, BarChart3, Info, LogIn, UserPlus } from 'lucide-react'
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/clerk-react'
+import ProductDropdown from './landing/ProductDropdown'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -10,6 +11,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation()
   const { isSignedIn } = useAuth()
+  const navigate = useNavigate()
 
   // Public navigation items (zawsze widoczne)
   const publicNavItems = [
@@ -18,7 +20,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Protected navigation items (tylko dla zalogowanych)
   const protectedNavItems = [
-    { path: '/', label: 'Analizator palet', icon: FileSpreadsheet },
+    { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+    { path: '/home', label: 'Analizator palet', icon: FileSpreadsheet },
     { path: '/settings', label: 'Ustawienia', icon: Settings },
   ]
 
@@ -28,29 +31,40 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to={isSignedIn ? "/" : "/about"} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-              <BarChart3 className="h-8 w-8 text-blue-600" />
-              <h1 className="text-xl font-semibold text-gray-900">
-                    Analizator palet
+            {/* Logo - kliknięcie prowadzi do landing page */}
+            <button 
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-md">
+                <span className="text-white font-semibold text-sm">P</span>
+              </div>
+              <h1 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                PalletAI
               </h1>
-            </Link>
+            </button>
             
             <nav className="flex items-center space-x-4">
-              {/* Show protected nav items only when signed in */}
-              {isSignedIn && protectedNavItems.map(({ path, label, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    location.pathname === path
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{label}</span>
-                </Link>
-              ))}
+              {/* Show Product dropdown and protected nav items only when signed in */}
+              {isSignedIn && (
+                <>
+                  <ProductDropdown />
+                  {protectedNavItems.map(({ path, label, icon: Icon }) => (
+                    <Link
+                      key={path}
+                      to={path}
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        location.pathname === path
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{label}</span>
+                    </Link>
+                  ))}
+                </>
+              )}
               
               {/* Always show public nav items */}
               {publicNavItems.map(({ path, label, icon: Icon }) => (

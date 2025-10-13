@@ -9,6 +9,9 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isLoaded, isSignedIn } = useAuth()
 
+  // Debug logging
+  console.log('🔒 ProtectedRoute:', { isLoaded, isSignedIn })
+
   // Show loading while checking auth status
   if (!isLoaded) {
     return (
@@ -23,6 +26,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Redirect to about page if not signed in
   if (!isSignedIn) {
+    console.log('🔒 ProtectedRoute: Redirecting to /about (not signed in)')
     return <Navigate to="/about" replace />
   }
 

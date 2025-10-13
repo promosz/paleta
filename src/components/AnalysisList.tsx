@@ -175,47 +175,51 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
               <div className="flex items-center space-x-4">
                 {/* Metrics for completed analyses */}
                 {analysis.status === 'completed' && (
-                  <div className="flex items-center space-x-6 text-sm">
-                    <div className="flex items-center space-x-1">
-                      <TrendingUp className="h-4 w-4 text-green-600" />
-                      <span className="text-gray-600">
-                        Rentowność: <span className="font-medium text-green-600">{analysis.profitability?.toFixed(1)}%</span>
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Package className="h-4 w-4 text-blue-600" />
-                      <span className="text-gray-600">
-                        Produkty: <span className="font-medium text-blue-600">{formatProductCount(analysis.productCount)}</span>
-                      </span>
-                    </div>
+                  <div className="flex items-center space-x-4">
                     {warningCount > 0 && (
-                      <div className="flex items-center space-x-1">
-                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                        <span className="text-gray-600">
-                          Ostrzeżenia: <span className="font-medium text-yellow-600">{warningCount}</span>
-                        </span>
+                      <div 
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg border border-yellow-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                        title={`Ostrzeżenia: ${warningCount} ${warningCount === 1 ? 'produkt wymaga' : 'produktów wymaga'} uwagi`}
+                      >
+                        <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                        <span className="text-lg font-bold text-yellow-700">{warningCount}</span>
                       </div>
                     )}
                     {(analysis.issues ?? 0) > 0 && (
-                      <div className="flex items-center space-x-1">
-                        <AlertTriangle className="h-4 w-4 text-orange-600" />
-                        <span className="text-gray-600">
-                          Problemy: <span className="font-medium text-orange-600">{analysis.issues}</span>
-                        </span>
+                      <div 
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                        title={`Problemy: ${analysis.issues} ${analysis.issues === 1 ? 'produkt z' : 'produktów z'} błędami lub brakującymi danymi`}
+                      >
+                        <AlertTriangle className="h-5 w-5 text-orange-600" />
+                        <span className="text-lg font-bold text-orange-700">{analysis.issues}</span>
                       </div>
                     )}
+                    <div 
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                      title={`Rentowność: średnia rentowność wynosi ${analysis.profitability?.toFixed(1)}%`}
+                    >
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                      <span className="text-lg font-bold text-green-700">{analysis.profitability?.toFixed(1)}%</span>
+                    </div>
+                    <div 
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                      title={`Liczba produktów: łącznie ${formatProductCount(analysis.productCount)} ${parseInt(formatProductCount(analysis.productCount)) === 1 ? 'produkt' : 'produktów'} w analizie`}
+                    >
+                      <Package className="h-5 w-5 text-blue-600" />
+                      <span className="text-lg font-bold text-blue-700">{formatProductCount(analysis.productCount)}</span>
+                    </div>
                   </div>
                 )}
 
-                {/* Status - moved to second to last position */}
+                {/* Status */}
                 <div className="flex items-center space-x-2">
                   {getStatusIcon(analysis.status)}
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(analysis.status)}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(analysis.status)}`}>
                     {getStatusText(analysis.status)}
                   </span>
                 </div>
 
-                {/* Action button - now last */}
+                {/* Action button */}
                 <div className="btn-primary">
                   Szczegóły
                 </div>

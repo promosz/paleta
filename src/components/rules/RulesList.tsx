@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import type { Rule, RuleType, RuleAction } from '../../types/rules'
-import { useRulesStore } from '../../stores/rulesStore'
+import { useRulesStore } from '../../stores/rulesStoreSupabase'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { Button, Card, CardBody, StatusBadge } from '../ui'
 
 interface RulesListProps {
@@ -16,6 +17,7 @@ export const RulesList: React.FC<RulesListProps> = ({
   onDelete,
   className = ''
 }) => {
+  const { supabaseUserId } = useCurrentUser()
   const { toggleRuleStatus, duplicateRule } = useRulesStore()
   const [filterType, setFilterType] = useState<RuleType | 'all'>('all')
   const [filterAction, setFilterAction] = useState<RuleAction | 'all'>('all')
@@ -265,7 +267,7 @@ export const RulesList: React.FC<RulesListProps> = ({
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => toggleRuleStatus(rule.id)}
+                    onClick={() => supabaseUserId && toggleRuleStatus(rule.id, supabaseUserId)}
                   >
                     {rule.status === 'active' ? 'Dezaktywuj' : 'Aktywuj'}
                   </Button>
@@ -283,7 +285,7 @@ export const RulesList: React.FC<RulesListProps> = ({
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => duplicateRule(rule.id)}
+                    onClick={() => supabaseUserId && duplicateRule(rule.id, supabaseUserId)}
                   >
                     Duplikuj
                   </Button>

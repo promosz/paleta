@@ -22,18 +22,28 @@ Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej intelig
 - **Personalizacja** - Rekomendacje dopasowane do stylu zakupowego użytkownika
 - **Rozpoznawanie preferencji** - Analiza wzorców zakupowych i segmentacja użytkowników
 
-## 📚 **Dokumentacja AI**
+## 📚 **Dokumentacja**
 
-### **📖 Dokumenty Strategiczne**
+### **🗄️ Backend & Database (NOWOŚĆ!)**
+- **[🚀 Supabase README](./docs/SUPABASE_README.md)** - **START TUTAJ** - Główny punkt wejścia do wdrożenia Supabase
+- **[📋 Plan Wdrożenia Supabase](./docs/SUPABASE_IMPLEMENTATION_PLAN.md)** - Kompleksowy plan krok po kroku (10-15 dni)
+- **[📜 Migracja SQL](./docs/SUPABASE_MIGRATION.sql)** - Gotowy skrypt do wykonania
+- **[✅ Checklist Wdrożenia](./docs/SUPABASE_CHECKLIST.md)** - Lista zadań do odhaczania
+- **[🏗️ Architektura Supabase](./docs/SUPABASE_ARCHITECTURE.md)** - Diagramy i opis systemu
+- **[❓ FAQ & Troubleshooting](./docs/SUPABASE_FAQ.md)** - 60+ pytań i odpowiedzi
+
+### **🤖 Dokumentacja AI**
+
+#### **📖 Dokumenty Strategiczne**
 - **[Executive Summary](./docs/EXECUTIVE_SUMMARY.md)** - Podsumowanie dla zarządu z analizą biznesową
 - **[Plan Wdrożenia AI](./docs/AI_IMPLEMENTATION_PLAN.md)** - Kompleksowy plan implementacji funkcjonalności AI
 - **[Roadmap Rozwoju](./docs/AI_ROADMAP.md)** - Timeline i etapy wdrożenia
 
-### **🔧 Dokumentacja Techniczna**
+#### **🔧 Dokumentacja Techniczna**
 - **[Specyfikacja Funkcjonalności](./docs/AI_FEATURES_SPECIFICATION.md)** - Szczegółowa specyfikacja techniczna
 - **[Architektura Techniczna](./docs/TECHNICAL_ARCHITECTURE.md)** - System design i infrastruktura
 
-### **💰 Analiza Finansowa**
+#### **💰 Analiza Finansowa**
 - **[Szczegółowy Rozkład Kosztów](./docs/COST_BREAKDOWN.md)** - Kompletna analiza kosztów i ROI
 - **[Zarządzanie Ryzykiem](./docs/RISK_MANAGEMENT.md)** - Plan zarządzania ryzykiem i mitigacji
 
@@ -73,8 +83,16 @@ Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej intelig
 - **Vite** jako bundler
 - **Tailwind CSS** do stylowania
 - **React Router** do nawigacji
+- **Zustand** do zarządzania stanem
 - **Lucide React** do ikon
 - **XLSX** do obsługi plików Excel
+
+### **Backend & Database**
+- **Supabase** - Backend-as-a-Service (PostgreSQL)
+- **PostgreSQL** - Relacyjna baza danych
+- **Row Level Security** - Izolacja danych użytkowników
+- **Supabase Storage** - Przechowywanie plików
+- **Edge Functions** - Serverless functions (Deno)
 
 ### **AI Backend (Sprint 1-3)**
 - **Python 3.9+** - Główny język AI services
@@ -165,12 +183,21 @@ src/
 - **Szybki dostęp** - Przycisk "Reguły" przy każdym produkcie
 - **Zarządzanie centralne** - Panel zarządzania wszystkimi regułami
 
-## Funkcjonalności w przygotowaniu
+## 🔄 **Funkcjonalności w przygotowaniu / rozwoju**
 
-- 💾 **Baza danych** - Przechowywanie analiz i historii
+### **W trakcie wdrożenia**
+- ✅ **Integracja z Clerk** - System kont użytkowników (zakończone)
+- 🚧 **Integracja z Supabase** - Backend i baza danych (w planach)
+  - Każdy użytkownik ma dostęp TYLKO do swoich analiz
+  - Każdy użytkownik ma dostęp TYLKO do swoich reguł i ustawień
+  - Pełna izolacja danych między użytkownikami (Row Level Security)
+  - Synchronizacja danych między urządzeniami
+
+### **Zaplanowane**
 - 📈 **Zaawansowane raporty** - Więcej szczegółów analizy
 - 🔄 **Eksport wyników** - Możliwość eksportu raportów
 - 🌐 **Integracja z zewnętrznymi API** - Rozszerzenie o więcej źródeł danych
+- 👥 **Współdzielenie analiz** - Możliwość współpracy w zespołach
 
 ## Użycie
 

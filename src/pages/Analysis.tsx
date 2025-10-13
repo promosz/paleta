@@ -3,11 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { useDropzone } from 'react-dropzone'
 import { Card, CardHeader, CardBody, StatusBadge, Button } from '../components/ui'
 import { useUploadStore, validateFile } from '../stores/uploadStore'
-import { useAnalysisStore } from '../stores/analysisStore'
+import { useAnalysisStore } from '../stores/analysisStoreSupabase'
+import { useCurrentUser } from '../hooks/useCurrentUser'
 import { parserService } from '../utils/parserService'
 
 const Analysis: React.FC = () => {
   const navigate = useNavigate()
+  const { supabaseUserId, isLoaded, isSignedIn, loading, error } = useCurrentUser()
+  
+  // Debug logging
+  console.log('🔍 Analysis component loaded:', { supabaseUserId, isLoaded, isSignedIn, loading, error })
   const { 
     getAllParsedProducts, 
     getAllEvaluations, 
@@ -18,7 +23,7 @@ const Analysis: React.FC = () => {
     setParseResult,
     setUploading
   } = useUploadStore()
-  const { analyses, createAnalysis, addProductsToAnalysis, addEvaluationsToAnalysis } = useAnalysisStore()
+  const { analyses, createAnalysis } = useAnalysisStore()
 
   // Funkcja obsługująca automatyczny upload i analizę
   const handleFileDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -100,19 +105,45 @@ const Analysis: React.FC = () => {
           ? files[0].name.replace(/\.[^/.]+$/, "") // Usuń rozszerzenie
           : `${files[0].name.replace(/\.[^/.]+$/, "")} i ${files.length - 1} innych`
         
-        const analysis = createAnalysis(
+        if (!supabaseUserId) {
+          console.error('Brak userId - użytkownik nie jest zalogowany')
+          return
+        }
+        
+        // Konwersja przetworzonych plików na AnalysisFile
+        const analysisFiles = processedFiles.map(({ file, result, fileId }) => ({
+          id: fileId,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          uploadedAt: new Date(),
+          status: 'parsed' as const,
+          productCount: result.products.length
+        }))
+        
+        console.log('🚀 Tworzenie analizy z plikami:', analysisFiles.length)
+        console.log('📁 Pliki:', analysisFiles.map(f => ({ name: f.name, size: f.size })))
+        
+        const analysis = await createAnalysis(
           analysisName,
-          `Analiza utworzona automatycznie z ${files.map(f => f.name).join(', ')}`
+          `Analiza utworzona automatycznie z ${files.map(f => f.name).join(', ')}`,
+          'file_upload',
+          supabaseUserId,
+          analysisFiles
         )
         
-        // Dodaj produkty do analizy
-        addProductsToAnalysis(analysis.id, currentParsedProducts)
+        console.log('✅ Analiza utworzona:', analysis.id)
         
-        // Dodaj oceny do analizy
+        // TODO: Dodaj produkty do analizy (tymczasowo wyłączone)
+        console.log('Produkty sparsowane:', currentParsedProducts.length)
+        // await addProductsToAnalysis(analysis.id, currentParsedProducts)
+        
+        // TODO: Dodaj oceny do analizy (tymczasowo wyłączone)
         const currentEvaluations = getAllEvaluations()
-        if (currentEvaluations.length > 0) {
-          addEvaluationsToAnalysis(analysis.id, currentEvaluations)
-        }
+        console.log('Oceny:', currentEvaluations.length)
+        // if (currentEvaluations.length > 0) {
+        //   await addEvaluationsToAnalysis(analysis.id, currentEvaluations)
+        // }
         
         // Przekieruj do Dashboard z otwartą analizą i informacją o sparsowanych plikach
         navigate('/dashboard', { 
@@ -150,6 +181,64 @@ const Analysis: React.FC = () => {
     disabled: isEvaluating
   })
 
+
+  // Show loading state
+  if (!isLoaded || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Ładowanie użytkownika...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Błąd ładowania użytkownika</h2>
+          <p className="text-gray-600 mb-4">{error.message}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Odśwież stronę
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Show not signed in state
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-400 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Nie jesteś zalogowany</h2>
+          <p className="text-gray-600 mb-4">Musisz się zalogować aby korzystać z analiz</p>
+          <button 
+            onClick={() => navigate('/')} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Przejdź do strony głównej
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>

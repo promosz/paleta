@@ -1,0 +1,42 @@
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from '../types/supabase'
+
+// Pobierz zmienne środowiskowe
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+// Walidacja zmiennych środowiskowych
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
+
+// Utworzenie klienta Supabase z typami
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false, // Clerk zarządza sesjami
+    autoRefreshToken: false,
+  },
+})
+
+/**
+ * Helper do pobierania tokenu Clerk i użycia go w Supabase
+ * Używaj tego gdy potrzebujesz autoryzacji przez Clerk JWT
+ */
+export async function getSupabaseClient(clerkToken?: string) {
+  if (!clerkToken) {
+    return supabase
+  }
+
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${clerkToken}`,
+      },
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  })
+}
+

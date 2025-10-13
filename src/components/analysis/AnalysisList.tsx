@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import type { Analysis, AnalysisStatus, AnalysisType } from '../../types/analysis'
-import { useAnalysisStore } from '../../stores/analysisStore'
+import { useAnalysisStore } from '../../stores/analysisStoreSupabase'
 import { Button, Card, CardHeader, CardBody, StatusBadge } from '../ui'
+import { useUser } from '@clerk/clerk-react'
 
 interface AnalysisListProps {
   analyses: Analysis[]
@@ -18,6 +19,7 @@ export const AnalysisList: React.FC<AnalysisListProps> = ({
   onDelete,
   className = ''
 }) => {
+  const { user } = useUser()
   const { 
     setFilters, 
     setSorting, 
@@ -121,8 +123,10 @@ export const AnalysisList: React.FC<AnalysisListProps> = ({
 
   // Obsługa usuwania
   const handleDelete = (analysis: Analysis) => {
+    if (!user?.id) return
+    
     if (window.confirm(`Czy na pewno chcesz usunąć analizę "${analysis.name}"?`)) {
-      deleteAnalysis(analysis.id)
+      deleteAnalysis(analysis.id, user.id)
       onDelete?.(analysis)
     }
   }
@@ -271,38 +275,66 @@ export const AnalysisList: React.FC<AnalysisListProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4 mb-3">
+                  <div className="flex items-center flex-wrap gap-3 mb-3">
                     <StatusBadge status={getStatusColor(analysis.status)}>
                       {getStatusName(analysis.status)}
                     </StatusBadge>
-                    <span className="text-sm text-neutral-500">
-                      {getTypeName(analysis.type)}
-                    </span>
-                    <span className="text-sm text-neutral-500">
-                      {analysis.totalProducts} produktów
-                    </span>
-                    <span className="text-sm text-neutral-500">
-                      Ocena: {Math.round(analysis.averageScore)}/100
-                    </span>
+                    <div 
+                      className="flex items-center gap-2 px-3 py-1.5 bg-neutral-100 rounded-lg hover:bg-neutral-200 transition-colors cursor-help"
+                      title={`Typ analizy: ${getTypeName(analysis.type)}`}
+                    >
+                      <span className="text-lg">{getTypeIcon(analysis.type)}</span>
+                      <span className="text-sm font-medium text-neutral-700">{getTypeName(analysis.type)}</span>
+                    </div>
+                    <div 
+                      className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 rounded-lg border border-purple-200/50 hover:shadow-md transition-shadow cursor-help"
+                      title={`Liczba produktów: łącznie ${analysis.totalProducts} ${analysis.totalProducts === 1 ? 'produkt' : 'produktów'} w analizie`}
+                    >
+                      <span className="text-lg">📦</span>
+                      <span className="text-sm font-bold text-purple-700">{analysis.totalProducts}</span>
+                    </div>
+                    <div 
+                      className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-lg border border-indigo-200/50 hover:shadow-md transition-shadow cursor-help"
+                      title={`Średnia ocena: ${Math.round(analysis.averageScore)} punktów na 100 możliwych`}
+                    >
+                      <span className="text-lg">⭐</span>
+                      <span className="text-sm font-bold text-indigo-700">{Math.round(analysis.averageScore)}/100</span>
+                    </div>
                   </div>
 
                   {/* Statystyki */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-success-500">{analysis.validProducts}</div>
-                      <div className="text-xs text-neutral-600">Ważne</div>
+                  <div className="flex flex-wrap gap-3 mb-3">
+                    {analysis.stats.warningProducts > 0 && (
+                      <div 
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg border border-yellow-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                        title={`Ostrzeżenia: ${analysis.stats.warningProducts} ${analysis.stats.warningProducts === 1 ? 'produkt wymaga' : 'produktów wymaga'} uwagi`}
+                      >
+                        <span className="text-2xl">⚠️</span>
+                        <span className="text-xl font-bold text-yellow-700">{analysis.stats.warningProducts}</span>
+                      </div>
+                    )}
+                    {analysis.stats.blockedProducts > 0 && (
+                      <div 
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-rose-50 rounded-lg border border-red-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                        title={`Zablokowane: ${analysis.stats.blockedProducts} ${analysis.stats.blockedProducts === 1 ? 'produkt jest zablokowany' : 'produktów jest zablokowanych'} i nie może być sprzedawany`}
+                      >
+                        <span className="text-2xl">🚫</span>
+                        <span className="text-xl font-bold text-red-700">{analysis.stats.blockedProducts}</span>
+                      </div>
+                    )}
+                    <div 
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                      title={`Produkty ważne: ${analysis.validProducts} ${analysis.validProducts === 1 ? 'produkt spełnia' : 'produktów spełnia'} wszystkie wymagania`}
+                    >
+                      <span className="text-2xl">✓</span>
+                      <span className="text-xl font-bold text-green-700">{analysis.validProducts}</span>
                     </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-warning-500">{analysis.stats.warningProducts}</div>
-                      <div className="text-xs text-neutral-600">Ostrzeżenia</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-danger-500">{analysis.stats.blockedProducts}</div>
-                      <div className="text-xs text-neutral-600">Zablokowane</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-primary-500">{analysis.files.length}</div>
-                      <div className="text-xs text-neutral-600">Pliki</div>
+                    <div 
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                      title={`Liczba plików: ${analysis.files.length} ${analysis.files.length === 1 ? 'plik' : 'plików'} przeanalizowano`}
+                    >
+                      <span className="text-2xl">📄</span>
+                      <span className="text-xl font-bold text-blue-700">{analysis.files.length}</span>
                     </div>
                   </div>
 

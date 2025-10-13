@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import type { RuleTemplate, RuleType } from '../../types/rules'
-import { useRulesStore } from '../../stores/rulesStore'
+import { useRulesStore } from '../../stores/rulesStoreSupabase'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { Button, Card, CardHeader, CardBody, StatusBadge } from '../ui'
 
 interface RuleTemplatesProps {
@@ -14,6 +15,7 @@ export const RuleTemplates: React.FC<RuleTemplatesProps> = ({
   onSelectTemplate,
   className = ''
 }) => {
+  const { supabaseUserId } = useCurrentUser()
   const { createRuleFromTemplate } = useRulesStore()
   const [selectedType, setSelectedType] = useState<RuleType | 'all'>('all')
 
@@ -121,8 +123,10 @@ export const RuleTemplates: React.FC<RuleTemplatesProps> = ({
 
   // Obsługa wyboru szablonu
   const handleSelectTemplate = (template: RuleTemplate) => {
-    createRuleFromTemplate(template.id)
-    onSelectTemplate?.(template)
+    if (supabaseUserId) {
+      createRuleFromTemplate(template.id, supabaseUserId)
+      onSelectTemplate?.(template)
+    }
   }
 
   if (templates.length === 0) {

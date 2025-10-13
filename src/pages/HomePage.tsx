@@ -147,6 +147,7 @@ const HomePage: React.FC = () => {
     ]
   })
 
+  // AI status
   const [aiServiceStatus, setAiServiceStatus] = useState<'checking' | 'online' | 'offline'>('checking')
   const [hybridAIStatus, setHybridAIStatus] = useState<any>({
     active: 'none',
@@ -423,8 +424,11 @@ const HomePage: React.FC = () => {
         const updated = prev.map(analysis => 
           analysis.id === tempAnalysis.id ? enhancedResult : analysis
         )
-        // Zapisz do localStorage
+        // Zapisz do localStorage (tymczasowo)
         localStorage.setItem('pallet-analyses', JSON.stringify(updated))
+        
+        // TODO: Zapisz do Supabase
+        console.log('Analiza zakończona, ale nie zapisana do Supabase (użyj strony Analysis)')
         return updated
       })
     } catch (error) {

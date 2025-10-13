@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardHeader, CardBody, Button } from '../components/ui'
 import { RuleForm } from '../components/forms'
 import { RulesList, RuleTemplates } from '../components/rules'
-import { useRulesStore } from '../stores/rulesStore'
+import { useRulesStore } from '../stores/rulesStoreSupabase'
+import { useCurrentUser } from '../hooks/useCurrentUser'
 import type { Rule } from '../types/rules'
 
 const Rules: React.FC = () => {
+  const { supabaseUserId, loading: userLoading } = useCurrentUser()
   const { 
     rules, 
     templates, 
@@ -13,19 +15,32 @@ const Rules: React.FC = () => {
     addRule, 
     updateRule, 
     deleteRule,
-    clearAllRules 
+    clearAllRules,
+    loadRules,
+    loadTemplates
   } = useRulesStore()
   
   const [showForm, setShowForm] = useState(false)
   const [editingRule, setEditingRule] = useState<Rule | null>(null)
   const [showTemplates, setShowTemplates] = useState(false)
 
+  // Ładowanie reguł i szablonów z Supabase przy starcie
+  useEffect(() => {
+    if (supabaseUserId && !userLoading) {
+      console.log('Rules: Ładowanie reguł dla użytkownika:', supabaseUserId)
+      loadRules(supabaseUserId)
+      loadTemplates()
+    }
+  }, [supabaseUserId, userLoading, loadRules, loadTemplates])
+
   // Obsługa zapisywania reguły
   const handleSaveRule = (rule: Rule) => {
+    if (!supabaseUserId) return
+    
     if (editingRule) {
-      updateRule(editingRule.id, rule)
+      updateRule(editingRule.id, rule, supabaseUserId)
     } else {
-      addRule(rule)
+      addRule(rule, supabaseUserId)
     }
     setShowForm(false)
     setEditingRule(null)
@@ -45,8 +60,10 @@ const Rules: React.FC = () => {
 
   // Obsługa usuwania reguły
   const handleDeleteRule = (rule: Rule) => {
+    if (!supabaseUserId) return
+    
     if (window.confirm(`Czy na pewno chcesz usunąć regułę "${rule.name}"?`)) {
-      deleteRule(rule.id)
+      deleteRule(rule.id, supabaseUserId)
     }
   }
 

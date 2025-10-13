@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import type { Analysis, AnalysisExport } from '../../types/analysis'
-import { useAnalysisStore } from '../../stores/analysisStore'
+import { useAnalysisStore } from '../../stores/analysisStoreSupabase'
 import { Button, Card, CardHeader, CardBody, StatusBadge, DataTable, Recommendations } from '../ui'
 
 interface AnalysisDetailsProps {
@@ -161,39 +161,55 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
       </Card>
 
       {/* Statystyki ogólne */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <Card>
+      <div className="flex flex-wrap gap-4 mb-6 justify-center">
+        {analysis.stats.warningProducts > 0 && (
+          <Card className="flex-shrink-0">
+            <CardBody>
+              <div 
+                className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-yellow-50 to-amber-50 hover:shadow-lg transition-shadow cursor-help"
+                title={`Ostrzeżenia: ${analysis.stats.warningProducts} ${analysis.stats.warningProducts === 1 ? 'produkt wymaga' : 'produktów wymaga'} uwagi`}
+              >
+                <span className="text-4xl">⚠️</span>
+                <span className="text-4xl font-bold text-warning-600">{analysis.stats.warningProducts}</span>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+        
+        {analysis.stats.blockedProducts > 0 && (
+          <Card className="flex-shrink-0">
+            <CardBody>
+              <div 
+                className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-red-50 to-rose-50 hover:shadow-lg transition-shadow cursor-help"
+                title={`Zablokowane: ${analysis.stats.blockedProducts} ${analysis.stats.blockedProducts === 1 ? 'produkt jest zablokowany' : 'produktów jest zablokowanych'} i nie może być sprzedawany`}
+              >
+                <span className="text-4xl">🚫</span>
+                <span className="text-4xl font-bold text-danger-600">{analysis.stats.blockedProducts}</span>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+        
+        <Card className="flex-shrink-0">
           <CardBody>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary-500 mb-2">{analysis.totalProducts}</div>
-              <div className="text-sm text-neutral-600">Produktów</div>
+            <div 
+              className="flex items-center gap-3 px-6 py-4 hover:shadow-lg transition-shadow cursor-help"
+              title={`Liczba produktów: łącznie ${analysis.totalProducts} ${analysis.totalProducts === 1 ? 'produkt' : 'produktów'} w analizie`}
+            >
+              <span className="text-4xl">📦</span>
+              <span className="text-4xl font-bold text-primary-600">{analysis.totalProducts}</span>
             </div>
           </CardBody>
         </Card>
         
-        <Card>
+        <Card className="flex-shrink-0">
           <CardBody>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-success-500 mb-2">{analysis.validProducts}</div>
-              <div className="text-sm text-neutral-600">Ważnych</div>
-            </div>
-          </CardBody>
-        </Card>
-        
-        <Card>
-          <CardBody>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-warning-500 mb-2">{analysis.stats.warningProducts}</div>
-              <div className="text-sm text-neutral-600">Ostrzeżeń</div>
-            </div>
-          </CardBody>
-        </Card>
-        
-        <Card>
-          <CardBody>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-danger-500 mb-2">{analysis.stats.blockedProducts}</div>
-              <div className="text-sm text-neutral-600">Zablokowanych</div>
+            <div 
+              className="flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-green-50 to-emerald-50 hover:shadow-lg transition-shadow cursor-help"
+              title={`Produkty ważne: ${analysis.validProducts} ${analysis.validProducts === 1 ? 'produkt spełnia' : 'produktów spełnia'} wszystkie wymagania`}
+            >
+              <span className="text-4xl">✓</span>
+              <span className="text-4xl font-bold text-success-600">{analysis.validProducts}</span>
             </div>
           </CardBody>
         </Card>
@@ -519,24 +535,27 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
             </h3>
           </CardHeader>
           <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary-500 mb-2">
-                  {analysis.products.length}
-                </div>
-                <div className="text-sm text-neutral-600">Łącznie produktów</div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <div 
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                title={`Łącznie produktów: ${analysis.products.length} ${analysis.products.length === 1 ? 'produkt' : 'produktów'} w bazie danych`}
+              >
+                <span className="text-3xl">📦</span>
+                <span className="text-3xl font-bold text-purple-700">{analysis.products.length}</span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-success-500 mb-2">
-                  {analysis.products.filter(p => p.price && p.price > 0).length}
-                </div>
-                <div className="text-sm text-neutral-600">Z ceną</div>
+              <div 
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                title={`Produkty z ceną: ${analysis.products.filter(p => p.price && p.price > 0).length} ${analysis.products.filter(p => p.price && p.price > 0).length === 1 ? 'produkt ma' : 'produktów ma'} przypisaną cenę`}
+              >
+                <span className="text-3xl">💰</span>
+                <span className="text-3xl font-bold text-green-700">{analysis.products.filter(p => p.price && p.price > 0).length}</span>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-warning-500 mb-2">
-                  {new Set(analysis.products.map(p => p.category).filter(Boolean)).size}
-                </div>
-                <div className="text-sm text-neutral-600">Unikalnych kategorii</div>
+              <div 
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
+                title={`Unikalne kategorie: ${new Set(analysis.products.map(p => p.category).filter(Boolean)).size} ${new Set(analysis.products.map(p => p.category).filter(Boolean)).size === 1 ? 'kategoria' : 'kategorii'} produktów`}
+              >
+                <span className="text-3xl">🏷️</span>
+                <span className="text-3xl font-bold text-amber-700">{new Set(analysis.products.map(p => p.category).filter(Boolean)).size}</span>
               </div>
             </div>
           </CardBody>

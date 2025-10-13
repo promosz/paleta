@@ -55,6 +55,8 @@ export interface Rule {
   weight: number // 1-10
   status: RuleStatus
   conditions: RuleConditions['conditions']
+  category?: string
+  tags?: string[]
   createdAt: Date
   updatedAt: Date
   createdBy?: string

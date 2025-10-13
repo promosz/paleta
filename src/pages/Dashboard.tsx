@@ -1,25 +1,37 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Card, CardHeader, CardBody, Button } from '../components/ui'
 import { DashboardStats } from '../components/dashboard'
 import { AnalysisList, AnalysisDetails } from '../components/analysis'
-import { useAnalysisStore } from '../stores/analysisStore'
+import { useAnalysisStore } from '../stores/analysisStoreSupabase'
+import { useCurrentUser } from '../hooks/useCurrentUser'
 import type { Analysis } from '../types/analysis'
 
 const Dashboard: React.FC = () => {
   const location = useLocation()
+  const { supabaseUserId, loading: userLoading } = useCurrentUser()
   const { 
     analyses, 
     dashboardStats, 
     createAnalysis, 
-    updateDashboardStats 
+    updateDashboardStats,
+    loadAnalyses,
+    loading: analysisLoading
   } = useAnalysisStore()
   
   const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null)
   const [processedFiles, setProcessedFiles] = useState<any[]>([])
 
+  // Ładowanie analiz z Supabase przy starcie
+  useEffect(() => {
+    if (supabaseUserId && !userLoading) {
+      console.log('Dashboard: Ładowanie analiz dla użytkownika:', supabaseUserId)
+      loadAnalyses(supabaseUserId)
+    }
+  }, [supabaseUserId, userLoading, loadAnalyses])
+
   // Aktualizacja statystyk przy załadowaniu
-  React.useEffect(() => {
+  useEffect(() => {
     updateDashboardStats()
   }, [analyses, updateDashboardStats])
 
@@ -40,10 +52,16 @@ const Dashboard: React.FC = () => {
   }, [location.state, analyses])
 
   // Obsługa tworzenia nowej analizy
-  const handleCreateAnalysis = () => {
-    const newAnalysis = createAnalysis(
+  const handleCreateAnalysis = async () => {
+    if (!supabaseUserId) {
+      console.error('Brak userId - użytkownik nie jest zalogowany')
+      return
+    }
+    const newAnalysis = await createAnalysis(
       `Analiza ${new Date().toLocaleDateString('pl-PL')}`,
-      'Nowa analiza utworzona z dashboard'
+      'Nowa analiza utworzona z dashboard',
+      'file_upload',
+      supabaseUserId
     )
     setSelectedAnalysis(newAnalysis)
   }
@@ -100,29 +118,39 @@ const Dashboard: React.FC = () => {
         </p>
       </div>
 
-      {/* Statystyki dashboard */}
-      <DashboardStats
-        stats={dashboardStats}
-        className="mb-8"
-      />
+      {/* Wskaźnik ładowania */}
+      {(userLoading || analysisLoading) && (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <p className="mt-2 text-neutral-600">Ładowanie danych...</p>
+        </div>
+      )}
 
-      {/* Ostatnie analizy */}
-      <Card className="mb-8">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-neutral-800">
-              Ostatnie analizy
-            </h2>
-            <Button
-              variant="primary"
-              onClick={handleCreateAnalysis}
-            >
-              ➕ Nowa analiza
-            </Button>
-          </div>
-        </CardHeader>
-        <CardBody>
-          {analyses.length === 0 ? (
+      {!userLoading && !analysisLoading && (
+        <>
+          {/* Statystyki dashboard */}
+          <DashboardStats
+            stats={dashboardStats}
+            className="mb-8"
+          />
+
+          {/* Ostatnie analizy */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-neutral-800">
+                  Ostatnie analizy
+                </h2>
+                <Button
+                  variant="primary"
+                  onClick={handleCreateAnalysis}
+                >
+                  ➕ Nowa analiza
+                </Button>
+              </div>
+            </CardHeader>
+            <CardBody>
+              {analyses.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-neutral-400 mb-4">
                 <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,6 +219,8 @@ const Dashboard: React.FC = () => {
           </div>
         </CardBody>
       </Card>
+        </>
+      )}
     </div>
   )
 }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import type { Rule, RuleType, RuleAction, RuleValidation } from '../../types/rules'
-import { useRulesStore } from '../../stores/rulesStore'
+import { useRulesStore } from '../../stores/rulesStoreSupabase'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { Button, Card, CardHeader, CardBody, Input } from '../ui'
 
 interface RuleFormProps {
@@ -27,6 +28,7 @@ export const RuleForm: React.FC<RuleFormProps> = ({
   onCancel,
   className = ''
 }) => {
+  const { supabaseUserId } = useCurrentUser()
   const { addRule, updateRule, validateRule } = useRulesStore()
   const [validation, setValidation] = useState<RuleValidation | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -90,12 +92,14 @@ export const RuleForm: React.FC<RuleFormProps> = ({
       }
       console.log('ruleData prepared:', ruleData)
 
-      if (rule) {
-        console.log('Updating rule:', rule.id)
-        updateRule(rule.id, ruleData)
-      } else {
-        console.log('Adding new rule')
-        addRule(ruleData)
+      if (supabaseUserId) {
+        if (rule) {
+          console.log('Updating rule:', rule.id)
+          updateRule(rule.id, ruleData, supabaseUserId)
+        } else {
+          console.log('Adding new rule')
+          addRule(ruleData, supabaseUserId)
+        }
       }
 
       console.log('Calling onSave with:', ruleData)
