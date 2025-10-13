@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, Brain, Loader } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, Brain, Loader, ExternalLink } from 'lucide-react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import MarketPrices from '../components/MarketPrices'
 import ProductFilter from '../components/ProductFilter'
@@ -53,6 +53,7 @@ interface AnalysisResult {
 
 const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<'content' | 'profitability'>('content')
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
   const [showMarketPrices, setShowMarketPrices] = useState(false)
@@ -364,7 +365,12 @@ const AnalysisDetailPage: React.FC = () => {
                 const productStatus = product.status || 'allowed'
                 
                 return (
-                  <tr key={index} className={productStatus === 'warning' ? 'bg-yellow-50' : ''}>
+                  <tr 
+                    key={index} 
+                    className={`${productStatus === 'warning' ? 'bg-yellow-50' : ''} hover:bg-gray-50 cursor-pointer transition-colors group`}
+                    onClick={() => navigate(`/analysis/${id}/product/${index}`)}
+                    title="Kliknij aby zobaczyć szczegóły produktu"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <ProductImage 
                         foto={product.foto} 
@@ -374,8 +380,9 @@ const AnalysisDetailPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                       <div className="space-y-1">
-                        <div className="truncate font-medium" title={product.nazwa}>
-                          {product.nazwa}
+                        <div className="truncate font-medium hover:text-blue-600 transition-colors flex items-center space-x-1" title={product.nazwa}>
+                          <span>{product.nazwa}</span>
+                          <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100" />
                         </div>
                         <div className="text-xs text-gray-500">
                           {product.kategoria}

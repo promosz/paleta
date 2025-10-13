@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Rules from './pages/Rules'
 import SettingsPage from './pages/SettingsPage'
 import AnalysisDetailPage from './pages/AnalysisDetailPage'
+import ProductDetailPage from './pages/ProductDetailPage'
 import HelpPage from './pages/HelpPage'
 import AboutPage from './pages/AboutPage'
 import SignInPage from './pages/SignInPage'
@@ -83,6 +84,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AnalysisDetailPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/analysis/:analysisId/product/:productIndex" 
+              element={
+                <ProtectedRoute>
+                  <ProductDetailPage />
                 </ProtectedRoute>
               } 
             />
