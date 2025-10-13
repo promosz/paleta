@@ -19,9 +19,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Protected navigation items (tylko dla zalogowanych)
   const protectedNavItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
-    { path: '/home', label: 'Analizator palet', icon: FileSpreadsheet },
-    { path: '/settings', label: 'Ustawienia', icon: Settings },
+    { path: location.pathname.startsWith('/paleta') ? '/paleta/dashboard' : '/dashboard', label: 'Dashboard', icon: BarChart3 },
+    { path: location.pathname.startsWith('/paleta') ? '/paleta/analysis' : '/analysis', label: 'Analizator palet', icon: FileSpreadsheet },
+    { path: location.pathname.startsWith('/paleta') ? '/paleta/settings' : '/settings', label: 'Ustawienia', icon: Settings },
   ]
 
   return (
@@ -32,7 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex justify-between items-center h-16">
             {/* Logo - kliknięcie prowadzi do landing page */}
             <button 
-              onClick={() => navigate('/')}
+              onClick={() => navigate(location.pathname.startsWith('/paleta') ? '/paleta' : '/')}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-md">

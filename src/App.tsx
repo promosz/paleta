@@ -28,6 +28,14 @@ function App() {
         } 
       />
 
+      {/* GitHub Pages base path route */}
+      <Route 
+        path="/paleta" 
+        element={
+          isSignedIn ? <Navigate to="/paleta/dashboard" replace /> : <LandingPage />
+        } 
+      />
+
       {/* Public routes - no layout */}
       <Route path="/sign-in" element={<SignInPage />} />
       <Route path="/sign-up" element={<SignUpPage />} />
@@ -56,7 +64,23 @@ function App() {
               } 
             />
             <Route 
+              path="/paleta/analysis" 
+              element={
+                <ProtectedRoute>
+                  <Analysis />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/paleta/dashboard" 
               element={
                 <ProtectedRoute>
                   <Dashboard />
@@ -72,7 +96,23 @@ function App() {
               } 
             />
             <Route 
+              path="/paleta/rules" 
+              element={
+                <ProtectedRoute>
+                  <Rules />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/paleta/settings" 
               element={
                 <ProtectedRoute>
                   <SettingsPage />
@@ -88,7 +128,23 @@ function App() {
               } 
             />
             <Route 
+              path="/paleta/analysis/:analysisId/product/:productIndex" 
+              element={
+                <ProtectedRoute>
+                  <ProductDetailPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/analysis/:id" 
+              element={
+                <ProtectedRoute>
+                  <AnalysisDetailPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/paleta/analysis/:id" 
               element={
                 <ProtectedRoute>
                   <AnalysisDetailPage />

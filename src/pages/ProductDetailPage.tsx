@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ArrowLeft, Package, Tag, DollarSign, TrendingUp, AlertTriangle, CheckCircle, ExternalLink, Image as ImageIcon } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useLocation } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import { imageService, ImageSearchResult } from '../services/imageService'
 
@@ -40,6 +40,7 @@ interface AnalysisResult {
 
 const ProductDetailPage: React.FC = () => {
   const { analysisId, productIndex } = useParams<{ analysisId: string; productIndex: string }>()
+  const location = useLocation()
   const [product, setProduct] = useState<Product | null>(null)
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
   const [additionalImages, setAdditionalImages] = useState<ImageSearchResult[]>([])
@@ -132,7 +133,7 @@ const ProductDetailPage: React.FC = () => {
       {/* Header */}
       <div className="space-y-4">
         <Link
-          to={`/analysis/${analysisId}`}
+          to={location.pathname.startsWith('/paleta') ? `/paleta/analysis/${analysisId}` : `/analysis/${analysisId}`}
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />

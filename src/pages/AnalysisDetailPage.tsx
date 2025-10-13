@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, Brain, Loader, ExternalLink } from 'lucide-react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import MarketPrices from '../components/MarketPrices'
 import ProductFilter from '../components/ProductFilter'
@@ -54,6 +54,7 @@ interface AnalysisResult {
 const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const [activeTab, setActiveTab] = useState<'content' | 'profitability'>('content')
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
   const [showMarketPrices, setShowMarketPrices] = useState(false)
@@ -370,7 +371,8 @@ const AnalysisDetailPage: React.FC = () => {
                     className={`${productStatus === 'warning' ? 'bg-yellow-50' : ''} hover:bg-gray-50 cursor-pointer transition-colors group`}
                     onClick={() => {
                       console.log('🖱️ Kliknięto w produkt:', { analysisId: id, productIndex: index, productName: product.nazwa })
-                      navigate(`/analysis/${id}/product/${index}`)
+                      const basePath = location.pathname.startsWith('/paleta') ? '/paleta' : ''
+                      navigate(`${basePath}/analysis/${id}/product/${index}`)
                     }}
                     title="Kliknij aby zobaczyć szczegóły produktu"
                   >
@@ -594,7 +596,7 @@ const AnalysisDetailPage: React.FC = () => {
       {/* Header */}
       <div className="space-y-4">
         <Link
-          to="/"
+          to={location.pathname.startsWith('/paleta') ? '/paleta/dashboard' : '/dashboard'}
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />

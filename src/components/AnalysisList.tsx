@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { FileSpreadsheet, Clock, CheckCircle, AlertCircle, TrendingUp, Package, AlertTriangle } from 'lucide-react'
 
 interface Product {
@@ -48,6 +48,7 @@ interface AnalysisListProps {
 }
 
 const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
+  const location = useLocation()
   const getStatusIcon = (status: Analysis['status']) => {
     switch (status) {
       case 'processing':
@@ -152,7 +153,7 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
         return (
           <Link 
             key={analysis.id} 
-            to={`/analysis/${analysis.id}`}
+            to={location.pathname.startsWith('/paleta') ? `/paleta/analysis/${analysis.id}` : `/analysis/${analysis.id}`}
             className="block card hover:shadow-md transition-shadow cursor-pointer"
           >
             <div className="flex items-center justify-between">
