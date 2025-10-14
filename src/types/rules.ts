@@ -84,6 +84,8 @@ export interface ProductEvaluation {
   recommendations: string[]
   warnings: string[]
   blocks: string[]
+  compliance?: number
+  reason?: string
 }
 
 // Zastosowana reguła

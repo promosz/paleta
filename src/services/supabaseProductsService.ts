@@ -59,11 +59,11 @@ export class SupabaseProductsService {
       score: evaluation?.score || 0,
       status: evaluation?.status || 'pending',
       evaluation_data: evaluation ? {
-        compliance: evaluation.compliance,
+        compliance: evaluation.compliance || 0,
         recommendations: evaluation.recommendations,
         warnings: evaluation.warnings,
         blocks: evaluation.blocks,
-        reason: evaluation.reason
+        reason: evaluation.reason || ''
       } : null,
       
       // Metadane
@@ -162,7 +162,7 @@ export class SupabaseProductsService {
     console.log(`📦 Dodawanie ${parsedProducts.length} produktów do bazy...`)
     
     // Mapowanie produktów z ocenami
-    const productsData = parsedProducts.map((product, index) => {
+    const productsData = parsedProducts.map((product) => {
       const evaluation = evaluations?.find(e => e.productId === product.id)
       return this.mapParsedProductToInsert(product, analysisId, userId, evaluation)
     })
