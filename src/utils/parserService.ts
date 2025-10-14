@@ -243,13 +243,36 @@ export class ParserService {
     }
 
     const products: ParsedProduct[] = []
-    const headers = rawData[0] as string[]
+    
+    // Inteligentne wykrywanie nagłówków - znajdź wiersz z największą liczbą stringów
+    let headerRowIndex = 0
+    let maxStringCount = 0
+    
+    for (let i = 0; i < Math.min(5, rawData.length); i++) {
+      const row = rawData[i]
+      if (!row) continue
+      
+      const stringCount = row.filter(cell => typeof cell === 'string' && cell.trim().length > 0).length
+      console.log(`🔍 Wiersz ${i}: ${stringCount} stringów, pierwsze 3:`, row.slice(0, 3))
+      
+      if (stringCount > maxStringCount) {
+        maxStringCount = stringCount
+        headerRowIndex = i
+      }
+    }
+    
+    console.log(`✅ Wybrano wiersz ${headerRowIndex} jako nagłówki (${maxStringCount} stringów)`)
+    
+    const headers = rawData[headerRowIndex] as string[]
+    
+    console.log('🔄 normalizeData started with headers:', headers)
+    console.log('📊 Headers types in normalizeData:', headers.map(h => ({ value: h, type: typeof h })))
     
     // Mapowanie kolumn
     const columnMap = this.createColumnMap(headers)
     
-    // Przetwarzanie wierszy danych
-    for (let i = 1; i < rawData.length; i++) {
+    // Przetwarzanie wierszy danych - zaczynamy od wiersza po nagłówkach
+    for (let i = headerRowIndex + 1; i < rawData.length; i++) {
       const row = rawData[i]
       
       if (!row || row.length === 0) continue
@@ -265,41 +288,103 @@ export class ParserService {
       // Mapowanie danych z wiersza
       headers.forEach((header, index) => {
         const value = row[index]
+        
+        // Sprawdź czy header jest stringiem
+        if (!header || typeof header !== 'string') {
+          console.warn(`⚠️ Nieprawidłowy header w normalizeData [${index}]:`, header, typeof header)
+          console.warn(`⚠️ Row data:`, row)
+          console.warn(`⚠️ Headers:`, headers)
+          return
+        }
+        
         product.rawData![header] = value
         
+        const lowerHeader = header.toLowerCase()
+        
         // Mapowanie do standardowych pól
-        if (columnMap.name && header.toLowerCase().includes(columnMap.name.toLowerCase())) {
+        if (columnMap.name && lowerHeader.includes(columnMap.name.toLowerCase())) {
           product.name = String(value || '').trim()
         }
-        if (columnMap.category && header.toLowerCase().includes(columnMap.category.toLowerCase())) {
+        if (columnMap.category && lowerHeader.includes(columnMap.category.toLowerCase())) {
           product.category = String(value || '').trim()
         }
-        if (columnMap.price && header.toLowerCase().includes(columnMap.price.toLowerCase())) {
+        if (columnMap.price && lowerHeader.includes(columnMap.price.toLowerCase())) {
           product.price = this.parsePrice(String(value || ''))
         }
-        if (columnMap.quantity && header.toLowerCase().includes(columnMap.quantity.toLowerCase())) {
+        if (columnMap.quantity && lowerHeader.includes(columnMap.quantity.toLowerCase())) {
           product.quantity = this.parseQuantity(String(value || ''))
         }
-        if (columnMap.description && header.toLowerCase().includes(columnMap.description.toLowerCase())) {
+        if (columnMap.description && lowerHeader.includes(columnMap.description.toLowerCase())) {
           product.description = String(value || '').trim()
         }
-        if (columnMap.sku && header.toLowerCase().includes(columnMap.sku.toLowerCase())) {
+        if (columnMap.sku && lowerHeader.includes(columnMap.sku.toLowerCase())) {
           product.sku = String(value || '').trim()
         }
-        if (columnMap.unit && header.toLowerCase().includes(columnMap.unit.toLowerCase())) {
+        if (columnMap.unit && lowerHeader.includes(columnMap.unit.toLowerCase())) {
           product.unit = String(value || '').trim()
         }
-        if (columnMap.brand && header.toLowerCase().includes(columnMap.brand.toLowerCase())) {
+        if (columnMap.brand && lowerHeader.includes(columnMap.brand.toLowerCase())) {
           product.brand = String(value || '').trim()
+        }
+        
+        // Mapowanie pól specyficznych dla palet
+        if (header === 'Paleta') {
+          product.paletaId = String(value || '').trim()
+        }
+        if (header === 'Foto') {
+          product.foto = String(value || '').trim()
+        }
+        if (header === 'EAN') {
+          product.ean = String(value || '').trim()
+        }
+        if (header === 'Kod 1') {
+          product.code1 = String(value || '').trim()
+        }
+        if (header === 'Kod 2') {
+          product.code2 = String(value || '').trim()
+        }
+        if (header === 'PackId') {
+          product.packId = String(value || '').trim()
+        }
+        if (header === 'FCSku') {
+          product.fcSku = String(value || '').trim()
+        }
+        if (header === 'Link') {
+          product.link = String(value || '').trim()
+        }
+        if (header === 'PCS') {
+          product.quantity = this.parseQuantity(String(value || ''))
+        }
+        if (header === 'Cena regularna brutto') {
+          product.priceGross = this.parsePrice(String(value || ''))
+        }
+        if (header === 'Cena sprzedaży netto') {
+          product.priceNet = this.parsePrice(String(value || ''))
+        }
+        if (lowerHeader.includes('waluta') || lowerHeader === 'currency') {
+          product.currency = String(value || 'PLN').trim()
         }
       })
       
       // Dodanie produktu tylko jeśli ma nazwę
       if (product.name) {
+        // Debug - pokaż pierwsze 3 produkty
+        if (products.length < 3) {
+          console.log(`✅ Produkt ${products.length + 1}:`, {
+            name: product.name,
+            category: product.category,
+            quantity: product.quantity,
+            priceGross: product.priceGross,
+            priceNet: product.priceNet,
+            paletaId: product.paletaId,
+            ean: product.ean
+          })
+        }
         products.push(product)
       }
     }
     
+    console.log(`✅ normalizeData zakończone: ${products.length} produktów`)
     return products
   }
 
@@ -307,7 +392,16 @@ export class ParserService {
   private createColumnMap(headers: string[]): Record<string, string> {
     const map: Record<string, string> = {}
     
-    headers.forEach(header => {
+    console.log('🔍 Parsing headers:', headers)
+    console.log('📊 Headers types:', headers.map(h => ({ value: h, type: typeof h })))
+    
+    headers.forEach((header, index) => {
+      // Sprawdź czy header jest stringiem i nie jest pusty
+      if (!header || typeof header !== 'string') {
+        console.warn(`⚠️ Nieprawidłowy header [${index}]:`, header, typeof header)
+        return
+      }
+      
       const lowerHeader = header.toLowerCase()
       
       // Mapowanie na podstawie słów kluczowych
@@ -337,6 +431,7 @@ export class ParserService {
       }
     })
     
+    console.log('✅ Column map created:', map)
     return map
   }
 

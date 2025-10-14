@@ -14,6 +14,19 @@ export interface ParsedProduct {
   source?: string // Źródło danych (nazwa pliku)
   rowIndex?: number // Indeks wiersza w oryginalnym pliku
   rawData?: Record<string, any> // Oryginalne dane z pliku
+  
+  // Dodatkowe pola specyficzne dla palet
+  paletaId?: string
+  foto?: string
+  code1?: string
+  code2?: string
+  packId?: string
+  fcSku?: string
+  link?: string
+  currency?: string
+  priceGross?: number
+  priceNet?: number
+  ean?: string
 }
 
 // Status parsowania

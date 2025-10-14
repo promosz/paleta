@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import type { Analysis, AnalysisExport } from '../../types/analysis'
 import { useAnalysisStore } from '../../stores/analysisStoreSupabase'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
+import { useProducts } from '../../hooks/useProducts'
 import { Button, Card, CardHeader, CardBody, StatusBadge, DataTable, Recommendations } from '../ui'
 
 interface AnalysisDetailsProps {
@@ -19,9 +21,13 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
 }) => {
   const location = useLocation()
   const { exportAnalysis } = useAnalysisStore()
+  const { supabaseUserId } = useCurrentUser()
   const [isExporting, setIsExporting] = useState(false)
   const [exportFormat, setExportFormat] = useState<AnalysisExport['format']>('json')
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null)
+  
+  // NOWE: Pobierz produkty z bazy danych
+  const { products: dbProducts, loading: productsLoading } = useProducts(analysis.id, supabaseUserId)
   
   // Użyj przekazanych processedFiles lub fallback do location state
   const filesToShow = processedFiles.length > 0 ? processedFiles : (location.state?.processedFiles || [])
@@ -30,11 +36,13 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
   console.log('AnalysisDetails: Otrzymana analiza:', {
     id: analysis.id,
     name: analysis.name,
-    productsCount: analysis.products.length,
-    products: analysis.products.slice(0, 3), // Pierwsze 3 produkty
+    productsFromAnalysis: analysis.products.length,
+    productsFromDB: dbProducts.length,
+    products: dbProducts.slice(0, 3), // Pierwsze 3 produkty z bazy
     filesCount: analysis.files.length,
     processedFiles: processedFiles,
-    filesToShow: filesToShow
+    filesToShow: filesToShow,
+    loading: productsLoading
   })
 
   // Funkcja formatowania rozmiaru pliku
@@ -48,10 +56,37 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
 
   // Funkcja pobierania produktów dla wybranego pliku
   const getProductsForFile = () => {
-    // TODO: Implementować pobieranie produktów dla konkretnego pliku
-    // Na razie zwracamy wszystkie produkty
-    return analysis.products
+    // Użyj produktów z bazy danych zamiast z JSONB
+    return dbProducts
   }
+  
+  // Funkcja konwersji Product na ParsedProduct dla kompatybilności
+  const productsForDisplay = dbProducts.map(p => ({
+    id: p.id,
+    name: p.name,
+    category: p.category,
+    price: p.price,
+    quantity: p.quantity,
+    description: p.description,
+    sku: p.sku,
+    unit: p.unit,
+    brand: p.brand,
+    source: p.source,
+    rowIndex: p.rowIndex,
+    rawData: p.rawData,
+    // Dodatkowe pola
+    ean: p.ean,
+    paletaId: p.paletaId,
+    foto: p.foto,
+    code1: p.code1,
+    code2: p.code2,
+    packId: p.packId,
+    fcSku: p.fcSku,
+    link: p.link,
+    currency: p.currency,
+    priceGross: p.priceGross,
+    priceNet: p.priceNet
+  }))
 
   // Obsługa eksportu
   const handleExport = async () => {
@@ -434,14 +469,14 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
                   <div className="flex items-center space-x-2">
                     <StatusBadge 
                       status={
-                        file.status === 'parsed' ? 'success' :
-                        file.status === 'parsing' ? 'warning' :
-                        file.status === 'failed' ? 'danger' : 'info'
+                        file.status === 'completed' ? 'success' :
+                        file.status === 'processing' ? 'warning' :
+                        file.status === 'error' ? 'danger' : 'info'
                       }
                     >
-                      {file.status === 'parsed' ? 'Sparsowany' :
-                       file.status === 'parsing' ? 'Parsowanie' :
-                       file.status === 'failed' ? 'Błąd' : 'Oczekujący'}
+                      {file.status === 'completed' ? 'Ukończony' :
+                       file.status === 'processing' ? 'Przetwarzanie' :
+                       file.status === 'error' ? 'Błąd' : 'Oczekujący'}
                     </StatusBadge>
                     {file.error && (
                       <span className="text-sm text-danger-600" title={file.error}>
@@ -527,7 +562,20 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
       )}
 
       {/* Podsumowanie produktów */}
-      {analysis.products.length > 0 && (
+      {/* Loading state */}
+      {productsLoading && (
+        <Card className="mb-6">
+          <CardBody>
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+              <p className="text-neutral-600">Ładowanie produktów z bazy danych...</p>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Podsumowanie produktów z bazy danych */}
+      {!productsLoading && dbProducts.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <h3 className="text-lg font-semibold text-neutral-800">
@@ -538,41 +586,41 @@ export const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({
             <div className="flex flex-wrap gap-4 justify-center">
               <div 
                 className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
-                title={`Łącznie produktów: ${analysis.products.length} ${analysis.products.length === 1 ? 'produkt' : 'produktów'} w bazie danych`}
+                title={`Łącznie produktów: ${dbProducts.length} ${dbProducts.length === 1 ? 'produkt' : 'produktów'} w bazie danych`}
               >
                 <span className="text-3xl">📦</span>
-                <span className="text-3xl font-bold text-purple-700">{analysis.products.length}</span>
+                <span className="text-3xl font-bold text-purple-700">{dbProducts.length}</span>
               </div>
               <div 
                 className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
-                title={`Produkty z ceną: ${analysis.products.filter(p => p.price && p.price > 0).length} ${analysis.products.filter(p => p.price && p.price > 0).length === 1 ? 'produkt ma' : 'produktów ma'} przypisaną cenę`}
+                title={`Produkty z ceną: ${dbProducts.filter(p => p.price && p.price > 0).length} ${dbProducts.filter(p => p.price && p.price > 0).length === 1 ? 'produkt ma' : 'produktów ma'} przypisaną cenę`}
               >
                 <span className="text-3xl">💰</span>
-                <span className="text-3xl font-bold text-green-700">{analysis.products.filter(p => p.price && p.price > 0).length}</span>
+                <span className="text-3xl font-bold text-green-700">{dbProducts.filter(p => p.price && p.price > 0).length}</span>
               </div>
               <div 
                 className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
-                title={`Unikalne kategorie: ${new Set(analysis.products.map(p => p.category).filter(Boolean)).size} ${new Set(analysis.products.map(p => p.category).filter(Boolean)).size === 1 ? 'kategoria' : 'kategorii'} produktów`}
+                title={`Unikalne kategorie: ${new Set(dbProducts.map(p => p.category).filter(Boolean)).size} ${new Set(dbProducts.map(p => p.category).filter(Boolean)).size === 1 ? 'kategoria' : 'kategorii'} produktów`}
               >
                 <span className="text-3xl">🏷️</span>
-                <span className="text-3xl font-bold text-amber-700">{new Set(analysis.products.map(p => p.category).filter(Boolean)).size}</span>
+                <span className="text-3xl font-bold text-amber-700">{new Set(dbProducts.map(p => p.category).filter(Boolean)).size}</span>
               </div>
             </div>
           </CardBody>
         </Card>
       )}
 
-      {/* Produkty */}
-      {analysis.products.length > 0 && (
+      {/* Produkty z bazy danych */}
+      {!productsLoading && productsForDisplay.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <h3 className="text-lg font-semibold text-neutral-800">
-              Wszystkie produkty ({analysis.products.length})
+              Wszystkie produkty ({productsForDisplay.length})
             </h3>
           </CardHeader>
           <CardBody>
             <DataTable
-              products={analysis.products}
+              products={productsForDisplay}
               showSource={true}
               showRawData={true}
               maxRows={1000}

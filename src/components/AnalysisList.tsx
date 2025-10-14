@@ -1,47 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FileSpreadsheet, Clock, CheckCircle, AlertCircle, TrendingUp, Package, AlertTriangle } from 'lucide-react'
-
-interface Product {
-  paleta: string
-  nazwa: string
-  foto: string
-  ean: string
-  kod1: string
-  kod2: string
-  packId: string
-  kategoria: string
-  pcs: number
-  cenaRegularnaBrutto: number
-  waluta: string
-  cenaSprzedazyNetto: number
-  walutaSprzedazy: string
-  link: string
-  fcSku: string
-  wartoscSprzedazyNetto: number
-  // Obliczone pola
-  marza: number
-  rentownosc: number
-}
-
-interface Analysis {
-  id: string
-  fileName: string
-  uploadDate: string
-  status: 'processing' | 'completed' | 'error'
-  profitability: number | null
-  productCount: number | null
-  issues: number | null
-  products: Product[]
-  summary: {
-    totalRevenue: number
-    totalCost: number
-    averageProfitability: number
-    lowProfitability: Product[]
-    mediumProfitability: Product[]
-    highProfitability: Product[]
-  }
-}
+import { FileSpreadsheet, Clock, CheckCircle, AlertCircle, Package, AlertTriangle, TrendingUp } from 'lucide-react'
+import type { Analysis } from '../types/analysis'
 
 interface AnalysisListProps {
   analyses: Analysis[]
@@ -49,41 +9,48 @@ interface AnalysisListProps {
 
 const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
   const location = useLocation()
+  
   const getStatusIcon = (status: Analysis['status']) => {
     switch (status) {
-      case 'processing':
+      case 'in_progress':
         return <Clock className="h-5 w-5 text-yellow-500" />
       case 'completed':
         return <CheckCircle className="h-5 w-5 text-green-500" />
-      case 'error':
+      case 'failed':
         return <AlertCircle className="h-5 w-5 text-red-500" />
+      case 'pending':
+        return <Clock className="h-5 w-5 text-blue-500" />
     }
   }
 
   const getStatusText = (status: Analysis['status']) => {
     switch (status) {
-      case 'processing':
+      case 'in_progress':
         return 'W trakcie analizy'
       case 'completed':
         return 'Zakończona'
-      case 'error':
+      case 'failed':
         return 'Błąd analizy'
+      case 'pending':
+        return 'Oczekująca'
     }
   }
 
   const getStatusColor = (status: Analysis['status']) => {
     switch (status) {
-      case 'processing':
+      case 'in_progress':
         return 'text-yellow-600 bg-yellow-100'
       case 'completed':
         return 'text-green-600 bg-green-100'
-      case 'error':
+      case 'failed':
         return 'text-red-600 bg-red-100'
+      case 'pending':
+        return 'text-blue-600 bg-blue-100'
     }
   }
 
   // Funkcja do bezpiecznego wyświetlania liczby produktów
-  const formatProductCount = (count: number | null): string => {
+  const formatProductCount = (count: number): string => {
     if (count === null || count === undefined) return '0'
     
     // Konwertuj na liczbę i usuń wszystkie niepotrzebne znaki
@@ -109,60 +76,28 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
     )
   }
 
-  // Funkcja do obliczania liczby produktów z ostrzeżeniami
-  const getWarningCount = (analysis: Analysis): number => {
-    if (analysis.status !== 'completed' || !analysis.products) return 0
-    
-    // Załaduj reguły z localStorage
-    const savedRules = localStorage.getItem('analysis-rules')
-    if (!savedRules) return 0
-    
-    try {
-      const rules = JSON.parse(savedRules)
-      
-      return analysis.products.filter(product => {
-        // Sprawdź reguły produktów
-        const productRule = rules.find((rule: any) => 
-          rule.type === 'product' && 
-          rule.name.toLowerCase() === product.nazwa.toLowerCase() &&
-          rule.action === 'warning'
-        )
-        
-        if (productRule) return true
-        
-        // Sprawdź reguły kategorii
-        const categoryRule = rules.find((rule: any) => 
-          rule.type === 'category' && 
-          rule.name.toLowerCase() === product.kategoria.toLowerCase() &&
-          rule.action === 'warning'
-        )
-        
-        return !!categoryRule
-      }).length
-    } catch (error) {
-      console.error('Błąd ładowania reguł:', error)
-      return 0
-    }
-  }
-
   return (
     <div className="space-y-4">
       {analyses.map((analysis) => {
-        const warningCount = getWarningCount(analysis)
+        const warningCount = analysis.stats?.warningProducts || 0
+        const blockedCount = analysis.stats?.blockedProducts || 0
+        const avgPrice = analysis.stats?.priceStats?.average || 0
+        
+        const linkTo = location.pathname.startsWith('/paleta') ? `/paleta/analysis/${analysis.id}` : `/analysis/${analysis.id}`
         
         return (
-          <Link 
-            key={analysis.id} 
-            to={location.pathname.startsWith('/paleta') ? `/paleta/analysis/${analysis.id}` : `/analysis/${analysis.id}`}
+          <Link
+            key={analysis.id}
+            to={linkTo}
             className="block card hover:shadow-md transition-shadow cursor-pointer"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <FileSpreadsheet className="h-8 w-8 text-blue-600" />
                 <div>
-                  <h4 className="font-medium text-gray-900">{analysis.fileName}</h4>
+                  <h4 className="font-medium text-gray-900">{analysis.name}</h4>
                   <p className="text-sm text-gray-500">
-                    Przesłano: {new Date(analysis.uploadDate).toLocaleString('pl-PL', {
+                    Utworzona: {new Date(analysis.createdAt).toLocaleString('pl-PL', {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
@@ -170,6 +105,9 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
                       minute: '2-digit'
                     })}
                   </p>
+                  {analysis.description && (
+                    <p className="text-xs text-gray-400 mt-1">{analysis.description}</p>
+                  )}
                 </div>
               </div>
               
@@ -186,28 +124,28 @@ const AnalysisList: React.FC<AnalysisListProps> = ({ analyses }) => {
                         <span className="text-lg font-bold text-yellow-700">{warningCount}</span>
                       </div>
                     )}
-                    {(analysis.issues ?? 0) > 0 && (
+                    {blockedCount > 0 && (
                       <div 
                         className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
-                        title={`Problemy: ${analysis.issues} ${analysis.issues === 1 ? 'produkt z' : 'produktów z'} błędami lub brakującymi danymi`}
+                        title={`Problemy: ${blockedCount} ${blockedCount === 1 ? 'produkt z' : 'produktów z'} błędami lub brakującymi danymi`}
                       >
                         <AlertTriangle className="h-5 w-5 text-orange-600" />
-                        <span className="text-lg font-bold text-orange-700">{analysis.issues}</span>
+                        <span className="text-lg font-bold text-orange-700">{blockedCount}</span>
                       </div>
                     )}
                     <div 
                       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
-                      title={`Rentowność: średnia rentowność wynosi ${analysis.profitability?.toFixed(1)}%`}
+                      title={`Średnia cena: ${avgPrice.toFixed(2)} PLN`}
                     >
                       <TrendingUp className="h-5 w-5 text-green-600" />
-                      <span className="text-lg font-bold text-green-700">{analysis.profitability?.toFixed(1)}%</span>
+                      <span className="text-lg font-bold text-green-700">{avgPrice.toFixed(1)} PLN</span>
                     </div>
                     <div 
                       className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200/50 shadow-sm hover:shadow-md transition-shadow cursor-help"
-                      title={`Liczba produktów: łącznie ${formatProductCount(analysis.productCount)} ${parseInt(formatProductCount(analysis.productCount)) === 1 ? 'produkt' : 'produktów'} w analizie`}
+                      title={`Liczba produktów: łącznie ${formatProductCount(analysis.totalProducts)} ${parseInt(formatProductCount(analysis.totalProducts)) === 1 ? 'produkt' : 'produktów'} w analizie`}
                     >
                       <Package className="h-5 w-5 text-blue-600" />
-                      <span className="text-lg font-bold text-blue-700">{formatProductCount(analysis.productCount)}</span>
+                      <span className="text-lg font-bold text-blue-700">{formatProductCount(analysis.totalProducts)}</span>
                     </div>
                   </div>
                 )}

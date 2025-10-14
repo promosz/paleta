@@ -16,12 +16,16 @@ export class ClerkSupabaseService {
    */
   static async ensureUserInSupabase(clerkUser: UserResource): Promise<string> {
     try {
+      console.log('🔍 ensureUserInSupabase called for Clerk user:', clerkUser.id)
+      
       // Sprawdź czy użytkownik już istnieje
       const { data: existingUser, error: checkError } = await supabase
         .from('users')
         .select('id, clerk_user_id, email, full_name, avatar_url')
         .eq('clerk_user_id', clerkUser.id)
         .single()
+      
+      console.log('🔎 Check existing user result:', { existingUser, checkError })
 
       if (checkError && checkError.code !== 'PGRST116') {
         throw checkError
@@ -54,6 +58,8 @@ export class ClerkSupabaseService {
         return existingUser.id
       } else {
         // Użytkownik nie istnieje - utwórz nowego
+        console.log('👤 Creating new user in Supabase for Clerk ID:', clerkUser.id)
+        
         const { data: newUser, error: insertError } = await supabase
           .from('users')
           .insert({
@@ -68,10 +74,15 @@ export class ClerkSupabaseService {
           .single()
 
         if (insertError) {
-          console.error('Error creating user:', insertError)
+          console.error('❌ Error creating user in Supabase:', insertError)
+          console.error('   Code:', insertError.code)
+          console.error('   Message:', insertError.message)
+          console.error('   Details:', insertError.details)
+          console.error('   Hint:', insertError.hint)
           throw insertError
         }
 
+        console.log('✅ User created successfully:', newUser.id)
         return newUser.id
       }
     } catch (error) {

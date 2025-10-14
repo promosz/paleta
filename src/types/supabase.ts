@@ -117,6 +117,120 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          id: string
+          analysis_id: string
+          user_id: string
+          name: string
+          category: string | null
+          description: string | null
+          price: number | null
+          quantity: number | null
+          unit: string | null
+          ean: string | null
+          sku: string | null
+          brand: string | null
+          paleta_id: string | null
+          foto: string | null
+          code1: string | null
+          code2: string | null
+          pack_id: string | null
+          fc_sku: string | null
+          link: string | null
+          currency: string | null
+          price_gross: number | null
+          price_net: number | null
+          score: number | null
+          status: string
+          evaluation_data: Json | null
+          source: string | null
+          row_index: number | null
+          raw_data: Json | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          analysis_id: string
+          user_id: string
+          name: string
+          category?: string | null
+          description?: string | null
+          price?: number | null
+          quantity?: number | null
+          unit?: string | null
+          ean?: string | null
+          sku?: string | null
+          brand?: string | null
+          paleta_id?: string | null
+          foto?: string | null
+          code1?: string | null
+          code2?: string | null
+          pack_id?: string | null
+          fc_sku?: string | null
+          link?: string | null
+          currency?: string | null
+          price_gross?: number | null
+          price_net?: number | null
+          score?: number | null
+          status?: string
+          evaluation_data?: Json | null
+          source?: string | null
+          row_index?: number | null
+          raw_data?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          analysis_id?: string
+          user_id?: string
+          name?: string
+          category?: string | null
+          description?: string | null
+          price?: number | null
+          quantity?: number | null
+          unit?: string | null
+          ean?: string | null
+          sku?: string | null
+          brand?: string | null
+          paleta_id?: string | null
+          foto?: string | null
+          code1?: string | null
+          code2?: string | null
+          pack_id?: string | null
+          fc_sku?: string | null
+          link?: string | null
+          currency?: string | null
+          price_gross?: number | null
+          price_net?: number | null
+          score?: number | null
+          status?: string
+          evaluation_data?: Json | null
+          source?: string | null
+          row_index?: number | null
+          raw_data?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "analyses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       analysis_files: {
         Row: {
           analysis_id: string

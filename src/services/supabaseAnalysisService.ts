@@ -20,21 +20,29 @@ export class SupabaseAnalysisService {
   async getAnalyses(userId: string): Promise<Analysis[]> {
     const client = await this.getClient()
     
-        const { data, error } = await client
-          .from('analyses')
-          .select(`
-            *,
-            analysis_files (*)
-          `)
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
+    console.log('🔍 SupabaseAnalysisService.getAnalyses called for userId:', userId)
+    
+    const { data, error } = await client
+      .from('analyses')
+      .select(`
+        *,
+        analysis_files (*)
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching analyses:', error)
+      console.error('❌ Error fetching analyses:', error)
       throw new Error(`Failed to fetch analyses: ${error.message}`)
     }
 
-    return this.mapRowsToAnalyses(data || [])
+    console.log('📊 Raw data from Supabase:', data)
+    console.log('📈 Number of analyses found:', data?.length || 0)
+    
+    const mappedAnalyses = this.mapRowsToAnalyses(data || [])
+    console.log('✅ Mapped analyses:', mappedAnalyses)
+    
+    return mappedAnalyses
   }
 
   // Pobieranie pojedynczej analizy
@@ -66,6 +74,8 @@ export class SupabaseAnalysisService {
   async createAnalysis(analysis: Omit<Analysis, 'id' | 'createdAt' | 'updatedAt'>, userId: string): Promise<Analysis> {
     const client = await this.getClient()
     
+    console.log('🔍 SupabaseAnalysisService.createAnalysis called:', { analysis: analysis.name, userId })
+    
     const analysisData: AnalysisInsert = {
       user_id: userId,
       name: analysis.name,
@@ -80,6 +90,8 @@ export class SupabaseAnalysisService {
       metadata: analysis.metadata as any,
       completed_at: analysis.completedAt?.toISOString() || null,
     }
+
+    console.log('💾 Inserting analysis data:', analysisData)
 
     const { data, error } = await client
       .from('analyses')

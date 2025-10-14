@@ -1,186 +1,18 @@
-import React, { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useDropzone } from 'react-dropzone'
-import { Card, CardHeader, CardBody, StatusBadge, Button } from '../components/ui'
-import { useUploadStore, validateFile } from '../stores/uploadStore'
+import React from 'react'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { Card, CardHeader, CardBody, StatusBadge } from '../components/ui'
+import { FileUploadZone } from '../components/upload'
 import { useAnalysisStore } from '../stores/analysisStoreSupabase'
 import { useCurrentUser } from '../hooks/useCurrentUser'
-import { parserService } from '../utils/parserService'
 
 const Analysis: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { supabaseUserId, isLoaded, isSignedIn, loading, error } = useCurrentUser()
+  const { analyses } = useAnalysisStore()
   
   // Debug logging
   console.log('🔍 Analysis component loaded:', { supabaseUserId, isLoaded, isSignedIn, loading, error })
-  const { 
-    getAllParsedProducts, 
-    getAllEvaluations, 
-    evaluateProducts, 
-    isEvaluating,
-    addFiles,
-    setParsing,
-    setParseResult,
-    setUploading
-  } = useUploadStore()
-  const { analyses, createAnalysis } = useAnalysisStore()
-
-  // Funkcja obsługująca automatyczny upload i analizę
-  const handleFileDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return
-
-    // Walidacja plików
-    const validFiles: File[] = []
-    const errors: string[] = []
-
-    acceptedFiles.forEach(file => {
-      const validation = validateFile(file)
-      if (validation.isValid) {
-        validFiles.push(file)
-      } else {
-        errors.push(`${file.name}: ${validation.error}`)
-      }
-    })
-
-    if (errors.length > 0) {
-      console.warn('Błędy walidacji plików:', errors)
-      // TODO: Dodać toast notifications
-    }
-
-    if (validFiles.length === 0) return
-
-    // Dodaj pliki do store
-    addFiles(validFiles)
-    
-    // Rozpocznij automatyczny upload i parsowanie
-    await processFiles(validFiles)
-  }, [addFiles])
-
-  // Funkcja przetwarzania plików
-  const processFiles = async (files: File[]) => {
-    setUploading(true)
-    setParsing(true)
-
-    try {
-      const processedFiles: { file: File; result: any; fileId: string }[] = []
-
-      // Symulacja uploadu i parsowania dla każdego pliku
-      for (const file of files) {
-        // Symulacja postępu uploadu
-        await new Promise(resolve => {
-          let currentProgress = 0
-          const progressInterval = setInterval(() => {
-            currentProgress += Math.random() * 15 + 5
-            currentProgress = Math.min(currentProgress, 100)
-            
-            if (currentProgress >= 100) {
-              clearInterval(progressInterval)
-              resolve(undefined)
-            }
-          }, 200)
-        })
-
-        // Parsowanie pliku
-        const result = await parserService.parseFile(
-          file,
-          (progress, status) => {
-            console.log(`Parsowanie ${file.name}: ${progress}% - ${status}`)
-          }
-        )
-
-        // Zapisanie wyniku parsowania
-        const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        setParseResult(fileId, result)
-        
-        processedFiles.push({ file, result, fileId })
-      }
-
-      // Automatyczna ocena produktów po parsowaniu
-      const currentParsedProducts = getAllParsedProducts()
-      if (currentParsedProducts.length > 0) {
-        await evaluateProducts()
-        
-        // Utwórz analizę z produktami - użyj nazwy pierwszego pliku
-        const analysisName = files.length === 1 
-          ? files[0].name.replace(/\.[^/.]+$/, "") // Usuń rozszerzenie
-          : `${files[0].name.replace(/\.[^/.]+$/, "")} i ${files.length - 1} innych`
-        
-        if (!supabaseUserId) {
-          console.error('Brak userId - użytkownik nie jest zalogowany')
-          return
-        }
-        
-        // Konwersja przetworzonych plików na AnalysisFile
-        const analysisFiles = processedFiles.map(({ file, result, fileId }) => ({
-          id: fileId,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          uploadedAt: new Date(),
-          status: 'parsed' as const,
-          productCount: result.products.length
-        }))
-        
-        console.log('🚀 Tworzenie analizy z plikami:', analysisFiles.length)
-        console.log('📁 Pliki:', analysisFiles.map(f => ({ name: f.name, size: f.size })))
-        
-        const analysis = await createAnalysis(
-          analysisName,
-          `Analiza utworzona automatycznie z ${files.map(f => f.name).join(', ')}`,
-          'file_upload',
-          supabaseUserId,
-          analysisFiles
-        )
-        
-        console.log('✅ Analiza utworzona:', analysis.id)
-        
-        // TODO: Dodaj produkty do analizy (tymczasowo wyłączone)
-        console.log('Produkty sparsowane:', currentParsedProducts.length)
-        // await addProductsToAnalysis(analysis.id, currentParsedProducts)
-        
-        // TODO: Dodaj oceny do analizy (tymczasowo wyłączone)
-        const currentEvaluations = getAllEvaluations()
-        console.log('Oceny:', currentEvaluations.length)
-        // if (currentEvaluations.length > 0) {
-        //   await addEvaluationsToAnalysis(analysis.id, currentEvaluations)
-        // }
-        
-        // Przekieruj do Dashboard z otwartą analizą i informacją o sparsowanych plikach
-        navigate('/dashboard', { 
-          state: { 
-            selectedAnalysisId: analysis.id,
-            processedFiles: processedFiles.map(pf => ({
-              name: pf.file.name,
-              size: pf.file.size,
-              type: pf.file.type,
-              productsCount: pf.result.products.length,
-              fileId: pf.fileId
-            }))
-          } 
-        })
-      }
-    } catch (error) {
-      console.error('Błąd przetwarzania plików:', error)
-    } finally {
-      setUploading(false)
-      setParsing(false)
-    }
-  }
-
-  // Konfiguracja react-dropzone
-  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
-    onDrop: handleFileDrop,
-    accept: {
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-      'application/vnd.ms-excel': ['.xls'],
-      'text/csv': ['.csv'],
-      'application/pdf': ['.pdf']
-    },
-    maxFiles: 5,
-    multiple: true,
-    disabled: isEvaluating
-  })
-
 
   // Show loading state
   if (!isLoaded || loading) {
@@ -217,29 +49,6 @@ const Analysis: React.FC = () => {
     )
   }
 
-  // Show not signed in state
-  if (!isSignedIn) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-gray-400 mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Nie jesteś zalogowany</h2>
-          <p className="text-gray-600 mb-4">Musisz się zalogować aby korzystać z analiz</p>
-          <button 
-            onClick={() => navigate('/')} 
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Przejdź do strony głównej
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div>
       <div className="mb-8">
@@ -251,7 +60,7 @@ const Analysis: React.FC = () => {
         </p>
       </div>
 
-      {/* Dropzone Section */}
+      {/* Upload Zone - używa wspólnego komponentu */}
       <Card className="mb-8">
         <CardHeader>
           <h2 className="text-xl font-semibold text-neutral-800">
@@ -259,60 +68,16 @@ const Analysis: React.FC = () => {
           </h2>
         </CardHeader>
         <CardBody>
-          <div
-            {...getRootProps()}
-            className={`
-              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200
-              ${isDragActive && !isDragReject
-                ? 'border-primary-500 bg-primary-50 text-primary-600'
-                : isDragReject
-                ? 'border-danger-500 bg-danger-50 text-danger-600'
-                : 'border-neutral-300 hover:border-primary-400 hover:bg-neutral-50'
-              }
-              ${isEvaluating ? 'opacity-50 cursor-not-allowed' : ''}
-            `}
-          >
-            <input {...getInputProps()} />
-            
-            <div className="space-y-4">
-              {/* Ikona uploadu */}
-              <div className="mx-auto w-16 h-16 text-neutral-400">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-              </div>
-
-              {/* Tekst instrukcji */}
-              <div>
-                <p className="text-lg font-medium">
-                  {isDragActive
-                    ? 'Upuść pliki tutaj...'
-                    : 'Przeciągnij pliki tutaj lub kliknij aby wybrać'}
-                </p>
-                <p className="text-sm text-neutral-600 mt-2">
-                  Obsługiwane formaty: XLSX, XLS, CSV, PDF
-                </p>
-                <p className="text-sm text-neutral-500">
-                  Maksymalny rozmiar: 10MB na plik • Automatyczna analiza po wskazaniu
-                </p>
-              </div>
-
-              {/* Przycisk wyboru plików */}
-              {!isEvaluating && (
-                <Button variant="secondary" size="sm">
-                  Wybierz pliki
-                </Button>
-              )}
-            </div>
-          </div>
+          <FileUploadZone 
+            navigateToDashboard={false}
+            onSuccess={(analysisId) => {
+              // Przekieruj do szczegółów analizy
+              const basePath = location.pathname.startsWith('/paleta') ? '/paleta' : ''
+              navigate(`${basePath}/analysis/${analysisId}`)
+            }}
+          />
         </CardBody>
       </Card>
-
 
       {/* Analysis List */}
       <Card>
@@ -351,14 +116,16 @@ const Analysis: React.FC = () => {
               </div>
               
               <div className="space-y-2">
-                {analyses.map((analysis) => (
-                  <div
-                    key={analysis.id}
-                    className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 cursor-pointer transition-colors"
-                    onClick={() => navigate('/dashboard', { 
-                      state: { selectedAnalysisId: analysis.id } 
-                    })}
-                  >
+                {analyses.map((analysis) => {
+                  const linkTo = location.pathname.startsWith('/paleta') ? `/paleta/analysis/${analysis.id}` : `/analysis/${analysis.id}`
+                  
+                  return (
+                    <Link
+                      key={analysis.id}
+                      to={linkTo}
+                      className="block"
+                    >
+                      <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 cursor-pointer transition-colors">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 text-neutral-500">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,7 +160,9 @@ const Analysis: React.FC = () => {
                       </svg>
                     </div>
                   </div>
-                ))}
+                    </Link>
+                  )
+                })}
               </div>
             </div>
           )}

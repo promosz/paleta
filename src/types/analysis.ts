@@ -45,7 +45,7 @@ export interface AnalysisFile {
   type: string
   uploadedAt: Date
   parsedAt?: Date
-  status: 'uploaded' | 'parsing' | 'parsed' | 'failed'
+  status: 'pending' | 'processing' | 'completed' | 'error'
   error?: string
   productCount: number
 }
@@ -188,6 +188,54 @@ export type AnalysisProgressCallback = (progress: number, status: string) => voi
 
 // Callback dla zakończenia analizy
 export type AnalysisCompleteCallback = (analysis: Analysis) => void
+
+// Produkt w bazie danych
+export interface Product {
+  id: string
+  analysisId: string
+  userId: string
+  
+  // Dane podstawowe
+  name: string
+  category?: string
+  description?: string
+  
+  // Ceny i ilości
+  price?: number
+  quantity?: number
+  unit?: string
+  
+  // Identyfikatory
+  ean?: string
+  sku?: string
+  brand?: string
+  
+  // Pola specyficzne dla palet
+  paletaId?: string
+  foto?: string
+  code1?: string
+  code2?: string
+  packId?: string
+  fcSku?: string
+  link?: string
+  currency?: string
+  priceGross?: number
+  priceNet?: number
+  
+  // Ocena
+  score: number
+  status: 'pending' | 'ok' | 'warning' | 'blocked'
+  evaluationData?: Record<string, any>
+  
+  // Metadane
+  source?: string
+  rowIndex?: number
+  rawData?: Record<string, any>
+  
+  // Daty
+  createdAt: Date
+  updatedAt: Date
+}
 
 // Import typów z innych modułów
 import type { ParsedProduct } from './parser'

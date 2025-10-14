@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, Table, BarChart3, DollarSign, Brain, Loader, ExternalLink } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, BarChart3, DollarSign, Brain, Loader, ExternalLink } from 'lucide-react'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
 import MarketPrices from '../components/MarketPrices'
@@ -7,6 +7,9 @@ import ProductFilter from '../components/ProductFilter'
 import ProductActions from '../components/ProductActions'
 import RulesManager from '../components/RulesManager'
 import { hybridAIService } from '../services/hybridAIService'
+import { useAnalysisStore } from '../stores/analysisStoreSupabase'
+import { useProducts } from '../hooks/useProducts'
+import { useCurrentUser } from '../hooks/useCurrentUser'
 
 interface Product {
   paleta: string
@@ -32,31 +35,14 @@ interface Product {
   rentownosc: number
 }
 
-interface AnalysisResult {
-  id: string
-  fileName: string
-  uploadDate: string
-  status: 'processing' | 'completed' | 'error'
-  profitability: number | null
-  productCount: number | null
-  issues: number | null
-  products: Product[]
-  summary: {
-    totalRevenue: number
-    totalCost: number
-    averageProfitability: number
-    lowProfitability: Product[]
-    mediumProfitability: Product[]
-    highProfitability: Product[]
-  }
-}
-
 const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  const [activeTab, setActiveTab] = useState<'content' | 'profitability'>('content')
-  const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null)
+  const { supabaseUserId } = useCurrentUser()
+  const { analyses, loadAnalyses } = useAnalysisStore()
+  const { products: dbProducts, loading: productsLoading } = useProducts(id || '', supabaseUserId || '')
+  
   const [showMarketPrices, setShowMarketPrices] = useState(false)
   const [showRulesManager, setShowRulesManager] = useState(false)
   const [productsWithStatus, setProductsWithStatus] = useState<Product[]>([])
@@ -71,6 +57,16 @@ const AnalysisDetailPage: React.FC = () => {
     confidenceScore: number
   } | null>(null)
   const [isLoadingReport, setIsLoadingReport] = useState(false)
+  
+  // Pobierz dane analizy z store
+  const analysis = analyses.find(a => a.id === id)
+  
+  // Załaduj analizy jeśli nie są załadowane
+  useEffect(() => {
+    if (supabaseUserId && analyses.length === 0) {
+      loadAnalyses(supabaseUserId)
+    }
+  }, [supabaseUserId, analyses.length, loadAnalyses])
 
   // Load rules on component mount
   const loadRules = () => {
@@ -85,16 +81,61 @@ const AnalysisDetailPage: React.FC = () => {
   }
 
   const analyzeProductsWithRules = useCallback(() => {
-    if (!analysisData) return
+    if (dbProducts.length === 0) return
 
-    const updatedProducts = analysisData.products.map(product => {
+    console.log('🔍 Mapowanie produktów z bazy, przykładowy produkt:', dbProducts[0])
+
+    const updatedProducts = dbProducts.map(product => {
+      // Debug - sprawdź pierwsze 3 produkty
+      if (dbProducts.indexOf(product) < 3) {
+        console.log('📦 Produkt z bazy:', {
+          name: product.name,
+          priceGross: product.priceGross,
+          priceNet: product.priceNet,
+          quantity: product.quantity,
+          rawData: product.rawData
+        })
+      }
+
+      const productForRules = {
+        nazwa: product.name,
+        kategoria: product.category || 'Brak kategorii',
+        paleta: product.paletaId || '',
+        foto: product.foto || '',
+        ean: product.ean || '',
+        kod1: product.code1 || '',
+        kod2: product.code2 || '',
+        packId: product.packId || '',
+        pcs: product.quantity || 1,
+        cenaRegularnaBrutto: product.priceGross || 0,
+        waluta: product.currency || 'PLN',
+        cenaSprzedazyNetto: product.priceNet || 0,
+        walutaSprzedazy: product.currency || 'PLN',
+        link: product.link || '',
+        fcSku: product.fcSku || '',
+        wartoscSprzedazyNetto: product.priceNet || 0,
+        marza: (product.priceGross || 0) - (product.priceNet || 0),
+        rentownosc: product.priceGross ? (((product.priceGross - (product.priceNet || 0)) / product.priceGross) * 100) : 0
+      }
+      
+      // Debug wynik mapowania
+      if (dbProducts.indexOf(product) < 3) {
+        console.log('📊 Zmapowany produkt:', {
+          nazwa: productForRules.nazwa,
+          pcs: productForRules.pcs,
+          cenaRegularnaBrutto: productForRules.cenaRegularnaBrutto,
+          cenaSprzedazyNetto: productForRules.cenaSprzedazyNetto,
+          marza: productForRules.marza,
+          rentownosc: productForRules.rentownosc
+        })
+      }
       let status: 'warning' | 'allowed' = 'allowed'
       let appliedRule: string | undefined = undefined
 
       // Check product rules first (higher priority) - only warning rules
       const productRule = rules.find(rule => 
         rule.type === 'product' && 
-        rule.name.toLowerCase() === product.nazwa.toLowerCase() &&
+        rule.name.toLowerCase() === productForRules.nazwa.toLowerCase() &&
         rule.action === 'warning'
       )
       
@@ -105,7 +146,7 @@ const AnalysisDetailPage: React.FC = () => {
         // Check category rules if no product rule found - only warning rules
         const categoryRule = rules.find(rule => 
           rule.type === 'category' && 
-          rule.name.toLowerCase() === product.kategoria.toLowerCase() &&
+          rule.name.toLowerCase() === productForRules.kategoria.toLowerCase() &&
           rule.action === 'warning'
         )
         
@@ -115,16 +156,16 @@ const AnalysisDetailPage: React.FC = () => {
         }
       }
 
-      const result = { ...product, status, appliedRule }
+      const result = { ...productForRules, status, appliedRule }
       if (status !== 'allowed') {
-        console.log(`Product ${product.nazwa} - Status: ${status}, Rule: ${appliedRule}`)
+        console.log(`Product ${productForRules.nazwa} - Status: ${status}, Rule: ${appliedRule}`)
       }
       return result
     })
     
     // Store products with status
     setProductsWithStatus(updatedProducts)
-  }, [analysisData, rules])
+  }, [dbProducts, rules])
 
   useEffect(() => {
     loadRules()
@@ -135,24 +176,24 @@ const AnalysisDetailPage: React.FC = () => {
     analyzeProductsWithRules()
   }, [analyzeProductsWithRules])
 
-  // Generate AI report when analysis data is available
+  // Generate AI report when products are loaded
   useEffect(() => {
-    if (analysisData && analysisData.products.length > 0 && !aiReport) {
+    if (productsWithStatus.length > 0 && !aiReport && !isLoadingReport) {
       generateAIReport()
     }
-  }, [analysisData])
+  }, [productsWithStatus])
 
   const generateAIReport = async () => {
-    if (!analysisData || analysisData.products.length === 0) return
+    if (productsWithStatus.length === 0) return
     
     setIsLoadingReport(true)
     try {
-      const report = await hybridAIService.generatePaletteReport(analysisData.products)
+      const report = await hybridAIService.generatePaletteReport(productsWithStatus)
       setAiReport(report)
     } catch (error) {
       console.error('Failed to generate AI report:', error)
       // If AI fails, still show a basic report using mock data
-      const report = await hybridAIService.generatePaletteReport(analysisData.products)
+      const report = await hybridAIService.generatePaletteReport(productsWithStatus)
       setAiReport(report)
     } finally {
       setIsLoadingReport(false)
@@ -165,7 +206,7 @@ const AnalysisDetailPage: React.FC = () => {
       type: 'product',
       name: product.nazwa,
       action,
-      description: `Dodano z analizy ${analysisData?.fileName}`,
+      description: `Dodano z analizy ${analysis?.name || 'nieznana'}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -181,7 +222,7 @@ const AnalysisDetailPage: React.FC = () => {
       type: 'category',
       name: category,
       action,
-      description: `Dodano z analizy ${analysisData?.fileName}`,
+      description: `Dodano z analizy ${analysis?.name || 'nieznana'}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -197,106 +238,8 @@ const AnalysisDetailPage: React.FC = () => {
     setRules(updatedRules)
   }
 
-  // Pobierz dane analizy z localStorage lub mock data
-  React.useEffect(() => {
-    if (id) {
-      // Spróbuj pobrać z localStorage
-      const savedAnalyses = localStorage.getItem('pallet-analyses')
-      if (savedAnalyses) {
-        const analyses: AnalysisResult[] = JSON.parse(savedAnalyses)
-        const foundAnalysis = analyses.find(analysis => analysis.id === id)
-        if (foundAnalysis) {
-          setAnalysisData(foundAnalysis)
-          return
-        }
-      }
-      
-      // Fallback do mock data jeśli nie znaleziono w localStorage
-      const mockData: AnalysisResult = {
-    id: id || '1',
-    fileName: 'Przykładowy_plik_do_analizy.xlsx',
-    uploadDate: '2024-01-15',
-    status: 'completed',
-    profitability: 78.5,
-    productCount: 15,
-    issues: 2,
-    products: [
-      { 
-        paleta: 'F20351', 
-        nazwa: 'Electric Car Charger [11kW, Three Phase, 7m, 6-16A] with Schuko dé Type 2 Adapter CEE Socket EV Charger Mobile / Wallbox Charging Station with Digital Display', 
-        foto: 'https://example.com/charger.jpg', 
-        ean: '6975828000119', 
-        kod1: 'LPNHE979260590', 
-        kod2: 'B0C4TPG8P8', 
-        packId: '1Z7E45296840145543', 
-        kategoria: 'AUTOMOTIVE', 
-        pcs: 1, 
-        cenaRegularnaBrutto: 1073.6, 
-        waluta: 'PLN', 
-        cenaSprzedazyNetto: 193.25, 
-        walutaSprzedazy: 'PLN', 
-        link: '', 
-        fcSku: 'X001TNT5NN', 
-        wartoscSprzedazyNetto: 193.25, 
-        marza: 880.35, 
-        rentownosc: 82.0 
-      },
-      { 
-        paleta: 'F20351', 
-        nazwa: 'dé Typ 2 Verlängerungskabel [15m, 22kW, 32A] 3-Phasen Ladekabel 400V, Schutzart IP54, kompatibel mit Allen IEC62196-2 BEV und HPEV, mit Tragetasche', 
-        foto: 'https://example.com/cable.jpg', 
-        ean: '6975828001802', 
-        kod1: 'LPNHE997930890', 
-        kod2: 'B0DLNN9TFH', 
-        packId: '1Z7E45296840145543', 
-        kategoria: 'AUTOMOTIVE', 
-        pcs: 1, 
-        cenaRegularnaBrutto: 1002, 
-        waluta: 'PLN', 
-        cenaSprzedazyNetto: 180.36, 
-        walutaSprzedazy: 'PLN', 
-        link: '', 
-        fcSku: 'X002DJWW5P', 
-        wartoscSprzedazyNetto: 180.36, 
-        marza: 821.64, 
-        rentownosc: 82.0 
-      },
-      { 
-        paleta: 'F20351', 
-        nazwa: 'FreeTec 21-Piece Pneumatic Injector Puller, Diesel Injector Extractor for Diesel Engines, Diesel Injectors Puller Set (21 Pieces)', 
-        foto: 'https://example.com/puller.jpg', 
-        ean: '', 
-        kod1: 'LPNHE829891552', 
-        kod2: 'B0D7PS5V3H', 
-        packId: '1ZV8K9116840037616', 
-        kategoria: 'AUTOMOTIVE', 
-        pcs: 1, 
-        cenaRegularnaBrutto: 465.12, 
-        waluta: 'PLN', 
-        cenaSprzedazyNetto: 83.72, 
-        walutaSprzedazy: 'PLN', 
-        link: '', 
-        fcSku: 'X002CFMZCF', 
-        wartoscSprzedazyNetto: 83.72, 
-        marza: 381.4, 
-        rentownosc: 82.0 
-      }
-    ],
-    summary: {
-      totalRevenue: 0,
-      totalCost: 0,
-      averageProfitability: 0,
-      lowProfitability: [],
-      mediumProfitability: [],
-      highProfitability: []
-    }
-      }
-      setAnalysisData(mockData)
-    }
-  }, [id])
-
-  // Jeśli nie ma danych, pokaż loading
-  if (!analysisData) {
+  // Jeśli ładuje dane, pokaż loading
+  if (productsLoading || !analysis) {
     return (
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="text-center py-12">
@@ -307,25 +250,46 @@ const AnalysisDetailPage: React.FC = () => {
     )
   }
 
-  // Oblicz podsumowanie
-  const totalRevenue = analysisData.products.reduce((sum, p) => sum + p.cenaRegularnaBrutto, 0)
-  const totalCost = analysisData.products.reduce((sum, p) => sum + p.cenaSprzedazyNetto, 0)
-
-  const tabs = [
-    { id: 'content', label: 'Zawartość pliku', icon: Table },
-    { id: 'profitability', label: 'Analiza rentowności', icon: BarChart3 },
-  ]
+  // Oblicz podsumowanie z prawdziwych produktów z bazy
+  const totalRevenue = productsWithStatus.reduce((sum, p) => sum + p.cenaRegularnaBrutto, 0)
+  const totalCost = productsWithStatus.reduce((sum, p) => sum + p.cenaSprzedazyNetto, 0)
+  const avgProfitability = productsWithStatus.length > 0 
+    ? productsWithStatus.reduce((sum, p) => sum + p.rentownosc, 0) / productsWithStatus.length 
+    : 0
+  const issuesCount = productsWithStatus.filter(p => p.status === 'warning').length
 
   const renderContentTab = () => {
-    // Use productsWithStatus if available, otherwise use analysisData.products
-    const displayProducts = productsWithStatus.length > 0 ? productsWithStatus : analysisData?.products || []
+    // Użyj produktów z Supabase
+    const displayProducts = filteredProducts.length > 0 ? filteredProducts : productsWithStatus
+    
+    // Sprawdź czy są produkty bez cen
+    const productsWithoutPrices = displayProducts.filter(p => 
+      !p.cenaRegularnaBrutto || p.cenaRegularnaBrutto === 0
+    ).length
     
     return (
       <div className="space-y-6">
+        {/* Info o brakujących danych */}
+        {productsWithoutPrices > 0 && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 mr-3" />
+              <div>
+                <h4 className="text-sm font-semibold text-yellow-800">Uwaga</h4>
+                <p className="text-sm text-yellow-700 mt-1">
+                  {productsWithoutPrices} produktów nie ma pełnych danych cenowych. 
+                  Jeśli to nowa analiza z zaktualizowanym parserem, ceny powinny być widoczne.
+                  Jeśli to stara analiza, prześlij plik ponownie aby zaktualizować dane.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      
         {/* Product Filter */}
-        {displayProducts.length > 0 && (
+        {productsWithStatus.length > 0 && (
           <ProductFilter
-            products={displayProducts}
+            products={productsWithStatus}
             onFilteredProducts={setFilteredProducts}
             onCategorySelect={setSelectedCategory}
             selectedCategory={selectedCategory}
@@ -334,7 +298,7 @@ const AnalysisDetailPage: React.FC = () => {
 
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Wszystkie produkty z pliku ({filteredProducts.length})
+            Wszystkie produkty z analizy ({displayProducts.length})
           </h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -347,10 +311,19 @@ const AnalysisDetailPage: React.FC = () => {
                   Nazwa produktu / Kategoria
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cena (brutto/netto PLN)
+                  Liczba sztuk
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Marża (PLN)
+                  Cena brutto
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Cena netto
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Marża
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rentowność
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -396,14 +369,33 @@ const AnalysisDetailPage: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="space-y-1">
-                        <div className="font-medium">{product.cenaRegularnaBrutto.toLocaleString('pl-PL')} zł</div>
-                        <div className="text-xs text-gray-400">{product.cenaSprzedazyNetto.toLocaleString('pl-PL')} zł</div>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="flex items-center space-x-1">
+                        <Package className="h-4 w-4 text-purple-600" />
+                        <span className="font-bold text-purple-700">{product.pcs}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {product.marza.toLocaleString('pl-PL')}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="font-semibold text-green-700">
+                        {product.cenaRegularnaBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {product.cenaSprzedazyNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="font-semibold text-blue-700">
+                        {product.marza.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className={`font-bold ${
+                        product.rentownosc >= 80 ? 'text-green-700' :
+                        product.rentownosc >= 60 ? 'text-yellow-700' :
+                        'text-red-700'
+                      }`}>
+                        {product.rentownosc.toFixed(1)}%
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {productStatus === 'warning' && (
@@ -596,17 +588,17 @@ const AnalysisDetailPage: React.FC = () => {
       {/* Header */}
       <div className="space-y-4">
         <Link
-          to={location.pathname.startsWith('/paleta') ? '/paleta/dashboard' : '/dashboard'}
+          to={location.pathname.startsWith('/paleta') ? '/paleta/analysis' : '/analysis'}
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
-          <span>Powrót do listy</span>
+          <span>Powrót do listy analiz</span>
         </Link>
                <div className="flex items-center justify-between">
                  <div className="flex items-center space-x-2">
                    <FileSpreadsheet className="h-6 w-6 text-blue-600" />
                    <h1 className="text-2xl font-bold text-gray-900">
-                     Szczegóły analizy - {analysisData.fileName}
+                     Szczegóły analizy - {analysis.name}
                    </h1>
                  </div>
                  
@@ -630,28 +622,28 @@ const AnalysisDetailPage: React.FC = () => {
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <TrendingUp className="h-6 w-6 text-green-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-green-800">
-              {analysisData.profitability}%
+              {avgProfitability.toFixed(1)}%
             </h4>
             <p className="text-green-600 text-sm">Średnia rentowność</p>
           </div>
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <Package className="h-6 w-6 text-blue-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-blue-800">
-              {analysisData.productCount}
+              {productsWithStatus.length}
             </h4>
             <p className="text-blue-600 text-sm">Liczba produktów</p>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
             <Package className="h-6 w-6 text-purple-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-purple-800">
-              {analysisData.products.reduce((sum, product) => sum + product.pcs, 0)}
+              {productsWithStatus.reduce((sum, product) => sum + product.pcs, 0)}
             </h4>
             <p className="text-purple-600 text-sm">Łączna liczba sztuk</p>
           </div>
           <div className="text-center p-4 bg-orange-50 rounded-lg">
             <AlertTriangle className="h-6 w-6 text-orange-600 mx-auto mb-2" />
             <h4 className="text-lg font-semibold text-orange-800">
-              {analysisData.issues}
+              {issuesCount}
             </h4>
             <p className="text-orange-600 text-sm">Wykryte problemy</p>
           </div>
@@ -672,35 +664,11 @@ const AnalysisDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="card">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {tabs.map((tab) => {
-              const Icon = tab.icon
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'content' | 'profitability')}
-                  className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{tab.label}</span>
-                </button>
-              )
-            })}
-          </nav>
-        </div>
+      {/* Analiza AI */}
+      {renderProfitabilityTab()}
 
-        <div className="mt-6">
-          {activeTab === 'content' && renderContentTab()}
-          {activeTab === 'profitability' && renderProfitabilityTab()}
-        </div>
-      </div>
+      {/* Wszystkie produkty */}
+      {renderContentTab()}
 
       {/* File Info - moved to bottom */}
       <div className="card">
@@ -709,10 +677,13 @@ const AnalysisDetailPage: React.FC = () => {
             <FileSpreadsheet className="h-12 w-12 text-blue-600" />
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
-                {analysisData.fileName}
+                {analysis.name}
               </h2>
-              <p className="text-gray-600">
-                Przesłano: {new Date(analysisData.uploadDate).toLocaleString('pl-PL', {
+              {analysis.description && (
+                <p className="text-gray-600">{analysis.description}</p>
+              )}
+              <p className="text-gray-500 text-sm">
+                Utworzona: {new Date(analysis.createdAt).toLocaleString('pl-PL', {
                   year: 'numeric',
                   month: '2-digit',
                   day: '2-digit',
@@ -724,7 +695,9 @@ const AnalysisDetailPage: React.FC = () => {
           </div>
           <div className="flex items-center space-x-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
-            <span className="text-green-600 font-medium">Analiza zakończona</span>
+            <span className="text-green-600 font-medium">
+              {analysis.status === 'completed' ? 'Analiza zakończona' : 'W toku'}
+            </span>
           </div>
         </div>
       </div>
@@ -732,7 +705,7 @@ const AnalysisDetailPage: React.FC = () => {
       {/* Market Prices Modal */}
       {showMarketPrices && (
         <MarketPrices
-          products={analysisData.products.map(p => p.nazwa)}
+          products={productsWithStatus.map(p => p.nazwa)}
           onClose={() => setShowMarketPrices(false)}
         />
       )}

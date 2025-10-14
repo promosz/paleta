@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Card, CardHeader, CardBody, Button } from '../components/ui'
+import { Card, CardHeader, CardBody } from '../components/ui'
 import { DashboardStats } from '../components/dashboard'
-import { AnalysisList, AnalysisDetails } from '../components/analysis'
+import { AnalysisDetails } from '../components/analysis'
+import AnalysisList from '../components/AnalysisList'
+import { FileUploadZone } from '../components/upload'
 import { useAnalysisStore } from '../stores/analysisStoreSupabase'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import type { Analysis } from '../types/analysis'
@@ -13,7 +15,6 @@ const Dashboard: React.FC = () => {
   const { 
     analyses, 
     dashboardStats, 
-    createAnalysis, 
     updateDashboardStats,
     loadAnalyses,
     loading: analysisLoading
@@ -51,39 +52,23 @@ const Dashboard: React.FC = () => {
     }
   }, [location.state, analyses])
 
-  // Obsługa tworzenia nowej analizy
-  const handleCreateAnalysis = async () => {
-    if (!supabaseUserId) {
-      console.error('Brak userId - użytkownik nie jest zalogowany')
-      return
+  // Obsługa sukcesu uploadu
+  const handleUploadSuccess = (analysisId: string) => {
+    // Odśwież listę analiz
+    if (supabaseUserId) {
+      loadAnalyses(supabaseUserId)
     }
-    const newAnalysis = await createAnalysis(
-      `Analiza ${new Date().toLocaleDateString('pl-PL')}`,
-      'Nowa analiza utworzona z dashboard',
-      'file_upload',
-      supabaseUserId
-    )
-    setSelectedAnalysis(newAnalysis)
-  }
-
-  // Obsługa wyboru analizy
-  const handleSelectAnalysis = (analysis: Analysis) => {
-    setSelectedAnalysis(analysis)
+    
+    // Otwórz nowo utworzoną analizę
+    const analysis = analyses.find(a => a.id === analysisId)
+    if (analysis) {
+      setSelectedAnalysis(analysis)
+    }
   }
 
   // Obsługa zamknięcia szczegółów
   const handleCloseDetails = () => {
     setSelectedAnalysis(null)
-  }
-
-  // Obsługa edycji analizy
-  const handleEditAnalysis = (analysis: Analysis) => {
-    setSelectedAnalysis(analysis)
-  }
-
-  // Obsługa usuwania analizy
-  const handleDeleteAnalysis = (analysis: Analysis) => {
-    console.log('Usuwanie analizy:', analysis.name)
   }
 
   if (selectedAnalysis) {
@@ -134,20 +119,28 @@ const Dashboard: React.FC = () => {
             className="mb-8"
           />
 
+          {/* Upload Zone - dodawanie nowych plików */}
+          <Card className="mb-8">
+            <CardHeader>
+              <h2 className="text-xl font-semibold text-neutral-800">
+                Dodaj pliki do analizy
+              </h2>
+            </CardHeader>
+            <CardBody>
+              <FileUploadZone 
+                navigateToDashboard={false}
+                onSuccess={handleUploadSuccess}
+                showButton={true}
+              />
+            </CardBody>
+          </Card>
+
           {/* Ostatnie analizy */}
           <Card className="mb-8">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-neutral-800">
-                  Ostatnie analizy
-                </h2>
-                <Button
-                  variant="primary"
-                  onClick={handleCreateAnalysis}
-                >
-                  ➕ Nowa analiza
-                </Button>
-              </div>
+              <h2 className="text-xl font-semibold text-neutral-800">
+                Ostatnie analizy
+              </h2>
             </CardHeader>
             <CardBody>
               {analyses.length === 0 ? (
@@ -161,62 +154,14 @@ const Dashboard: React.FC = () => {
                 Brak analiz
               </h3>
               <p className="text-neutral-500 mb-4">
-                Utwórz pierwszą analizę aby rozpocząć pracę
+                Przeciągnij plik powyżej aby rozpocząć pierwszą analizę
               </p>
-              <Button 
-                variant="primary"
-                onClick={handleCreateAnalysis}
-              >
-                Rozpocznij analizę
-              </Button>
             </div>
           ) : (
             <AnalysisList
               analyses={analyses.slice(0, 5)} // Pokaż tylko 5 ostatnich
-              onSelect={handleSelectAnalysis}
-              onEdit={handleEditAnalysis}
-              onDelete={handleDeleteAnalysis}
             />
           )}
-        </CardBody>
-      </Card>
-
-      {/* Szybkie akcje */}
-      <Card>
-        <CardHeader>
-          <h2 className="text-xl font-semibold text-neutral-800">
-            Szybkie akcje
-          </h2>
-        </CardHeader>
-        <CardBody>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button 
-              className="p-4 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
-              onClick={handleCreateAnalysis}
-            >
-              <div className="text-center">
-                <div className="text-2xl mb-2">📁</div>
-                <div className="font-medium text-primary-700">Nowa analiza</div>
-                <div className="text-sm text-primary-600">Rozpocznij analizę plików</div>
-              </div>
-            </button>
-            
-            <button className="p-4 bg-success-50 hover:bg-success-100 rounded-lg transition-colors">
-              <div className="text-center">
-                <div className="text-2xl mb-2">📊</div>
-                <div className="font-medium text-success-700">Raport</div>
-                <div className="text-sm text-success-600">Wygeneruj raport</div>
-              </div>
-            </button>
-            
-            <button className="p-4 bg-warning-50 hover:bg-warning-100 rounded-lg transition-colors">
-              <div className="text-center">
-                <div className="text-2xl mb-2">⚙️</div>
-                <div className="font-medium text-warning-700">Ustawienia</div>
-                <div className="text-sm text-warning-600">Konfiguracja reguł</div>
-              </div>
-            </button>
-          </div>
         </CardBody>
       </Card>
         </>
