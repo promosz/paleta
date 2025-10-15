@@ -453,7 +453,16 @@ const AnalysisDetailPage: React.FC = () => {
                     title="Kliknij aby zobaczyć szczegóły produktu"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div onClick={(e) => e.stopPropagation()}>
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (product.foto) {
+                            window.open(product.foto, '_blank', 'noopener,noreferrer')
+                          }
+                        }}
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                        title="Kliknij aby zobaczyć zdjęcie w nowej karcie"
+                      >
                         <ProductImage 
                           foto={product.foto} 
                           nazwa={product.nazwa} 
