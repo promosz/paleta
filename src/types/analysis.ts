@@ -86,6 +86,11 @@ export interface AnalysisStats {
   // Statystyki czasowe
   processingTime: number // w milisekundach
   filesProcessed: number
+  
+  // Rozszerzone statystyki dla listy
+  avgProfitability?: number  // Średnia rentowność
+  totalQuantity?: number     // Suma wszystkich PCS
+  totalRevenue?: number      // Suma wartości przychodu
 }
 
 // Metadane analizy

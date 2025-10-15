@@ -59,3 +59,4 @@ SELECT 'RLS wyłączony dla wszystkich tabel' as status;
 
 
 
+

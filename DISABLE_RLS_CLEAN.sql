@@ -17,3 +17,4 @@ SELECT 'RLS wyłączony dla users' as status;
 
 
 
+

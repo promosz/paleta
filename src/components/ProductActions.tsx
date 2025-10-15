@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import { 
   Shield, 
   Tag,
-  Package
+  Package,
+  AlertTriangle,
+  CheckCircle
 } from 'lucide-react'
 
 interface Product {
@@ -25,6 +27,7 @@ interface Product {
   rentownosc: number
   wartoscSprzedazyNetto: number
   marza: number
+  appliedRule?: string
 }
 
 interface ProductActionsProps {
@@ -38,6 +41,7 @@ interface ProductActionsProps {
     name: string
     action: 'block' | 'warning'
   }>
+  showStatusInButton?: boolean
 }
 
 const ProductActions: React.FC<ProductActionsProps> = ({
@@ -45,9 +49,12 @@ const ProductActions: React.FC<ProductActionsProps> = ({
   onAddToRules,
   onAddCategoryToRules,
   onRemoveRule,
-  existingRules
+  existingRules,
+  showStatusInButton = false
 }) => {
   const [isOpen, setIsOpen] = useState(false)
+  
+  const productStatus = product.status || 'allowed'
 
   const handleAction = (type: 'product' | 'category', action: 'warning') => {
     // Sprawdź czy reguła już istnieje
@@ -85,16 +92,52 @@ const ProductActions: React.FC<ProductActionsProps> = ({
   }
 
 
+  // Określ styling przycisku na podstawie statusu
+  const getButtonStyle = () => {
+    if (!showStatusInButton) {
+      return "inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
+    }
+    
+    if (productStatus === 'warning') {
+      return "inline-flex justify-center w-full rounded-md border border-yellow-400 shadow-sm px-4 py-2 bg-yellow-50 text-sm font-medium text-yellow-700 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-yellow-100 focus:ring-yellow-500"
+    }
+    
+    return "inline-flex justify-center w-full rounded-md border border-green-400 shadow-sm px-4 py-2 bg-green-50 text-sm font-medium text-green-700 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-100 focus:ring-green-500"
+  }
+  
+  const getStatusIcon = () => {
+    if (productStatus === 'warning') {
+      return <AlertTriangle className="h-4 w-4 mr-2" />
+    }
+    return <CheckCircle className="h-4 w-4 mr-2" />
+  }
+  
+  const getStatusText = () => {
+    if (productStatus === 'warning') {
+      return product.appliedRule || 'Ostrzeżenie'
+    }
+    return 'Dozwolony'
+  }
+
   return (
     <div className="relative inline-block text-left">
       <div>
         <button
           type="button"
-          className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
+          className={getButtonStyle()}
           onClick={() => setIsOpen(!isOpen)}
         >
-          <Shield className="h-5 w-5 mr-2" />
-          Reguły
+          {showStatusInButton ? (
+            <>
+              {getStatusIcon()}
+              <span className="truncate max-w-xs">{getStatusText()}</span>
+            </>
+          ) : (
+            <>
+              <Shield className="h-5 w-5 mr-2" />
+              Reguły
+            </>
+          )}
         </button>
       </div>
 

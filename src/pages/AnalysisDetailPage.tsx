@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, BarChart3, DollarSign, Brain, Loader, ExternalLink } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, BarChart3, Brain, Loader, ExternalLink } from 'lucide-react'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import ProductImage from '../components/ProductImage'
-import MarketPrices from '../components/MarketPrices'
 import ProductFilter from '../components/ProductFilter'
 import ProductActions from '../components/ProductActions'
 import RulesManager from '../components/RulesManager'
@@ -43,11 +42,12 @@ const AnalysisDetailPage: React.FC = () => {
   const { analyses, loadAnalyses } = useAnalysisStore()
   const { products: dbProducts, loading: productsLoading } = useProducts(id || '', supabaseUserId || '')
   
-  const [showMarketPrices, setShowMarketPrices] = useState(false)
   const [showRulesManager, setShowRulesManager] = useState(false)
   const [productsWithStatus, setProductsWithStatus] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [sortField, setSortField] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [rules, setRules] = useState<any[]>([])
   const [aiReport, setAiReport] = useState<{
     summary: string
@@ -78,6 +78,73 @@ const AnalysisDetailPage: React.FC = () => {
         console.error('Failed to load rules:', error)
       }
     }
+  }
+
+  // Funkcja sortowania produktów
+  const sortProducts = useCallback((products: Product[], field: string | null, direction: 'asc' | 'desc') => {
+    if (!field) return products
+
+    return [...products].sort((a, b) => {
+      let aValue: any
+      let bValue: any
+
+      switch (field) {
+        case 'name':
+          aValue = a.nazwa.toLowerCase()
+          bValue = b.nazwa.toLowerCase()
+          break
+        case 'category':
+          aValue = (a.kategoria || '').toLowerCase()
+          bValue = (b.kategoria || '').toLowerCase()
+          break
+        case 'pcs':
+          aValue = a.pcs || 0
+          bValue = b.pcs || 0
+          break
+        case 'cenaBrutto':
+          aValue = a.cenaRegularnaBrutto || 0
+          bValue = b.cenaRegularnaBrutto || 0
+          break
+        case 'cenaNetto':
+          aValue = a.cenaSprzedazyNetto || 0
+          bValue = b.cenaSprzedazyNetto || 0
+          break
+        case 'marza':
+          aValue = a.marza || 0
+          bValue = b.marza || 0
+          break
+        case 'rentownosc':
+          aValue = a.rentownosc || 0
+          bValue = b.rentownosc || 0
+          break
+        default:
+          return 0
+      }
+
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1
+      return 0
+    })
+  }, [])
+
+  // Funkcja obsługi kliknięcia w nagłówek tabeli
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Jeśli kliknięto ten sam nagłówek, zmień kierunek
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      // Jeśli kliknięto nowy nagłówek, ustaw jako asc
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
+
+  // Funkcja renderowania ikony sortowania
+  const renderSortIcon = (field: string) => {
+    if (sortField !== field) {
+      return <span className="text-gray-400">↕️</span>
+    }
+    return sortDirection === 'asc' ? <span className="text-blue-600">↑</span> : <span className="text-blue-600">↓</span>
   }
 
   const analyzeProductsWithRules = useCallback(() => {
@@ -260,7 +327,10 @@ const AnalysisDetailPage: React.FC = () => {
 
   const renderContentTab = () => {
     // Użyj produktów z Supabase
-    const displayProducts = filteredProducts.length > 0 ? filteredProducts : productsWithStatus
+    let displayProducts = filteredProducts.length > 0 ? filteredProducts : productsWithStatus
+    
+    // Zastosuj sortowanie
+    displayProducts = sortProducts(displayProducts, sortField, sortDirection)
     
     // Sprawdź czy są produkty bez cen
     const productsWithoutPrices = displayProducts.filter(p => 
@@ -307,29 +377,62 @@ const AnalysisDetailPage: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Zdjęcie
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nazwa produktu / Kategoria
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('name')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Nazwa produktu / Kategoria</span>
+                    {renderSortIcon('name')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('pcs')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Liczba sztuk</span>
+                    {renderSortIcon('pcs')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('cenaBrutto')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Cena brutto</span>
+                    {renderSortIcon('cenaBrutto')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('cenaNetto')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Cena netto</span>
+                    {renderSortIcon('cenaNetto')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('marza')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Marża</span>
+                    {renderSortIcon('marza')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  onClick={() => handleSort('rentownosc')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>Rentowność</span>
+                    {renderSortIcon('rentownosc')}
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Liczba sztuk
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cena brutto
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Cena netto
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Marża
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rentowność
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Akcje
+                  Status / Akcje
                 </th>
               </tr>
             </thead>
@@ -398,22 +501,6 @@ const AnalysisDetailPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {productStatus === 'warning' && (
-                        <div className="flex items-center space-x-1">
-                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                          <span className="text-xs text-yellow-600 font-medium">
-                            {product.appliedRule || 'Ostrzeżenie'}
-                          </span>
-                        </div>
-                      )}
-                      {productStatus === 'allowed' && (
-                        <div className="flex items-center space-x-1">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-xs text-green-600 font-medium">Dozwolony</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
                       <div onClick={(e) => e.stopPropagation()}>
                         <ProductActions
                           product={product}
@@ -421,6 +508,7 @@ const AnalysisDetailPage: React.FC = () => {
                           onAddCategoryToRules={handleAddCategoryToRules}
                           onRemoveRule={handleRemoveRule}
                           existingRules={rules}
+                          showStatusInButton={true}
                         />
                       </div>
                     </td>
@@ -601,15 +689,6 @@ const AnalysisDetailPage: React.FC = () => {
                      Szczegóły analizy - {analysis.name}
                    </h1>
                  </div>
-                 
-                 {/* Market Prices Button */}
-                 <button
-                   onClick={() => setShowMarketPrices(true)}
-                   className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors"
-                 >
-                   <DollarSign className="h-4 w-4" />
-                   <span>Market Prices</span>
-                 </button>
                </div>
       </div>
 
@@ -702,13 +781,6 @@ const AnalysisDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Market Prices Modal */}
-      {showMarketPrices && (
-        <MarketPrices
-          products={productsWithStatus.map(p => p.nazwa)}
-          onClose={() => setShowMarketPrices(false)}
-        />
-      )}
 
       {/* Rules Manager Modal */}
       {showRulesManager && (
@@ -719,6 +791,7 @@ const AnalysisDetailPage: React.FC = () => {
           onRemoveRule={handleRemoveRule}
         />
       )}
+
     </div>
   )
 }

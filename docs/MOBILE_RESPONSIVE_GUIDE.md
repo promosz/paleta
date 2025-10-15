@@ -433,3 +433,4 @@ Landing page PalletAI jest **w pełni responsywny** i działa świetnie na wszys
 
 
 
+

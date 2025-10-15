@@ -5,6 +5,8 @@ import { useAnalysisStore } from '../stores/analysisStoreSupabase'
 import { useCurrentUser } from './useCurrentUser'
 import { parserService } from '../utils/parserService'
 import { supabaseProductsService } from '../services/supabaseProductsService'
+import { CategoryMapperService } from '../services/categoryMapperService'
+import { supabase } from '../lib/supabase'
 
 /**
  * Hook do obsługi uploadu i analizy plików
@@ -119,20 +121,94 @@ export const useFileAnalysis = () => {
       
       console.log('✅ Analiza utworzona:', analysis.id)
       
-      // Zapisz produkty do bazy danych
-      console.log('💾 Zapisuję produkty do bazy danych...')
+      // **NORMALIZACJA KATEGORII PRZED ZAPISEM** - kluczowe!
+      console.log('🔄 Normalizuję kategorie przed zapisem...')
+      
+      // Importuj CategoryNormalizer
+      const { CategoryNormalizer } = await import('../utils/categoryNormalizer')
+      
+      // Zbierz wszystkie unikalne kategorie z produktów
+      const uniqueCategories = Array.from(
+        new Set(currentParsedProducts.map(p => p.category).filter(Boolean))
+      )
+      
+      console.log('📊 Znaleziono unikalne kategorie:', uniqueCategories)
+      
+      // Pobierz już istniejące kategorie z bazy (z WSZYSTKICH analiz użytkownika)
+      const { data: existingProducts } = await (supabase as any)
+        .from('products')
+        .select('category')
+        .eq('user_id', supabaseUserId)
+        .not('category', 'is', null)
+      
+      const existingCategories: string[] = Array.from(
+        new Set((existingProducts || []).map((p: any) => p.category as string).filter(Boolean))
+      )
+      
+      console.log('📋 Istniejące kategorie w bazie:', existingCategories)
+      
+      // Mapuj każdą kategorię
+      const categoryMapping = new Map<string, string>()
+      
+      for (const originalCategory of uniqueCategories) {
+        if (!originalCategory) continue
+        
+        // Normalizuj kategorię
+        const normalized = CategoryNormalizer.normalize(originalCategory)
+        
+        // Sprawdź czy znormalizowana kategoria już istnieje
+        const existingMatch = existingCategories.find(
+          (cat: string) => cat.toUpperCase() === normalized.toUpperCase()
+        )
+        
+        if (existingMatch) {
+          // Użyj istniejącej kategorii (zachowaj dokładną formę z bazy)
+          categoryMapping.set(originalCategory, existingMatch as string)
+          console.log(`✓ Mapowanie: "${originalCategory}" → "${existingMatch}" (istniejąca)`)
+        } else {
+          // Dodaj nową znormalizowaną kategorię
+          categoryMapping.set(originalCategory, normalized)
+          existingCategories.push(normalized) // Dodaj do listy dla kolejnych iteracji
+          console.log(`🆕 Mapowanie: "${originalCategory}" → "${normalized}" (nowa)`)
+        }
+      }
+      
+      // Zastosuj mapowanie do produktów PRZED zapisem
+      const productsWithMappedCategories = currentParsedProducts.map(product => ({
+        ...product,
+        category: product.category ? (categoryMapping.get(product.category) || product.category) : 'INNE'
+      }))
+      
+      console.log('✅ Kategorie znormalizowane, zapisuję produkty...')
+      
+      // Zapisz produkty do bazy danych (z już znormalizowanymi kategoriami)
       const currentEvaluations = getAllEvaluations()
-      console.log('📊 Produkty:', currentParsedProducts.length, 'Oceny:', currentEvaluations.length)
       
       try {
         const savedProducts = await supabaseProductsService.addProducts(
-          currentParsedProducts,
+          productsWithMappedCategories,
           analysis.id,
           supabaseUserId,
           currentEvaluations
         )
         
         console.log('✅ Produkty zapisane w bazie:', savedProducts.length)
+        
+        // Zapisz mapowania do tabeli category_mappings dla przyszłych referencji
+        try {
+          for (const [original, normalized] of categoryMapping) {
+            await CategoryMapperService.upsertMapping(
+              supabaseUserId,
+              original,
+              normalized,
+              false, // automatyczne
+              analysis.id
+            )
+          }
+          console.log('✅ Mapowania zapisane w bazie')
+        } catch (mapError) {
+          console.error('⚠️ Błąd zapisu mapowań (kontynuuję):', mapError)
+        }
         
         // Aktualizuj statystyki analizy
         const stats = await supabaseProductsService.getProductStats(analysis.id, supabaseUserId)

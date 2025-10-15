@@ -410,3 +410,4 @@ Landing page teraz wygląda **dokładnie jak w projekcie Figma**! 🎨
 
 
 
+
