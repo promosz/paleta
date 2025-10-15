@@ -445,15 +445,7 @@ const AnalysisDetailPage: React.FC = () => {
                     className={`${productStatus === 'warning' ? 'bg-yellow-50' : ''} hover:bg-gray-50 transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div 
-                        onClick={() => {
-                          if (product.foto) {
-                            window.open(product.foto, '_blank', 'noopener,noreferrer')
-                          }
-                        }}
-                        className="cursor-pointer hover:opacity-80 transition-opacity w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden"
-                        title="Kliknij aby zobaczyć zdjęcie w Google Images"
-                      >
+                      <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
                         {product.foto ? (
                           <img 
                             src={`https://via.placeholder.com/64x64.png?text=Foto`}
