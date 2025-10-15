@@ -120,14 +120,8 @@ export class HybridAIService {
   }
 
   private async checkCloudService(): Promise<boolean> {
-    try {
-      const response = await fetch('https://api.pallet-analysis.com/v1/health', {
-        method: 'GET',
-      })
-      return response.ok
-    } catch (error) {
-      return false
-    }
+    // Cloud service wyłączony - API nie istnieje
+    return false
   }
 
   private async checkBrowserService(): Promise<boolean> {
