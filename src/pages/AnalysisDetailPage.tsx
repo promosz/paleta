@@ -446,18 +446,9 @@ const AnalysisDetailPage: React.FC = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                        {product.foto ? (
-                          <img 
-                            src={`https://via.placeholder.com/64x64.png?text=Foto`}
-                            alt={product.nazwa}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = 'https://via.placeholder.com/64x64.png?text=No+Image'
-                            }}
-                          />
-                        ) : (
-                          <span className="text-xs text-gray-400">Brak zdjęcia</span>
-                        )}
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-dashed border-blue-200">
+                          <span className="text-xs text-blue-600 font-medium">📷</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
