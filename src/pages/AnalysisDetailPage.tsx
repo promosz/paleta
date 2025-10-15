@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, BarChart3, Brain, Loader, ExternalLink } from 'lucide-react'
-import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
-import ProductImage from '../components/ProductImage'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, BarChart3, Brain, Loader } from 'lucide-react'
+import { Link, useParams, useLocation } from 'react-router-dom'
 import ProductFilter from '../components/ProductFilter'
 import ProductActions from '../components/ProductActions'
 import RulesManager from '../components/RulesManager'
@@ -36,7 +35,6 @@ interface Product {
 
 const AnalysisDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const location = useLocation()
   const { supabaseUserId } = useCurrentUser()
   const { analyses, loadAnalyses } = useAnalysisStore()
@@ -444,37 +442,36 @@ const AnalysisDetailPage: React.FC = () => {
                 return (
                   <tr 
                     key={index} 
-                    className={`${productStatus === 'warning' ? 'bg-yellow-50' : ''} hover:bg-gray-50 cursor-pointer transition-colors group`}
-                    onClick={() => {
-                      console.log('🖱️ Kliknięto w produkt:', { analysisId: id, productIndex: index, productName: product.nazwa })
-                      const basePath = location.pathname.startsWith('/paleta') ? '/paleta' : ''
-                      navigate(`${basePath}/analysis/${id}/product/${index}`)
-                    }}
-                    title="Kliknij aby zobaczyć szczegóły produktu"
+                    className={`${productStatus === 'warning' ? 'bg-yellow-50' : ''} hover:bg-gray-50 transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div 
-                        onClick={(e) => {
-                          e.stopPropagation()
+                        onClick={() => {
                           if (product.foto) {
                             window.open(product.foto, '_blank', 'noopener,noreferrer')
                           }
                         }}
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
-                        title="Kliknij aby zobaczyć zdjęcie w nowej karcie"
+                        className="cursor-pointer hover:opacity-80 transition-opacity w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden"
+                        title="Kliknij aby zobaczyć zdjęcie w Google Images"
                       >
-                        <ProductImage 
-                          foto={product.foto} 
-                          nazwa={product.nazwa} 
-                          className="w-16 h-16" 
-                        />
+                        {product.foto ? (
+                          <img 
+                            src={`https://via.placeholder.com/64x64.png?text=Foto`}
+                            alt={product.nazwa}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://via.placeholder.com/64x64.png?text=No+Image'
+                            }}
+                          />
+                        ) : (
+                          <span className="text-xs text-gray-400">Brak zdjęcia</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                       <div className="space-y-1">
-                        <div className="truncate font-medium hover:text-blue-600 transition-colors flex items-center space-x-1" title={product.nazwa}>
+                        <div className="truncate font-medium" title={product.nazwa}>
                           <span>{product.nazwa}</span>
-                          <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-blue-600 transition-colors opacity-0 group-hover:opacity-100" />
                         </div>
                         <div className="text-xs text-gray-500">
                           {product.kategoria}
