@@ -1,0 +1,93 @@
+/* Import Inter font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: #42526E;
+  background-color: #F4F5F7;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom component styles */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-500 text-white border-0 rounded-md px-4 py-3 text-sm font-medium cursor-pointer transition-all duration-200;
+  }
+  
+  .btn-primary:hover {
+    @apply bg-primary-400;
+  }
+  
+  .btn-primary:focus {
+    @apply outline-none ring-2 ring-primary-200 ring-offset-2;
+  }
+  
+  .btn-primary:disabled {
+    @apply bg-neutral-300 text-neutral-500 cursor-not-allowed;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent text-primary-500 border border-primary-500 rounded-md px-4 py-3 text-sm font-medium cursor-pointer transition-all duration-200;
+  }
+  
+  .btn-secondary:hover {
+    @apply bg-primary-50;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm p-6 border border-neutral-200;
+  }
+  
+  .input {
+    @apply w-full px-4 py-3 border border-neutral-300 rounded-md text-sm text-neutral-700 bg-white transition-all duration-200;
+  }
+  
+      .input:focus {
+        @apply outline-none border-primary-500 ring-2 ring-primary-100;
+      }
+  
+  .input:disabled {
+    @apply bg-neutral-100 text-neutral-400 cursor-not-allowed;
+  }
+  
+  .input::placeholder {
+    @apply text-neutral-400;
+  }
+  
+  .status-success {
+    @apply text-success-500 bg-success-50 px-2 py-1 rounded-sm text-xs font-medium;
+  }
+  
+  .status-warning {
+    @apply text-warning-500 bg-warning-50 px-2 py-1 rounded-sm text-xs font-medium;
+  }
+  
+  .status-danger {
+    @apply text-danger-500 bg-danger-50 px-2 py-1 rounded-sm text-xs font-medium;
+  }
+}
+
+/* Base styles */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
