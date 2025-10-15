@@ -43,15 +43,15 @@ export class HybridAIService {
   }
 
   private initializeConfigs(): void {
-    // Cloud AI Configuration (Primary)
+    // Cloud AI Configuration (Disabled - nieistniejące API)
     this.configs.push({
       type: 'cloud',
       url: 'https://api.pallet-analysis.com/v1',
       priority: 1,
-      enabled: true
+      enabled: false  // Wyłączone - API nie istnieje
     })
 
-    // Browser AI Configuration (Fallback)
+    // Browser AI Configuration (Primary - lokalne)
     this.configs.push({
       type: 'browser',
       priority: 2,
