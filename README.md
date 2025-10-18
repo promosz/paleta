@@ -49,6 +49,31 @@ Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej intelig
 
 ## 🚀 **Funkcjonalności Obecne**
 
+### **🔐 Autentykacja i Użytkownicy**
+- 🔑 **Clerk Integration** - Profesjonalna autentykacja (OAuth, Google, GitHub, email)
+- 👤 **User Accounts** - Zarządzanie kontami użytkowników
+- 🛡️ **Protected Routes** - Automatyczna ochrona chronionych stron
+- 🔄 **Auto Sync** - Automatyczna synchronizacja Clerk → Supabase
+- 📱 **Multi-device Sessions** - Sesje na wielu urządzeniach
+
+### **💾 Backend i Baza Danych**
+- ☁️ **Supabase Integration** - PostgreSQL w chmurze
+- 🔒 **Row Level Security (RLS)** - Izolacja danych użytkowników
+- 🔄 **Real-time Sync** - Synchronizacja w czasie rzeczywistym
+- 📊 **Structured Data** - Osobne tabele dla users, analyses, products, rules
+- 🔗 **Relational Model** - Foreign keys i cascade operations
+- ⚡ **Triggers & Automation** - Automatyczna aktualizacja statystyk
+
+### **🎨 Landing Page**
+- 🏠 **Marketing Site** - Profesjonalna strona docelowa dla niezalogowanych
+- ✨ **Hero Section** - Przyciągający hero z animacjami
+- 🎯 **Features Showcase** - 6+ kart z kluczowymi funkcjonalnościami
+- 📝 **How It Works** - Proces krok po kroku
+- 💰 **Pricing Section** - 3 plany cenowe (Free, Pro, Enterprise)
+- 💬 **Testimonials** - Opinie klientów
+- 🌈 **20+ Gradient Blobs** - Dekoracyjne gradienty w tle
+- 🎬 **Framer Motion Animations** - Płynne animacje scroll
+
 ### **📊 Core Features**
 - 📁 **Upload plików Excel** - Przesyłanie dokumentów .xlsx przez drag & drop lub wybór pliku
 - 📊 **Rzeczywista analiza Excel** - Automatyczne parsowanie i analiza zawartości plików Excel
@@ -56,18 +81,40 @@ Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej intelig
 - 📈 **Podział na kategorie rentowności** - Produkty podzielone na niską, średnią i wysoką rentowność
 
 ### **🤖 AI Features (Hybrid AI Service)**
-- ☁️ **Cloud AI Service** - Główny serwis AI w chmurze (zalecany)
-- 🌐 **Browser AI Service** - Offline AI w przeglądarce (WebAssembly)
-- 🐳 **Docker AI Service** - Lokalny serwer AI dla zaawansowanych użytkowników
+- ☁️ **Cloud AI Service** - Główny serwis AI w chmurze (w planach)
+- 🌐 **Browser AI Service** - Offline AI w przeglądarce (WebAssembly, w rozwoju)
+- 🐳 **Docker AI Service** - Lokalny serwer AI dla developerów (✅ Aktywny)
 - 🔄 **Auto-selection** - Automatyczny wybór najlepszego dostępnego serwisu
-- ⚙️ **Easy Configuration** - Prosta konfiguracja przez panel ustawień
+- 🏥 **Health Checks** - Okresowe sprawdzanie dostępności serwisów
+- 🔁 **Fallback Mechanism** - Automatyczne przełączanie przy awarii
+- ⚙️ **Easy Configuration** - Prosta konfiguracja przez localStorage
 - 🧠 **Product Recognition** - AI rozpoznaje i normalizuje nazwy produktów
 - 🎯 **Brand Classification** - Automatyczna klasyfikacja marek
 - 📊 **Category Detection** - Inteligentne wykrywanie kategorii produktów
-- 💰 **Market Valuation** - Analiza cen rynkowych z Allegro.pl
-- 📈 **Enhanced UX** - Status indicators i notifications
+- 📄 **AI Report Generation** - Raporty w języku naturalnym z rekomendacjami
+- 🎯 **Buy Decision Engine** - STRONG_BUY / BUY / HOLD / CAUTION / AVOID
 - 💰 **Metryki finansowe** - Automatyczne obliczanie przychodów, kosztów i marż
-- ⚙️ **Konfiguracja reguł** - Pełny system reguł analizy (ukończony)
+- ⚙️ **Konfiguracja reguł** - Pełny system reguł analizy
+
+### **💵 Market Prices Analysis**
+- 💰 **Real-time Price Collection** - Pobieranie cen z Allegro, Amazon, Ceneo
+- 📊 **Statistical Analysis** - Mediana, średnia, zakres, outlier filtering
+- 📈 **Market Volatility** - Ocena zmienności rynkowej (0-1 scale)
+- 🔍 **Trend Detection** - Wykrywanie trendów (rising/falling/stable)
+- 🎯 **Confidence Score** - Ocena jakości danych cenowych
+- 💡 **Smart Recommendations** - Rekomendacje zakupowe oparte na analizie
+- 🔄 **Real-time Refresh** - Ręczna aktualizacja cen
+- 📊 **Price Comparison** - Porównanie z medianą rynkową
+
+### **📦 Advanced Product Management**
+- 📋 **Dedicated Products Table** - Osobna tabela w Supabase z RLS
+- 🔍 **Product Details Page** - Szczegółowy widok każdego produktu
+- 🏷️ **Category Mapping** - Automatyczne mapowanie i normalizacja kategorii
+- 🖼️ **Image Service** - Obsługa zdjęć produktów z placeholderami
+- 🔎 **Advanced Search** - Full-text search z debouncing
+- 🎯 **Multi-filter** - Filtrowanie po kategorii, statusie, cenie
+- 📊 **Flexible Sorting** - Sortowanie po nazwie, cenie, ocenie, dacie
+- ✅ **Bulk Operations** - Masowe operacje na produktach (planowane)
 
 ### **📈 Performance Metrics (Achieved)**
 - **Brand Recognition Accuracy**: >80%
@@ -104,18 +151,40 @@ Aplikacja webowa do analizy dokumentów Excel z wykorzystaniem sztucznej intelig
 
 ## Instalacja i uruchomienie
 
-1. **Zainstaluj zależności:**
-   ```bash
-   npm install
-   ```
+### **Krok 1: Sklonuj repozytorium**
+```bash
+git clone <repository-url>
+cd App01
+```
 
-2. **Uruchom aplikację w trybie deweloperskim:**
-   ```bash
-   npm run dev
-   ```
+### **Krok 2: Zainstaluj zależności**
+```bash
+npm install
+```
 
-3. **Otwórz przeglądarkę:**
-   Aplikacja będzie dostępna pod adresem `http://localhost:3003`
+### **Krok 3: Konfiguracja Environment Variables**
+
+Utwórz plik `.env` w głównym katalogu projektu:
+
+```bash
+# Clerk Authentication
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
+
+# Supabase
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key_here
+```
+
+**Gdzie znaleźć klucze:**
+- **Clerk**: [https://dashboard.clerk.com](https://dashboard.clerk.com) → Your App → API Keys
+- **Supabase**: [https://supabase.com/dashboard](https://supabase.com/dashboard) → Your Project → Settings → API
+
+### **Krok 4: Uruchom aplikację**
+```bash
+npm run dev
+```
+
+Aplikacja będzie dostępna pod adresem **`http://localhost:3000/paleta/`**
 
 ### **AI Backend (Python)**
 1. **Przejdź do katalogu AI services:**
@@ -248,6 +317,46 @@ Przykładowy plik `Przykładowy_plik_do_analizy.xlsx` jest dostępny w katalogu 
 - 4GB RAM minimum
 - Dostęp do internetu (dla modeli językowych)
 - Port 8000 dostępny
+
+## 🚀 Deployment
+
+### **GitHub Pages (Obecny)**
+
+Aplikacja jest skonfigurowana do deploymentu na GitHub Pages:
+
+```bash
+# Build i deploy
+npm run deploy
+```
+
+**Konfiguracja** (`vite.config.ts`):
+- Base path: `/paleta/`
+- Build output: `dist/`
+- 404.html fallback dla routingu
+
+**URL**: `https://your-username.github.io/paleta/`
+
+### **Inne Platformy**
+
+#### **Vercel**
+```bash
+npm run build
+vercel deploy
+```
+
+#### **Netlify**
+```bash
+npm run build
+netlify deploy --prod
+```
+
+#### **Self-hosted**
+```bash
+npm run build
+# Serwuj zawartość folderu dist/
+```
+
+**⚠️ Uwaga**: Pamiętaj o ustawieniu environment variables na platformie deployment!
 
 ## Licencja
 

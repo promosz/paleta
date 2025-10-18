@@ -1,8 +1,515 @@
-# 🏗️ **Technical Architecture for AI Features**
+# 🏗️ **Technical Architecture - PalletAI**
 
 ## 📋 **Overview**
 
-Architektura techniczna dla wdrożenia funkcjonalności AI w aplikacji Pallet Analysis, zapewniająca skalowalność, wydajność i niezawodność.
+Architektura techniczna aplikacji Pallet Analysis obejmująca autentykację (Clerk), backend (Supabase), funkcjonalności AI oraz frontend (React). System zapewnia skalowalność, wydajność, bezpieczeństwo i niezawodność.
+
+## 🔐 **Authentication & User Flow**
+
+### **Clerk → Supabase Integration**
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Clerk
+    participant Supabase
+    
+    User->>Frontend: Logowanie
+    Frontend->>Clerk: Sign In Request
+    Clerk->>Clerk: OAuth/Email Auth
+    Clerk->>Frontend: JWT Token + User Data
+    Frontend->>Frontend: useCurrentUser Hook
+    Frontend->>Supabase: Check User Exists (clerk_user_id)
+    
+    alt User NOT in Supabase
+        Frontend->>Supabase: Create User Record
+        Supabase->>Supabase: INSERT INTO users
+        Supabase->>Frontend: User Created (UUID)
+    else User Exists
+        Supabase->>Frontend: Return User (UUID)
+    end
+    
+    Frontend->>Frontend: Store supabaseUserId in state
+    Frontend->>Frontend: Navigate to Dashboard
+```
+
+### **User Authentication Flow**
+
+**1. Initial Load**
+```typescript
+// src/main.tsx
+<ClerkProvider publishableKey={CLERK_KEY}>
+  <App />
+</ClerkProvider>
+```
+
+**2. Protected Route Check**
+```typescript
+// src/components/ProtectedRoute.tsx
+const ProtectedRoute = ({ children }) => {
+  const { isSignedIn, isLoaded } = useAuth()
+  
+  if (!isLoaded) return <Loading />
+  if (!isSignedIn) return <Navigate to="/" />
+  
+  return children
+}
+```
+
+**3. Supabase User Sync**
+```typescript
+// src/hooks/useCurrentUser.ts
+export const useCurrentUser = () => {
+  const { user } = useUser() // Clerk
+  const [supabaseUserId, setSupabaseUserId] = useState<string>()
+  
+  useEffect(() => {
+    if (user) {
+      // Check if user exists in Supabase
+      const supabaseUser = await clerkSupabaseService.getOrCreateUser(user)
+      setSupabaseUserId(supabaseUser.id)
+    }
+  }, [user])
+  
+  return { supabaseUserId, clerkUserId: user?.id }
+}
+```
+
+### **Security Model**
+
+```mermaid
+graph TB
+    subgraph "Frontend"
+        A[React App] --> B[ClerkProvider]
+        B --> C[useAuth Hook]
+        C --> D[JWT Token]
+    end
+    
+    subgraph "Supabase"
+        D --> E[Supabase Client]
+        E --> F[RLS Policies]
+        F --> G[PostgreSQL]
+    end
+    
+    subgraph "Database Security"
+        G --> H[users table]
+        G --> I[analyses table]
+        G --> J[products table]
+        G --> K[rules table]
+    end
+    
+    F -.->|"Filter by user_id"| H
+    F -.->|"Filter by user_id"| I
+    F -.->|"Filter by user_id"| J
+    F -.->|"Filter by user_id"| K
+```
+
+**RLS Policies Example**:
+```sql
+-- Users can only see their own data
+CREATE POLICY "Users own data only" 
+ON analyses FOR ALL 
+USING (auth.uid() = user_id);
+
+-- Automatically set user_id on insert
+CREATE POLICY "Auto set user_id" 
+ON analyses FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+```
+
+## 💾 **Backend Architecture (Supabase)**
+
+### **System Overview**
+
+```mermaid
+graph LR
+    subgraph "Client Layer"
+        A[React Frontend]
+    end
+    
+    subgraph "Supabase Services"
+        B[Supabase Client]
+        C[Auth Service]
+        D[Database]
+        E[Storage]
+        F[Realtime]
+    end
+    
+    subgraph "PostgreSQL"
+        G[users]
+        H[analyses]
+        I[products]
+        J[rules]
+        K[rule_templates]
+    end
+    
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    B --> F
+    D --> G
+    D --> H
+    D --> I
+    D --> J
+    D --> K
+    
+    F -.->|WebSocket| A
+```
+
+### **Database Schema**
+
+```sql
+-- Users table (synced from Clerk)
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  clerk_user_id TEXT UNIQUE NOT NULL,
+  email TEXT NOT NULL,
+  name TEXT,
+  avatar_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Analyses table
+CREATE TABLE analyses (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  file_name TEXT,
+  file_url TEXT,
+  status TEXT DEFAULT 'pending', -- pending, processing, completed, failed
+  total_products INTEGER DEFAULT 0,
+  products_ok INTEGER DEFAULT 0,
+  products_warning INTEGER DEFAULT 0,
+  products_blocked INTEGER DEFAULT 0,
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Products table
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  analysis_id UUID REFERENCES analyses(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  
+  -- Basic Info
+  name TEXT NOT NULL,
+  category TEXT,
+  description TEXT,
+  price DECIMAL(10,2),
+  quantity INTEGER,
+  unit TEXT,
+  
+  -- Identifiers
+  ean TEXT,
+  sku TEXT,
+  brand TEXT,
+  
+  -- Pallet-specific
+  paleta_id TEXT,
+  foto TEXT,
+  code1 TEXT,
+  code2 TEXT,
+  pack_id TEXT,
+  fc_sku TEXT,
+  link TEXT,
+  currency TEXT DEFAULT 'PLN',
+  price_gross DECIMAL(10,2),
+  price_net DECIMAL(10,2),
+  
+  -- Evaluation
+  score INTEGER DEFAULT 50,
+  status TEXT DEFAULT 'pending', -- pending, ok, warning, blocked
+  evaluation_data JSONB,
+  
+  -- Metadata
+  source TEXT,
+  row_index INTEGER,
+  raw_data JSONB,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Rules table (per-user)
+CREATE TABLE rules (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  type TEXT NOT NULL, -- category, product, budget, quality
+  action TEXT NOT NULL, -- block, warn, prefer
+  weight INTEGER DEFAULT 5,
+  is_active BOOLEAN DEFAULT TRUE,
+  conditions JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Rule templates (global, shared by all users)
+CREATE TABLE rule_templates (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  description TEXT,
+  type TEXT NOT NULL,
+  action TEXT NOT NULL,
+  weight INTEGER DEFAULT 5,
+  conditions JSONB NOT NULL,
+  is_global BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_products_analysis_id ON products(analysis_id);
+CREATE INDEX idx_products_user_id ON products(user_id);
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_products_status ON products(status);
+CREATE INDEX idx_analyses_user_id ON analyses(user_id);
+CREATE INDEX idx_rules_user_id ON rules(user_id);
+```
+
+### **Triggers & Functions**
+
+```sql
+-- Auto-update timestamps
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_users_updated_at 
+  BEFORE UPDATE ON users 
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_analyses_updated_at 
+  BEFORE UPDATE ON analyses 
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Auto-update analysis statistics
+CREATE OR REPLACE FUNCTION recalculate_analysis_stats()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE analyses 
+  SET 
+    total_products = (SELECT COUNT(*) FROM products WHERE analysis_id = NEW.analysis_id),
+    products_ok = (SELECT COUNT(*) FROM products WHERE analysis_id = NEW.analysis_id AND status = 'ok'),
+    products_warning = (SELECT COUNT(*) FROM products WHERE analysis_id = NEW.analysis_id AND status = 'warning'),
+    products_blocked = (SELECT COUNT(*) FROM products WHERE analysis_id = NEW.analysis_id AND status = 'blocked')
+  WHERE id = NEW.analysis_id;
+  
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_analysis_stats_on_product_change
+  AFTER INSERT OR UPDATE OR DELETE ON products
+  FOR EACH ROW EXECUTE FUNCTION recalculate_analysis_stats();
+```
+
+### **Row Level Security (RLS) Policies**
+
+```sql
+-- Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analyses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rules ENABLE ROW LEVEL SECURITY;
+
+-- Users table policies
+CREATE POLICY "Users can view own profile" ON users
+  FOR SELECT USING (clerk_user_id = auth.jwt() ->> 'sub');
+
+CREATE POLICY "Users can update own profile" ON users
+  FOR UPDATE USING (clerk_user_id = auth.jwt() ->> 'sub');
+
+-- Analyses table policies
+CREATE POLICY "Users can view own analyses" ON analyses
+  FOR SELECT USING (user_id IN (
+    SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'
+  ));
+
+CREATE POLICY "Users can create own analyses" ON analyses
+  FOR INSERT WITH CHECK (user_id IN (
+    SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'
+  ));
+
+CREATE POLICY "Users can update own analyses" ON analyses
+  FOR UPDATE USING (user_id IN (
+    SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'
+  ));
+
+CREATE POLICY "Users can delete own analyses" ON analyses
+  FOR DELETE USING (user_id IN (
+    SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'
+  ));
+
+-- Products table policies (similar structure)
+CREATE POLICY "Users can view own products" ON products
+  FOR SELECT USING (user_id IN (
+    SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'
+  ));
+
+-- Rules table policies (similar structure)
+CREATE POLICY "Users can manage own rules" ON rules
+  FOR ALL USING (user_id IN (
+    SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'
+  ));
+
+-- Rule templates are global (everyone can read)
+CREATE POLICY "Everyone can view rule templates" ON rule_templates
+  FOR SELECT USING (is_global = TRUE);
+```
+
+### **Real-time Subscriptions**
+
+```typescript
+// src/stores/analysisStoreSupabase.ts
+const subscribeToAnalyses = (userId: string) => {
+  const subscription = supabase
+    .channel('analyses-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // INSERT, UPDATE, DELETE
+        schema: 'public',
+        table: 'analyses',
+        filter: `user_id=eq.${userId}`
+      },
+      (payload) => {
+        console.log('Analysis changed:', payload)
+        // Update local state
+        if (payload.eventType === 'INSERT') {
+          set(state => ({ analyses: [...state.analyses, payload.new] }))
+        } else if (payload.eventType === 'UPDATE') {
+          set(state => ({
+            analyses: state.analyses.map(a => 
+              a.id === payload.new.id ? payload.new : a
+            )
+          }))
+        } else if (payload.eventType === 'DELETE') {
+          set(state => ({
+            analyses: state.analyses.filter(a => a.id !== payload.old.id)
+          }))
+        }
+      }
+    )
+    .subscribe()
+  
+  return subscription
+}
+```
+
+## 🤖 **Hybrid AI Service Architecture**
+
+### **Multi-modal AI System**
+
+```mermaid
+graph TB
+    subgraph "Frontend"
+        A[React App] --> B[HybridAIService]
+    end
+    
+    subgraph "AI Service Selection"
+        B --> C{Auto-selection}
+        C --> D[Health Checks]
+        D --> E{Available?}
+    end
+    
+    subgraph "Cloud AI"
+        E -->|Priority 1| F[Cloud API]
+        F --> G[Production Models]
+    end
+    
+    subgraph "Browser AI"
+        E -->|Priority 2| H[WebAssembly]
+        H --> I[WASM Models]
+    end
+    
+    subgraph "Docker AI"
+        E -->|Priority 3| J[Local FastAPI]
+        J --> K[Python Models]
+    end
+    
+    subgraph "Fallback"
+        E -->|All Down| L[Mock Service]
+    end
+    
+    G --> M[AI Results]
+    I --> M
+    K --> M
+    L --> M
+    M --> A
+```
+
+### **Service Implementation**
+
+```typescript
+// src/services/hybridAIService.ts
+export class HybridAIService {
+  private configs: AIServiceConfig[] = [
+    {
+      type: 'cloud',
+      url: 'https://api.pallet-analysis.com/v1',
+      priority: 1,
+      enabled: false // Not yet available
+    },
+    {
+      type: 'browser',
+      priority: 2,
+      enabled: true // WebAssembly (in development)
+    },
+    {
+      type: 'docker',
+      url: 'http://localhost:8000',
+      priority: 3,
+      enabled: true // Local development
+    }
+  ]
+  
+  async checkAllServices(): Promise<HybridAIStatus> {
+    // Parallel health checks
+    const [cloud, browser, docker] = await Promise.allSettled([
+      this.checkCloudService(),
+      this.checkBrowserService(),
+      this.checkDockerService()
+    ])
+    
+    // Auto-select best available
+    this.autoSelectService()
+    
+    return {
+      cloud: cloud.status === 'fulfilled' ? 'online' : 'offline',
+      browser: browser.status === 'fulfilled' ? 'online' : 'offline',
+      docker: docker.status === 'fulfilled' ? 'online' : 'offline',
+      active: this.currentService,
+      lastChecked: new Date().toISOString()
+    }
+  }
+  
+  async normalizeProduct(name: string): Promise<AIAnalysisResult> {
+    // Try active service
+    try {
+      switch (this.currentService) {
+        case 'cloud':
+          return await this.cloudNormalizeProduct(name)
+        case 'browser':
+          return await this.browserNormalizeProduct(name)
+        case 'docker':
+          return await this.dockerNormalizeProduct(name)
+      }
+    } catch (error) {
+      // Fallback to next service
+      return await this.fallbackNormalizeProduct(name)
+    }
+  }
+}
+```
 
 ## 🏛️ **System Architecture**
 
