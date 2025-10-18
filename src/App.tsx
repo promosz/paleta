@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import Layout from './components/Layout'
 import LandingPage from './pages/LandingPage'
+import PreLaunchPage from './pages/PreLaunchPage'
 import HomePage from './pages/HomePage'
 import Analysis from './pages/Analysis'
 import Dashboard from './pages/Dashboard'
@@ -39,6 +40,10 @@ function App() {
       {/* Public routes - no layout */}
       <Route path="/sign-in" element={<SignInPage />} />
       <Route path="/sign-up" element={<SignUpPage />} />
+      
+      {/* Pre-launch page - standalone (no layout) */}
+      <Route path="/pre-launch" element={<PreLaunchPage />} />
+      <Route path="/paleta/pre-launch" element={<PreLaunchPage />} />
       
       {/* Routes with layout */}
       <Route path="/*" element={
