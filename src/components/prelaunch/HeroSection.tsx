@@ -53,7 +53,7 @@ export default function HeroSection() {
             >
               <Sparkles className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium text-blue-700">
-                Premiera w Marcu 2025
+                Premiera w Luty 2026
               </span>
             </motion.div>
             
@@ -265,4 +265,3 @@ export default function HeroSection() {
     </section>
   )
 }
-

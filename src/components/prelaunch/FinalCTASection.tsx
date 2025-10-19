@@ -92,7 +92,7 @@ export default function FinalCTASection() {
               </span>
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Premiera już w Marcu 2025. Bądź w pierwszej setce!
+              Premiera już w Luty 2026. Bądź w pierwszej setce!
             </p>
           </motion.div>
           
@@ -174,4 +174,3 @@ export default function FinalCTASection() {
     </section>
   )
 }
-

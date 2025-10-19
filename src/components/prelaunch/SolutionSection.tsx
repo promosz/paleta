@@ -1,47 +1,39 @@
 // Solution Section for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { FileUp, Sparkles, FileText, ArrowRight } from 'lucide-react'
-import GradientBlob from './shared/GradientBlob'
+import { Zap, CheckCircle } from 'lucide-react'
 
 export default function SolutionSection() {
   const steps = [
     {
-      icon: FileUp,
-      number: '01',
-      title: 'Wrzuć Plik',
-      description: 'Upload pliku Excel z ofertą palety (XLSX, CSV, PDF). Obsługujemy wszystkie popularne formaty.'
+      step: '1',
+      title: 'Upload pliku',
+      description: 'Wrzuć plik Excel/CSV z listą produktów z palety (zwykle dostajesz od dostawcy)',
+      icon: '📄'
     },
     {
-      icon: Sparkles,
-      number: '02',
-      title: 'AI Analizuje',
-      description: 'Sztuczna inteligencja sprawdza każdy produkt, porównuje ceny na 10+ platformach i wykrywa trendy.'
+      step: '2',
+      title: 'AI analizuje',
+      description: 'Sztuczna inteligencja sprawdza ceny rynkowe, konkurencję, trendy i rentowność każdego produktu',
+      icon: '🤖'
     },
     {
-      icon: FileText,
-      number: '03',
-      title: 'Otrzymujesz Raport',
-      description: 'Jasna rekomendacja: KUP / ROZWAŻ / UNIKAJ. Szczegółowa analiza każdego produktu i lista ostrzeżeń.'
+      step: '3',
+      title: 'Otrzymujesz raport',
+      description: 'W 60 sekund widzisz: które produkty się opłacają, ile zarobisz, jakie są ryzyka',
+      icon: '📊'
     }
   ]
   
+  const benefits = [
+    'Oszczędź 2-3 godziny na każdej analizie',
+    'Uniknij złych inwestycji dzięki ostrzeżeniom AI',
+    '85% accuracy w przewidywaniu rentowności',
+    'Podejmuj decyzje w ciągu minut, nie godzin'
+  ]
+  
   return (
-    <section className="relative py-16 md:py-24 bg-white overflow-hidden">
-      {/* Gradient Blobs */}
-      <GradientBlob 
-        size="lg" 
-        position={{ top: '10%', left: '-10%' }} 
-        color="blue"
-        opacity={0.1}
-      />
-      <GradientBlob 
-        size="md" 
-        position={{ bottom: '10%', right: '-5%' }} 
-        color="purple"
-        opacity={0.1}
-      />
-      
-      <div className="container mx-auto px-4 md:px-8 max-w-7xl relative z-10">
+    <section className="relative py-16 md:py-24 bg-white">
+      <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -50,151 +42,135 @@ export default function SolutionSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-50 mb-6">
+            <Zap className="w-8 h-8 text-blue-600" />
+          </div>
+          
           <h2 className="
             text-3xl md:text-4xl lg:text-5xl 
             font-bold 
             text-gray-900 
             mb-4
           ">
-            Poznaj{' '}
+            Rozwiązanie:{' '}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               PalletAI
             </span>
-            {' '}- Twój Inteligentny Asystent Zakupowy
           </h2>
-          <p className="
-            text-xl md:text-2xl 
-            font-medium
-            text-blue-600 
-            mb-4
-          ">
-            Wrzuć plik Excel z paletą. AI zrobi resztę.
-          </p>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Automatyczna analiza rentowności w 3 prostych krokach
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            Pierwszy w Polsce system AI do analizy palet produktów. Wrzucasz plik, AI ocenia rentowność w 60 sekund.
           </p>
         </motion.div>
         
-        {/* Steps */}
-        <div className="relative">
-          {/* Connecting Line (Desktop) */}
-          <div className="
-            hidden lg:block
-            absolute top-1/2 left-0 right-0
-            h-0.5
-            bg-gradient-to-r from-blue-200 via-purple-200 to-blue-200
-            -translate-y-1/2
-            -z-10
-          " />
+        {/* How it works - Steps */}
+        <div className="mb-16">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-10">
+            Jak to działa?
+          </h3>
           
-          <div className="grid md:grid-cols-3 gap-8 md:gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step, idx) => (
-              <div key={idx} className="relative">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: idx * 0.2 }}
-                  className="
-                    bg-white
-                    rounded-2xl
-                    p-6 md:p-8
-                    border-2 border-gray-200
-                    hover:border-blue-300
-                    hover:shadow-xl
-                    transition-all duration-300
-                    text-center
-                    relative
-                  "
-                >
-                  {/* Step Number */}
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: idx * 0.15 }}
+                className="relative"
+              >
+                {/* Arrow between steps (desktop) */}
+                {idx < steps.length - 1 && (
                   <div className="
-                    absolute -top-4 left-1/2 -translate-x-1/2
+                    hidden md:block
+                    absolute
+                    top-12
+                    -right-4
+                    text-3xl
+                    text-gray-300
+                  ">
+                    →
+                  </div>
+                )}
+                
+                {/* Step Card */}
+                <div className="
+                  bg-gradient-to-br from-blue-50 to-purple-50
+                  rounded-2xl
+                  p-6
+                  border-2 border-white
+                  shadow-lg
+                  text-center
+                  h-full
+                ">
+                  {/* Step number */}
+                  <div className="
                     w-12 h-12
                     rounded-full
                     bg-gradient-to-r from-blue-600 to-purple-600
-                    flex items-center justify-center
                     text-white
                     font-bold
-                    text-lg
-                    shadow-lg shadow-purple-500/30
+                    text-xl
+                    flex items-center justify-center
+                    mx-auto
+                    mb-4
                   ">
-                    {step.number}
+                    {step.step}
                   </div>
                   
                   {/* Icon */}
-                  <div className="
-                    inline-flex items-center justify-center
-                    w-16 h-16 md:w-20 md:h-20
-                    rounded-2xl
-                    bg-gradient-to-br from-blue-50 to-purple-50
-                    mb-4
-                    mt-4
-                  ">
-                    <step.icon className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
+                  <div className="text-4xl mb-4">
+                    {step.icon}
                   </div>
                   
-                  {/* Title */}
-                  <h3 className="
-                    text-xl md:text-2xl 
-                    font-bold 
-                    text-gray-900 
-                    mb-3
-                  ">
+                  {/* Content */}
+                  <h4 className="text-xl font-bold text-gray-900 mb-3">
                     {step.title}
-                  </h3>
-                  
-                  {/* Description */}
+                  </h4>
                   <p className="text-gray-600 leading-relaxed">
                     {step.description}
                   </p>
-                </motion.div>
-                
-                {/* Arrow (Desktop) */}
-                {idx < steps.length - 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 1 + idx * 0.2 }}
-                    className="
-                      hidden lg:block
-                      absolute top-1/2 -right-4
-                      -translate-y-1/2
-                      z-10
-                    "
-                  >
-                    <ArrowRight className="w-8 h-8 text-blue-400" />
-                  </motion.div>
-                )}
-              </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
         
-        {/* Bottom Message */}
+        {/* Benefits List */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.6 }}
           className="
-            mt-12 md:mt-16
-            text-center
-            bg-gradient-to-r from-blue-50 to-purple-50
-            border border-blue-100
+            bg-gradient-to-r from-green-50 to-emerald-50
             rounded-2xl
-            p-6 md:p-8
+            p-8 md:p-12
+            border-2 border-green-100
           "
         >
-          <p className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-            ⚡ Średni czas analizy: <span className="text-blue-600">60 sekund</span>
-          </p>
-          <p className="text-gray-600">
-            To co zajmowało Ci 2 godziny, AI zrobi w minutę
-          </p>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-8">
+            Co zyskujesz?
+          </h3>
+          
+          <div className="grid md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+            {benefits.map((benefit, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.2 + idx * 0.1 }}
+                className="flex items-start gap-3"
+              >
+                <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-gray-700 text-base md:text-lg">
+                  {benefit}
+                </span>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
   )
 }
-

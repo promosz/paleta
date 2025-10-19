@@ -7,7 +7,7 @@ export default function FAQSection() {
   const faqs = [
     {
       question: 'Kiedy startuje PalletAI?',
-      answer: 'Oficjalna premiera planowana na Marzec 2025.\n\nOsoby z waitlist otrzymają wczesny dostęp 2 tygodnie wcześniej + 3 miesiące PRO gratis!'
+      answer: 'Oficjalna premiera planowana na Luty 2026.\n\nOsoby z waitlist otrzymają wczesny dostęp 2 tygodnie wcześniej + 3 miesiące PRO gratis!'
     },
     {
       question: 'Czy muszę znać się na technologii/AI?',
@@ -131,4 +131,3 @@ export default function FAQSection() {
     </section>
   )
 }
-

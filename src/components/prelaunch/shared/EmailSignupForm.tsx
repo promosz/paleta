@@ -110,7 +110,7 @@ export default function EmailSignupForm({
           <ol className="text-sm text-gray-600 space-y-1 list-decimal list-inside">
             <li>Potwierdź adres email (kliknij link w mailu)</li>
             <li>Dodaj nas do kontaktów: kontakt@palletai.com</li>
-            <li>Czekaj na powiadomienie o premierze (Marzec 2025)</li>
+            <li>Czekaj na powiadomienie o premierze (Luty 2026)</li>
           </ol>
         </div>
         
@@ -313,4 +313,3 @@ export default function EmailSignupForm({
     </form>
   )
 }
-
