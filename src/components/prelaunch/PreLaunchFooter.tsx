@@ -1,6 +1,6 @@
 // Footer for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { Mail, Linkedin, Twitter, Facebook } from 'lucide-react'
+import { Linkedin, Twitter, Facebook } from 'lucide-react'
 
 export default function PreLaunchFooter() {
   const currentYear = new Date().getFullYear()
