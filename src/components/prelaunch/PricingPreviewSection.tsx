@@ -57,7 +57,7 @@ export default function PricingPreviewSection() {
       ],
       cta: 'Skontaktuj się',
       highlighted: false,
-      badge: null
+      badge: undefined
     }
   ]
   
