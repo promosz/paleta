@@ -1,6 +1,6 @@
 // FAQ Section for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { HelpCircle } from 'lucide-react'
+import { HelpCircle, Mail } from 'lucide-react'
 import FAQItem from './shared/FAQItem'
 
 export default function FAQSection() {
@@ -124,7 +124,8 @@ export default function FAQSection() {
               transition-all duration-200
             "
           >
-            📧 kontakt@palletai.com
+            <Mail className="w-5 h-5" />
+            kontakt@palletai.com
           </a>
         </motion.div>
       </div>

@@ -111,8 +111,11 @@ export default function ProblemSection() {
           <p className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
             Czy to brzmi znajomo?
           </p>
-          <p className="text-gray-700">
+          <p className="text-gray-700 mb-4">
             Nie jesteś sam. <strong>Setki traderów</strong> boryka się z tym samym problemem każdego dnia.
+          </p>
+          <p className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            PalletAI rozwiązuje te problemy.
           </p>
         </motion.div>
       </div>
