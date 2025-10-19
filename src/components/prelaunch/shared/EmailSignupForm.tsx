@@ -277,7 +277,7 @@ export default function EmailSignupForm({
             required
           />
           <span className="text-xs md:text-sm text-gray-600 group-hover:text-gray-900">
-            Zgadzam się na otrzymywanie informacji o premierze PalletAI (możesz wypisać się w każdej chwili)
+            Zgadzam się na otrzymywanie informacji z premierą aplikacji
           </span>
         </label>
       </div>

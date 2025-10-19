@@ -8,56 +8,56 @@ export default function PricingPreviewSection() {
     {
       name: 'STARTER',
       price: '0',
-      period: 'na zawsze',
-      description: 'Idealne do testów',
+      period: 'miesięcznie',
+      description: 'Idealny na start',
       features: [
-        '5 analiz miesięcznie',
+        '3 analizy miesięcznie',
         'Podstawowe raporty',
         'Analiza do 50 produktów',
+        'Dashboard podstawowy',
         'Email support'
       ],
-      cta: 'Zacznij za darmo',
+      cta: 'Zapisz się',
       highlighted: false,
       badge: 'Darmowy'
     },
     {
       name: 'PRO',
-      price: '99',
+      price: '199',
       period: 'miesięcznie',
       description: 'Dla profesjonalnych traderów',
       features: [
-        'Unlimited analiz',
-        'Zaawansowane raporty AI',
+        '20 analiz',
+        'Zaawansowane analizy AI',
         'Analiza do 500 produktów',
         'Ostrzeżenia przed ryzykiem',
+        'Integracja z Allegro',
         'Porównanie z konkurencją',
-        'Export do Excel/PDF',
-        'Priority support',
-        'API access (wkrótce)'
+        'Export do Excel/PDF'
       ],
-      cta: 'Wybierz PRO',
+      cta: 'Prubuj PRO przez 3 miesiące',
       highlighted: true,
-      badge: '3 miesiące gratis dla waitlist!',
-      savings: 'Oszczędzasz 297 zł'
+      badge: 'Najpopularniejsze',
+      savings: 'Oszczędzasz 597 zł'
     },
     {
       name: 'BUSINESS',
-      price: '299',
+      price: '499',
       period: 'miesięcznie',
       description: 'Dla firm i zespołów',
       features: [
-        'Wszystko z PRO',
-        '5 kont użytkowników',
+        'Wszystko z PRO +',
+        'Nielimitowane analizy',
         'Analiza do 2000 produktów',
-        'Własne reguły i kryteria',
+        '5 kont użytkowników',
+        'Wyłączny account manager',
         'Integracje (Allegro, Amazon)',
-        'Dedykowany account manager',
-        'SLA 99.9%',
-        'Custom features na zamówienie'
+        'Własne reguły i kryteria',
+        '24/7 support'
       ],
-      cta: 'Kontakt',
+      cta: 'Skontaktuj się',
       highlighted: false,
-      badge: 'Najpopularniejsze w firmach'
+      badge: null
     }
   ]
   
@@ -82,13 +82,13 @@ export default function PricingPreviewSection() {
             text-gray-900 
             mb-4
           ">
-            Prosty,{' '}
+            Prosty Cennik.{' '}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Przejrzysty Cennik
+              Zero Ukrytych Kosztów
             </span>
           </h2>
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-6">
-            Bez ukrytych opłat. Anuluj w każdej chwili. 30 dni gwarancji zwrotu pieniędzy.
+            Wybierz plan dopasowany do Twoich potrzeb
           </p>
           
           {/* Waitlist Bonus */}
@@ -162,6 +162,17 @@ export default function PricingPreviewSection() {
             </div>
           </div>
         </motion.div>
+        
+        {/* VAT Disclaimer */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="text-center text-sm text-gray-500 mt-8"
+        >
+          Wszystkie ceny podane są brutto (z VAT w przypadku zakupu przez firmę w Polsce)
+        </motion.p>
       </div>
     </section>
   )

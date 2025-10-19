@@ -53,7 +53,7 @@ export default function HeroSection() {
             >
               <Sparkles className="w-4 h-4 text-blue-600" />
               <span className="text-sm font-medium text-blue-700">
-                Premiera w Luty 2026
+                Premiera w Marcu 2026
               </span>
             </motion.div>
             
@@ -103,8 +103,8 @@ export default function HeroSection() {
             >
               {[
                 { icon: '⚡', text: 'Analiza w 60 sekund zamiast 2 godzin' },
-                { icon: '🎯', text: '85% accuracy - AI wie, co się opłaca' },
-                { icon: '💰', text: 'Uniknij złych inwestycji - system ostrzeże przed ryzykiem' }
+                { icon: '🎯', text: '85% dokładności - AI wie, co się opłaca' },
+                { icon: '💰', text: 'Unikaj złych inwestycji - wykryj nieopłacalne produkty' }
               ].map((item, idx) => (
                 <motion.div
                   key={idx}
