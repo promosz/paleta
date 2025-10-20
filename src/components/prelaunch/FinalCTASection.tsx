@@ -19,20 +19,20 @@ export default function FinalCTASection() {
   
   const benefits = [
     {
-      icon: CheckCircle,
-      text: 'W kolejce nr ~500 osób już zapisanych'
+      icon: Rocket,
+      text: 'Wczesny dostęp - 2 tygodnie przed oficjalną premierą'
     },
     {
       icon: Gift,
-      text: '3 miesiące PRO gratis - wartość 597 zł!'
+      text: '3 miesiące PRO gratis - wartość 297 zł (tylko dla waitlist)'
     },
     {
       icon: Bell,
-      text: 'Bez zobowiązań - możesz wypisać się w każdej chwili'
+      text: 'Bądź pierwszy - powiadomienie o starcie w momencie premiery'
     },
     {
-      icon: Rocket,
-      text: 'Pierwszy dostęp - otrzymasz link przed oficjalną premierą'
+      icon: CheckCircle,
+      text: 'Zero spamu - możesz wypisać się w każdej chwili'
     }
   ]
   
@@ -92,7 +92,7 @@ export default function FinalCTASection() {
               </span>
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Premiera już w Marcu 2026. Bądź w pierwszych szeregach.
+              Premiera już w Marcu 2025. Bądź w pierwszej setce!
             </p>
           </motion.div>
           
@@ -158,12 +158,15 @@ export default function FinalCTASection() {
               border-t border-gray-200
             "
           >
-            <p className="text-gray-600">
-              ⚡ Dołącz do{' '}
+            <p className="text-gray-600 mb-2">
+              📊 Dołącz do{' '}
               <strong className="text-gray-900 text-lg">
                 {waitlistCount}+ osób
               </strong>
-              {' '}na wait list
+              {' '}na waitlist
+            </p>
+            <p className="text-sm text-gray-500">
+              🔒 Twój email jest bezpieczny. Nigdy nie udostępnimy go osobom trzecim.
             </p>
           </motion.div>
         </div>
@@ -171,3 +174,4 @@ export default function FinalCTASection() {
     </section>
   )
 }
+

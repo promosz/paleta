@@ -1,13 +1,13 @@
 // FAQ Section for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { HelpCircle, Mail } from 'lucide-react'
+import { HelpCircle } from 'lucide-react'
 import FAQItem from './shared/FAQItem'
 
 export default function FAQSection() {
   const faqs = [
     {
       question: 'Kiedy startuje PalletAI?',
-      answer: 'Oficjalna premiera planowana na Luty 2026.\n\nOsoby z waitlist otrzymają wczesny dostęp 2 tygodnie wcześniej + 3 miesiące PRO gratis!'
+      answer: 'Oficjalna premiera planowana na Marzec 2025.\n\nOsoby z waitlist otrzymają wczesny dostęp 2 tygodnie wcześniej + 3 miesiące PRO gratis!'
     },
     {
       question: 'Czy muszę znać się na technologii/AI?',
@@ -124,11 +124,11 @@ export default function FAQSection() {
               transition-all duration-200
             "
           >
-            <Mail className="w-5 h-5" />
-            kontakt@palletai.com
+            📧 kontakt@palletai.com
           </a>
         </motion.div>
       </div>
     </section>
   )
 }
+

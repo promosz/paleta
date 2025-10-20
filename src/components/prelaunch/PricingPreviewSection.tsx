@@ -4,60 +4,69 @@ import { DollarSign, Check } from 'lucide-react'
 import PricingCard from './shared/PricingCard'
 
 export default function PricingPreviewSection() {
+  const handleCTAClick = () => {
+    // Scroll to hero section with email signup form
+    const heroSection = document.getElementById('hero')
+    if (heroSection) {
+      heroSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   const plans = [
     {
       name: 'STARTER',
-      price: '0',
-      period: 'miesięcznie',
+      price: 0,
+      period: '/miesiąc',
       description: 'Idealny na start',
       features: [
-        '3 analizy miesięcznie',
-        'Podstawowe raporty',
-        'Analiza do 50 produktów',
-        'Dashboard podstawowy',
-        'Email support'
+        { text: '3 analizy miesięcznie', included: true },
+        { text: 'Podstawowe raporty', included: true },
+        { text: 'Analiza do 50 produktów', included: true },
+        { text: 'Dashboard podstawowy', included: true },
+        { text: 'Email support', included: true },
+        { text: 'Zaawansowane analizy AI', included: false },
+        { text: 'Export do Excel/PDF', included: false }
       ],
-      cta: 'Zapisz się',
-      highlighted: false,
-      badge: 'Darmowy'
+      ctaText: 'Zapisz się',
+      onCTAClick: handleCTAClick,
+      isPopular: false
     },
     {
       name: 'PRO',
-      price: '199',
-      period: 'miesięcznie',
+      price: 199,
+      period: '/miesiąc',
       description: 'Dla profesjonalnych traderów',
       features: [
-        '20 analiz',
-        'Zaawansowane analizy AI',
-        'Analiza do 500 produktów',
-        'Ostrzeżenia przed ryzykiem',
-        'Integracja z Allegro',
-        'Porównanie z konkurencją',
-        'Export do Excel/PDF'
+        { text: '20 analiz miesięcznie', included: true },
+        { text: 'Zaawansowane analizy AI', included: true },
+        { text: 'Analiza do 500 produktów', included: true },
+        { text: 'Ostrzeżenia przed ryzykiem', included: true },
+        { text: 'Integracja z Allegro', included: true },
+        { text: 'Porównanie z konkurencją', included: true },
+        { text: 'Export do Excel/PDF', included: true }
       ],
-      cta: 'Prubuj PRO przez 3 miesiące',
-      highlighted: true,
-      badge: 'Najpopularniejsze',
-      savings: 'Oszczędzasz 597 zł'
+      ctaText: 'Wypróbuj PRO przez 3 miesiące',
+      onCTAClick: handleCTAClick,
+      isPopular: true
     },
     {
       name: 'BUSINESS',
-      price: '499',
-      period: 'miesięcznie',
+      price: 499,
+      period: '/miesiąc',
       description: 'Dla firm i zespołów',
       features: [
-        'Wszystko z PRO +',
-        'Nielimitowane analizy',
-        'Analiza do 2000 produktów',
-        '5 kont użytkowników',
-        'Wyłączny account manager',
-        'Integracje (Allegro, Amazon)',
-        'Własne reguły i kryteria',
-        '24/7 support'
+        { text: 'Wszystko z PRO +', included: true },
+        { text: 'Nielimitowane analizy', included: true },
+        { text: 'Analiza do 2000 produktów', included: true },
+        { text: '5 kont użytkowników', included: true },
+        { text: 'Wyłączny account manager', included: true },
+        { text: 'Integracje (Allegro, Amazon)', included: true },
+        { text: 'Własne reguły i kryteria', included: true },
+        { text: '24/7 support', included: true }
       ],
-      cta: 'Skontaktuj się',
-      highlighted: false,
-      badge: undefined
+      ctaText: 'Skontaktuj się',
+      onCTAClick: handleCTAClick,
+      isPopular: false
     }
   ]
   

@@ -5,21 +5,21 @@ import { Zap, CheckCircle } from 'lucide-react'
 export default function SolutionSection() {
   const steps = [
     {
-      step: '01',
-      title: 'Wrzuć Plik',
-      description: 'Upload pliku Excel z ofertą palety (XLSX, CSV, PDF)',
+      step: '1',
+      title: 'Upload pliku',
+      description: 'Wrzuć plik Excel/CSV z listą produktów z palety (zwykle dostajesz od dostawcy)',
       icon: '📄'
     },
     {
-      step: '02',
-      title: 'AI Analizuje',
-      description: 'Sztuczna inteligencja sprawdza każdy produkt, porównuje ceny i oblicza rentowność',
+      step: '2',
+      title: 'AI analizuje',
+      description: 'Sztuczna inteligencja sprawdza ceny rynkowe, konkurencję, trendy i rentowność każdego produktu',
       icon: '🤖'
     },
     {
-      step: '03',
-      title: 'Otrzymujesz Raport',
-      description: 'Jasna rekomendacja: KUP / ROZWAŻ / UNIKAJ. Szczegółowa analiza każdego produktu',
+      step: '3',
+      title: 'Otrzymujesz raport',
+      description: 'W 60 sekund widzisz: które produkty się opłacają, ile zarobisz, jakie są ryzyka',
       icon: '📊'
     }
   ]
@@ -52,26 +52,20 @@ export default function SolutionSection() {
             text-gray-900 
             mb-4
           ">
-            Poznaj{' '}
+            Rozwiązanie:{' '}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               PalletAI
             </span>
           </h2>
-          <p className="text-xl md:text-2xl text-gray-900 font-semibold max-w-3xl mx-auto mb-3">
-            Twój Inteligentny Asystent Zakupowy
-          </p>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-2">
-            Wrzuć plik Excel z paletą.
-          </p>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            AI zrobi resztę.
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            Pierwszy w Polsce system AI do analizy palet produktów. Wrzucasz plik, AI ocenia rentowność w 60 sekund.
           </p>
         </motion.div>
         
         {/* How it works - Steps */}
         <div className="mb-16">
-          <h3 className="text-xl md:text-2xl font-semibold text-gray-700 text-center mb-10">
-            Automatyczna analiza rentowności w 3 prostych krokach
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-10">
+            Jak to działa?
           </h3>
           
           <div className="grid md:grid-cols-3 gap-8">

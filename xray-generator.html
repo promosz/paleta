@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>X-Ray Image Generator</title>
+</head>
+<body>
+    <canvas id="canvas" width="1000" height="700" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="downloadImage()">Pobierz obraz X-Ray</button>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Tło ciemne
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, 1000, 700);
+        
+        // Efekt świecenia tła
+        const bgGradient = ctx.createRadialGradient(500, 350, 100, 500, 350, 400);
+        bgGradient.addColorStop(0, 'rgba(0, 255, 200, 0.15)');
+        bgGradient.addColorStop(0.5, 'rgba(0, 200, 255, 0.08)');
+        bgGradient.addColorStop(1, 'rgba(0, 100, 200, 0.02)');
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, 1000, 700);
+        
+        // Paleta z produktami w trybie X-Ray
+        const palletX = 150;
+        const palletY = 150;
+        const palletWidth = 700;
+        const palletHeight = 400;
+        
+        // Ramka palety
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 20;
+        ctx.strokeRect(palletX, palletY, palletWidth, palletHeight);
+        ctx.shadowBlur = 0;
+        
+        // Produkty w trybie X-Ray
+        for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 3; j++) {
+                const x = 200 + i * 160;
+                const y = 200 + j * 120;
+                
+                // Świecące kontury
+                ctx.strokeStyle = `rgba(0, 255, 255, ${0.6 + Math.random() * 0.4})`;
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#00ffff';
+                ctx.shadowBlur = 15;
+                ctx.strokeRect(x, y, 120, 80);
+                
+                // Wewnętrzna struktura
+                ctx.strokeStyle = `rgba(0, 255, 200, ${0.4 + Math.random() * 0.3})`;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(x + 10, y + 10, 100, 60);
+                
+                // Linie wewnętrzne (symulacja zawartości)
+                for (let k = 0; k < 3; k++) {
+                    ctx.beginPath();
+                    ctx.moveTo(x + 20, y + 25 + k * 15);
+                    ctx.lineTo(x + 100, y + 25 + k * 15);
+                    ctx.stroke();
+                }
+                
+                ctx.shadowBlur = 0;
+                
+                // Numer świecący
+                ctx.fillStyle = '#00ffff';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = '#00ffff';
+                ctx.shadowBlur = 10;
+                ctx.fillText(`#${i * 3 + j + 1}`, x + 60, y + 45);
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // Tytuł X-Ray
+        ctx.fillStyle = '#00ffff';
+        ctx.font = 'bold 48px Arial';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 30;
+        ctx.fillText('X-RAY ANALYZER', 500, 80);
+        ctx.shadowBlur = 0;
+        
+        // UI elementy X-Ray
+        // Top Right - X-RAY ANALYZER
+        ctx.fillStyle = '#00ffff';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'right';
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 15;
+        ctx.fillText('X-RAY ANALYZER', 950, 50);
+        ctx.shadowBlur = 0;
+        
+        // Top Left - Target
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(100, 100, 30, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(100, 100, 20, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(100, 100, 10, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = '#00ffff';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('H', 100, 105);
+        ctx.shadowBlur = 0;
+        
+        // Bottom Left - Progress bar
+        ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+        ctx.fillRect(50, 600, 200, 20);
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(50, 600, 150, 20);
+        ctx.fillStyle = '#00ffff';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('SCANNING IN PROGRESS...', 50, 590);
+        
+        // Data readouts
+        ctx.fillStyle = '#00ffff';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('BLKBAY ACAMAP83', 800, 650);
+        ctx.fillText('190081', 800, 665);
+        ctx.fillText('2926', 800, 680);
+        ctx.fillText('19:03', 900, 650);
+        
+        // Dodatkowe kropki świecące (efekt cząsteczek)
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * 1000;
+            const y = Math.random() * 700;
+            const size = Math.random() * 2 + 1;
+            ctx.fillStyle = `rgba(0, 255, 255, ${Math.random() * 0.6 + 0.2})`;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = 'xray.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.click();
+        }
+    </script>
+</body>
+</html>
+
+

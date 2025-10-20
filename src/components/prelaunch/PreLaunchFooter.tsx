@@ -1,6 +1,6 @@
 // Footer for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { Linkedin, Twitter, Facebook } from 'lucide-react'
+import { Mail, Linkedin, Twitter, Facebook } from 'lucide-react'
 
 export default function PreLaunchFooter() {
   const currentYear = new Date().getFullYear()
@@ -51,7 +51,7 @@ export default function PreLaunchFooter() {
               </div>
               
               <p className="text-sm text-gray-400 mb-6">
-                Inteligentna analiza palet produktów z użyciem najnowszych technologii AI
+                Inteligentna analiza palet produktów z wykorzystaniem AI. Oszczędź czas, uniknij złych decyzji.
               </p>
               
               {/* Social Links */}
@@ -160,25 +160,24 @@ export default function PreLaunchFooter() {
           </p>
           
           {/* Contact */}
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-4 text-sm text-gray-400">
             <a
               href="mailto:kontakt@palletai.com"
-              className="hover:text-white transition-colors duration-200"
+              className="flex items-center gap-2 hover:text-white transition-colors duration-200"
             >
-              kontakt@palletai.com
+              <Mail className="w-4 h-4" />
+              <span className="hidden sm:inline">kontakt@palletai.com</span>
             </a>
             
-            <span>•</span>
+            <span className="hidden md:inline">•</span>
             
-            <a
-              href="tel:+48123456789"
-              className="hover:text-white transition-colors duration-200"
-            >
-              +48 123 456 789
-            </a>
+            <span className="hidden md:inline">
+              💬 Chat online (9-17)
+            </span>
           </div>
         </div>
       </div>
     </footer>
   )
 }
+
