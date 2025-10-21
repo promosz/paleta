@@ -1,10 +1,15 @@
 // Hero Section for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { Sparkles, Users, Gift } from 'lucide-react'
+import { Users, Gift } from 'lucide-react'
 import EmailSignupForm from './shared/EmailSignupForm'
 import GradientBlob from './shared/GradientBlob'
 import { useEffect, useState } from 'react'
 import { getWaitlistCount } from '../../services/waitlistService'
+import sparklesIcon from '../../assets/figma-icons/sparkles-icon.svg'
+import checkIcon from '../../assets/figma-icons/check-icon.svg'
+import targetIcon from '../../assets/figma-icons/target-icon.svg'
+import shieldIcon from '../../assets/figma-icons/shield-icon.svg'
+import aiAnalyzingIcon from '../../assets/figma-icons/ai-analyzing-icon.svg'
 
 export default function HeroSection() {
   const [waitlistCount, setWaitlistCount] = useState(500)
@@ -23,19 +28,19 @@ export default function HeroSection() {
       <GradientBlob 
         size="xl" 
         position={{ top: '-20%', right: '-10%' }} 
-        color="blue"
+        color="indigo"
         opacity={0.15}
       />
       <GradientBlob 
         size="lg" 
         position={{ bottom: '-10%', left: '-5%' }} 
-        color="purple"
+        color="violet"
         opacity={0.15}
       />
       <GradientBlob 
         size="md" 
         position={{ top: '30%', left: '50%' }} 
-        color="pink"
+        color="fuchsia"
         opacity={0.1}
       />
       
@@ -49,10 +54,10 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-200 mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.8)] border border-[#c6d2ff] mb-6"
             >
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">
+              <img src={sparklesIcon} alt="" className="w-3 h-3" />
+              <span className="text-sm font-medium text-[#4f39f6]">
                 Premiera w Marcu 2026
               </span>
             </motion.div>
@@ -70,9 +75,13 @@ export default function HeroSection() {
                 leading-tight
               "
             >
-              Już Wkrótce:{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Inteligentna Analiza Palet
+              Już wkrótce:{' '}
+              <span className="bg-gradient-to-r from-[#4f39f6] to-[#9810fa] bg-clip-text text-transparent">
+                Inteligentna
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-[#4f39f6] to-[#9810fa] bg-clip-text text-transparent">
+                Analiza Palet
               </span>{' '}
               z AI
             </motion.h1>
@@ -91,7 +100,7 @@ export default function HeroSection() {
                 mx-auto lg:mx-0
               "
             >
-              Oszczędź czas i pieniądze. Pozwól AI ocenić rentowność palety produktów w 60 sekund - zanim podejmiesz decyzję o zakupie.
+              Oszczędzaj czas i pieniądze. Pozwól AI ocenić rentowność palety produktów w 60 sekund - zanim podejmiesz decyzję o zakupie palet.
             </motion.p>
             
             {/* Value Props */}
@@ -102,9 +111,9 @@ export default function HeroSection() {
               className="space-y-3 mb-10"
             >
               {[
-                { icon: '⚡', text: 'Analiza w 60 sekund zamiast 2 godzin' },
-                { icon: '🎯', text: '85% dokładności - AI wie, co się opłaca' },
-                { icon: '💰', text: 'Unikaj złych inwestycji - wykryj nieopłacalne produkty' }
+                { icon: checkIcon, text: 'Analiza w 60 sekund zamiast 2 godzin' },
+                { icon: targetIcon, text: '85% dokładnośCI - AI wie, co się opłaca' },
+                { icon: shieldIcon, text: 'Unikaj złych inwestycji - wykryj nieopłacalne przed ryzykiem' }
               ].map((item, idx) => (
                 <motion.div
                   key={idx}
@@ -113,7 +122,9 @@ export default function HeroSection() {
                   transition={{ duration: 0.4, delay: 0.4 + idx * 0.1 }}
                   className="flex items-center gap-3 justify-center lg:justify-start"
                 >
-                  <span className="text-2xl">{item.icon}</span>
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100">
+                    <img src={item.icon} alt="" className="w-4 h-4" />
+                  </div>
                   <span className="text-gray-700 text-sm md:text-base">
                     {item.text}
                   </span>
@@ -172,18 +183,18 @@ export default function HeroSection() {
               relative
               bg-white
               rounded-2xl
-              shadow-2xl shadow-blue-500/10
+              shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]
               border border-gray-200
               overflow-hidden
               transform rotate-2 hover:rotate-0
               transition-transform duration-500
             ">
               {/* Mockup Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
+              <div className="bg-gradient-to-br from-[#4f39f6] to-[#9810fa] p-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-white/30" />
-                  <div className="w-3 h-3 rounded-full bg-white/30" />
-                  <div className="w-3 h-3 rounded-full bg-white/30" />
+                  <div className="w-3 h-3 rounded-full bg-[#ff6467]" />
+                  <div className="w-3 h-3 rounded-full bg-[#fdc700]" />
+                  <div className="w-3 h-3 rounded-full bg-[#05df72]" />
                 </div>
               </div>
               
@@ -191,74 +202,49 @@ export default function HeroSection() {
               <div className="p-6 space-y-4">
                 {/* Stats Cards */}
                 <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: 'Produkty', value: '127', color: 'blue' },
-                    { label: 'Rentowność', value: '78%', color: 'green' },
-                    { label: 'Ostrzeżenia', value: '3', color: 'yellow' }
-                  ].map((stat, idx) => (
-                    <div 
-                      key={idx}
-                      className="bg-gray-50 rounded-lg p-3 text-center"
-                    >
-                      <div className={`text-2xl font-bold text-${stat.color}-600`}>
-                        {stat.value}
-                      </div>
-                      <div className="text-xs text-gray-600">{stat.label}</div>
-                    </div>
-                  ))}
+                  <div className="bg-white/20 rounded-lg p-3 text-center">
+                    <div className="text-3xl font-normal text-white">127</div>
+                    <div className="text-xs text-white/70">produkty</div>
+                  </div>
+                  <div className="bg-white/20 rounded-lg p-3 text-center">
+                    <div className="text-3xl font-normal text-[#7bf1a8]">78%</div>
+                    <div className="text-xs text-white/70">rentowność</div>
+                  </div>
+                  <div className="bg-white/20 rounded-lg p-3 text-center">
+                    <div className="text-3xl font-normal text-[#ffb86a]">3</div>
+                    <div className="text-xs text-white/70">ostrzeżenia</div>
+                  </div>
                 </div>
                 
-                {/* Chart Placeholder */}
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 h-48 flex items-end justify-around">
-                  {[65, 85, 72, 90, 78, 88, 95].map((height, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ height: 0 }}
-                      animate={{ height: `${height}%` }}
-                      transition={{ duration: 1, delay: 1 + idx * 0.1 }}
-                      className="w-8 bg-gradient-to-t from-blue-600 to-purple-600 rounded-t"
-                    />
-                  ))}
-                </div>
-                
-                {/* Product List Preview */}
+                {/* Chart Placeholder - Progress bars */}
                 <div className="space-y-2">
-                  {[1, 2, 3].map((_, idx) => (
-                    <div 
-                      key={idx}
-                      className="flex items-center justify-between bg-gray-50 rounded-lg p-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-400 to-purple-500" />
-                        <div className="h-4 bg-gray-200 rounded w-32" />
+                  {[60, 85, 95, 70, 80, 90, 75].map((width, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      <div className="flex-1 bg-white/10 rounded-full h-6 overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${width}%` }}
+                          transition={{ duration: 1, delay: 1 + idx * 0.1 }}
+                          className="h-full bg-gradient-to-r from-[#7c86ff] to-[#c27aff] rounded-full"
+                        />
                       </div>
-                      <div className="h-4 bg-green-200 rounded w-16" />
+                      <div className="bg-[rgba(123,241,168,0.3)] rounded px-3 py-1 text-xs text-white">
+                        OK
+                      </div>
                     </div>
                   ))}
                 </div>
+                
               </div>
-            </div>
-            
-            {/* Floating elements */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="
-                absolute -right-4 top-1/4
-                bg-white
-                rounded-xl
-                shadow-xl
-                p-4
-                border border-gray-200
-              "
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span className="text-sm font-medium text-gray-900">
+              
+              {/* AI Analyzing Badge at bottom */}
+              <div className="absolute bottom-6 left-6 bg-white/20 border border-white/30 rounded-lg px-4 py-2 flex items-center gap-2">
+                <img src={aiAnalyzingIcon} alt="" className="w-3 h-3" />
+                <span className="text-xs font-medium text-white">
                   AI Analyzing...
                 </span>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>

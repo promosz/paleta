@@ -66,7 +66,7 @@ export default function FeaturesSection() {
             mb-4
           ">
             Wszystko, Czego{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#4f39f6] to-[#9810fa] bg-clip-text text-transparent">
               Potrzebujesz
             </span>
           </h2>

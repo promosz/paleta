@@ -9,7 +9,7 @@ interface GradientBlobProps {
     bottom?: string
     left?: string
   }
-  color?: 'blue' | 'purple' | 'pink' | 'teal' | 'orange'
+  color?: 'blue' | 'purple' | 'pink' | 'teal' | 'orange' | 'indigo' | 'violet' | 'fuchsia'
   opacity?: number
   blur?: 'sm' | 'md' | 'lg' | 'xl'
   animate?: boolean
@@ -27,7 +27,10 @@ const colorClasses = {
   purple: 'bg-gradient-to-br from-purple-400 to-purple-600',
   pink: 'bg-gradient-to-br from-pink-400 to-pink-600',
   teal: 'bg-gradient-to-br from-teal-400 to-cyan-600',
-  orange: 'bg-gradient-to-br from-orange-400 to-pink-500'
+  orange: 'bg-gradient-to-br from-orange-400 to-pink-500',
+  indigo: 'bg-gradient-to-br from-indigo-400 to-indigo-600',
+  violet: 'bg-gradient-to-br from-violet-400 to-violet-600',
+  fuchsia: 'bg-gradient-to-br from-fuchsia-400 to-fuchsia-600'
 }
 
 const blurClasses = {
@@ -85,6 +88,7 @@ export default function GradientBlob({
     />
   )
 }
+
 
 
 

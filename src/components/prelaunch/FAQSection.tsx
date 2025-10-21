@@ -50,8 +50,8 @@ export default function FAQSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-50 mb-6">
-            <HelpCircle className="w-8 h-8 text-blue-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#4f39f6]/10 mb-6">
+            <HelpCircle className="w-8 h-8 text-[#4f39f6]" />
           </div>
           
           <h2 className="
@@ -61,7 +61,7 @@ export default function FAQSection() {
             mb-4
           ">
             Masz Pytania?{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#4f39f6] to-[#9810fa] bg-clip-text text-transparent">
               Mamy Odpowiedzi!
             </span>
           </h2>
@@ -115,12 +115,11 @@ export default function FAQSection() {
             className="
               inline-flex items-center gap-2
               px-6 py-3
-              bg-blue-600
+              bg-gradient-to-r from-[#4f39f6] to-[#9810fa]
               text-white
               rounded-xl
               font-semibold
-              hover:bg-blue-700
-              hover:shadow-lg
+              hover:shadow-lg hover:shadow-[#9810fa]/30
               transition-all duration-200
             "
           >

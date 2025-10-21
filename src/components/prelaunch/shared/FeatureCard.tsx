@@ -31,8 +31,8 @@ export default function FeatureCard({
         border border-gray-200 
         rounded-2xl 
         p-6 md:p-8
-        hover:border-blue-300
-        hover:shadow-lg hover:shadow-blue-100/50
+        hover:border-[#4f39f6]/30
+        hover:shadow-lg hover:shadow-[#4f39f6]/10
         transition-all duration-300
       "
     >
@@ -41,12 +41,12 @@ export default function FeatureCard({
         inline-flex items-center justify-center
         w-12 h-12 md:w-14 md:h-14
         rounded-xl
-        bg-gradient-to-br from-blue-50 to-purple-50
-        group-hover:from-blue-100 group-hover:to-purple-100
+        bg-gradient-to-br from-[#4f39f6]/10 to-[#9810fa]/10
+        group-hover:from-[#4f39f6]/20 group-hover:to-[#9810fa]/20
         transition-colors duration-300
         mb-4
       ">
-        <Icon className="w-6 h-6 md:w-7 md:h-7 text-blue-600" />
+        <Icon className="w-6 h-6 md:w-7 md:h-7 text-[#4f39f6]" />
       </div>
       
       {/* Title */}
@@ -54,7 +54,7 @@ export default function FeatureCard({
         text-lg md:text-xl font-semibold 
         text-gray-900 
         mb-2
-        group-hover:text-blue-600
+        group-hover:text-[#4f39f6]
         transition-colors duration-300
       ">
         {title}
@@ -69,8 +69,8 @@ export default function FeatureCard({
       <div className="
         absolute inset-0 
         rounded-2xl 
-        bg-gradient-to-br from-blue-500/0 to-purple-500/0
-        group-hover:from-blue-500/5 group-hover:to-purple-500/5
+        bg-gradient-to-br from-[#4f39f6]/0 to-[#9810fa]/0
+        group-hover:from-[#4f39f6]/5 group-hover:to-[#9810fa]/5
         pointer-events-none
         transition-all duration-300
       " />

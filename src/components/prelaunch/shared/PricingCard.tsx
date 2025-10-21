@@ -1,6 +1,7 @@
 // Pricing Card for Pre-Launch page
 import { motion } from 'framer-motion'
-import { Check, X, Sparkles } from 'lucide-react'
+import { X } from 'lucide-react'
+import checkmarkIcon from '../../../assets/figma-icons/checkmark-icon.svg'
 
 interface PricingFeature {
   text: string
@@ -46,8 +47,8 @@ export default function PricingCard({
         flex flex-col
         h-full
         ${isPopular 
-          ? 'border-blue-500 shadow-xl shadow-blue-100' 
-          : 'border-gray-200 hover:border-blue-300 hover:shadow-lg'
+          ? 'border-[#4f39f6] shadow-xl shadow-[#4f39f6]/10' 
+          : 'border-gray-200 hover:border-[#4f39f6]/30 hover:shadow-lg'
         }
       `}
     >
@@ -56,14 +57,13 @@ export default function PricingCard({
         <div className="
           absolute -top-4 left-1/2 -translate-x-1/2
           px-4 py-1.5
-          bg-gradient-to-r from-blue-600 to-purple-600
+          bg-gradient-to-r from-[#4f39f6] to-[#9810fa]
           text-white text-xs font-semibold
-          rounded-full
+          rounded-lg
           shadow-lg
           flex items-center gap-1
         ">
-          <Sparkles className="w-3 h-3" />
-          NAJBARDZIEJ POPULARNY
+          Najpopularniejsze
         </div>
       )}
       
@@ -101,19 +101,11 @@ export default function PricingCard({
             key={idx}
             className="flex items-start gap-3"
           >
-            <div className={`
-              flex-shrink-0 w-5 h-5 rounded-full
-              flex items-center justify-center
-              mt-0.5
-              ${feature.included 
-                ? 'bg-green-100 text-green-600' 
-                : 'bg-gray-100 text-gray-400'
-              }
-            `}>
+            <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center mt-0.5">
               {feature.included ? (
-                <Check className="w-3 h-3" strokeWidth={3} />
+                <img src={checkmarkIcon} alt="" className="w-5 h-5" />
               ) : (
-                <X className="w-3 h-3" strokeWidth={2} />
+                <X className="w-3 h-3 text-gray-400" strokeWidth={2} />
               )}
             </div>
             <span className={`
@@ -138,15 +130,16 @@ export default function PricingCard({
           transition-all duration-200
           ${isPopular
             ? `
-              bg-gradient-to-r from-blue-600 to-purple-600 
+              bg-gradient-to-r from-[#4f39f6] to-[#9810fa]
               text-white
-              hover:shadow-lg hover:shadow-purple-500/30
+              hover:shadow-lg hover:shadow-[#9810fa]/30
               hover:scale-[1.02]
             `
             : `
-              bg-gray-100 
+              bg-white
+              border-2 border-[#4f39f6]
               text-gray-900
-              hover:bg-gray-200
+              hover:bg-gray-50
             `
           }
         `}
@@ -158,7 +151,7 @@ export default function PricingCard({
       {isPopular && (
         <div className="
           absolute -inset-0.5 
-          bg-gradient-to-r from-blue-600 to-purple-600 
+          bg-gradient-to-r from-[#4f39f6] to-[#9810fa]
           rounded-2xl 
           opacity-20 
           blur

@@ -42,7 +42,7 @@ export default function PreLaunchFooter() {
             <div className="col-span-2 md:col-span-1">
               {/* Logo */}
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#4f39f6] to-[#9810fa] flex items-center justify-center">
                   <span className="text-white font-semibold text-sm">P</span>
                 </div>
                 <span className="text-xl font-semibold text-white">

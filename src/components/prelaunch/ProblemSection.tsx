@@ -1,23 +1,30 @@
 // Problem Section for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { Clock, BarChart3, TrendingDown } from 'lucide-react'
+import clockIcon from '../../assets/figma-icons/clock-icon.svg'
+import alertTriangleIcon from '../../assets/figma-icons/alert-triangle-icon.svg'
+import alertCircleIcon from '../../assets/figma-icons/alert-circle-icon.svg'
 
 export default function ProblemSection() {
   const problems = [
     {
-      icon: Clock,
-      title: 'Godziny Tracone na Analizę',
-      description: 'Ręczne sprawdzanie cen każdego produktu zabiera cały dzień. Musisz przeszukać Allegro, Ceneo, porównać ceny, obliczyć marżę...'
+      icon: clockIcon,
+      title: 'Tracisz 2-3 godziny na każdą analizę',
+      description: 'Ręczne sprawdzanie cen, liczenie marż, analiza konkurencji - to wszystko zabiera mnóstwo czasu.'
     },
     {
-      icon: BarChart3,
-      title: 'Brak Pewności',
-      description: 'Nigdy nie jesteś pewien, czy ceny są aktualne i konkurencyjne. Ryzykujesz własne pieniądze bez gwarancji zysku.'
+      icon: alertTriangleIcon,
+      title: 'Ryzykujesz stratę tysięcy złotych',
+      description: 'Jeden błąd w ocenie palety może kosztować Cię całą inwestycję. Nie możesz sobie na to pozwolić.'
     },
     {
-      icon: TrendingDown,
-      title: 'Złe Decyzje Kosztują',
-      description: 'Kupujesz palety, które okazują się nieopłacalne. Produkty zalegają w magazynie, bo ceny rynkowe spadły.'
+      icon: alertCircleIcon,
+      title: 'Brak pewności w decyzjach',
+      description: 'Czy ta paleta jest opłacalna? Czy nie przepłacam? Czy sprzedam te produkty? - te pytania męczą Cię przy każdym zakupie.'
+    },
+    {
+      icon: alertCircleIcon,
+      title: 'Konkurencja Cię wyprzedza',
+      description: 'Podczas gdy Ty analizujesz - inni kupują najlepsze palety. Brak szybkiej decyzji = stracona okazja.'
     }
   ]
   
@@ -38,15 +45,16 @@ export default function ProblemSection() {
             text-gray-900 
             mb-4
           ">
-            Znasz Ten Problem?
+            Znasz Ten <span className="text-[#dc2826]">Problem?</span>
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Handel paletami to gra na czas i ryzyko
+          <p className="text-lg md:text-xl text-gray-600 max-w-full mx-auto leading-relaxed">
+            Kupowanie palet to loteria. Jedne decyzje przynoszą zysk, inne - straty. A bez odpowiednich narzędzi - nie wiesz, które to będą. 
+            Tracisz 2-3 godziny na każdą analizę. Ręczne sprawdzanie cen, liczenie marż, analiza konkurencji - to wszystko zabiera mnóstwo czasu.
           </p>
         </motion.div>
         
         {/* Problems Grid */}
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
           {problems.map((problem, idx) => (
             <motion.div
               key={idx}
@@ -62,18 +70,18 @@ export default function ProblemSection() {
                 hover:border-red-200
                 hover:shadow-lg
                 transition-all duration-300
-                text-center
+                text-left
               "
             >
               {/* Icon */}
               <div className="
                 inline-flex items-center justify-center
-                w-16 h-16 md:w-20 md:h-20
-                rounded-2xl
-                bg-gradient-to-br from-red-50 to-orange-50
+                w-14 h-14
+                rounded-lg
+                bg-[#ffe2e2]
                 mb-5
               ">
-                <problem.icon className="w-8 h-8 md:w-10 md:h-10 text-red-600" />
+                <img src={problem.icon} alt="" className="w-7 h-7" />
               </div>
               
               {/* Title */}
@@ -100,11 +108,16 @@ export default function ProblemSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-center mt-12 md:mt-16"
+          className="text-center mt-12 md:mt-16 space-y-4"
         >
-          <p className="text-lg md:text-xl text-gray-700 font-medium">
-            Czy to nie brzmi znajomo? 
-            <span className="text-blue-600"> PalletAI rozwiązuje te problemy.</span>
+          <p className="text-xl md:text-2xl text-gray-700 font-bold">
+            Czy to nie brzmi znajomo?
+          </p>
+          <p className="text-lg md:text-xl text-gray-600">
+            Nie jesteś sam. Setki traderów boryka się z tym samym problemem każdego dnia.
+          </p>
+          <p className="text-lg md:text-xl text-[#4f39f6] font-bold">
+            PalletAI rozwiązuje te problemy.
           </p>
         </motion.div>
       </div>

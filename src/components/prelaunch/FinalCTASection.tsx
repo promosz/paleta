@@ -37,30 +37,30 @@ export default function FinalCTASection() {
   ]
   
   return (
-    <section className="relative py-20 md:py-32 bg-gradient-to-b from-blue-50 via-purple-50 to-blue-50 overflow-hidden">
+    <section className="relative py-20 md:py-32 bg-gradient-to-b from-indigo-50 via-violet-50 to-indigo-50 overflow-hidden">
       {/* Gradient Blobs - Largest */}
       <GradientBlob 
         size="xl" 
         position={{ top: '-30%', left: '-20%' }} 
-        color="blue"
+        color="indigo"
         opacity={0.15}
       />
       <GradientBlob 
         size="xl" 
         position={{ top: '-20%', right: '-20%' }} 
-        color="purple"
+        color="violet"
         opacity={0.15}
       />
       <GradientBlob 
         size="lg" 
         position={{ bottom: '-20%', left: '50%' }} 
-        color="pink"
+        color="fuchsia"
         opacity={0.12}
       />
       <GradientBlob 
         size="lg" 
         position={{ bottom: '-15%', right: '10%' }} 
-        color="teal"
+        color="purple"
         opacity={0.12}
       />
       
@@ -87,7 +87,7 @@ export default function FinalCTASection() {
               mb-4
             ">
               Nie Przegap Startu -{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#4f39f6] to-[#9810fa] bg-clip-text text-transparent">
                 Dołącz do Waitlist!
               </span>
             </h2>
@@ -132,10 +132,10 @@ export default function FinalCTASection() {
                   flex-shrink-0
                   w-10 h-10
                   rounded-lg
-                  bg-gradient-to-br from-blue-50 to-purple-50
+                  bg-gradient-to-br from-[#4f39f6]/10 to-[#9810fa]/10
                   flex items-center justify-center
                 ">
-                  <benefit.icon className="w-5 h-5 text-blue-600" />
+                  <benefit.icon className="w-5 h-5 text-[#4f39f6]" />
                 </div>
                 <div className="pt-1">
                   <p className="text-gray-700 text-sm md:text-base leading-relaxed">

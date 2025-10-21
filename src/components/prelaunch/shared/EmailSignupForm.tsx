@@ -127,6 +127,32 @@ export default function EmailSignupForm({
       onSubmit={handleSubmit}
       className={className}
     >
+      {/* RODO Checkbox - moved to top per Figma design */}
+      <div className="mb-3">
+        <label className="flex items-start gap-2 cursor-pointer group">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            disabled={formState === 'loading'}
+            className="
+              mt-0.5
+              w-4 h-4
+              rounded
+              border-2 border-gray-300
+              text-[#4f39f6]
+              focus:ring-2 focus:ring-[#4f39f6]
+              disabled:opacity-50
+              cursor-pointer
+            "
+            required
+          />
+          <span className="text-xs md:text-sm text-gray-600 group-hover:text-gray-900">
+            Zgadzam się na otrzymywanie informacji z premierą PalletAI (możesz wypisać się w każdym czasie)
+          </span>
+        </label>
+      </div>
+      
       <div className={`
         flex flex-col gap-3
         ${inline ? 'md:flex-row md:items-start' : ''}
@@ -153,7 +179,7 @@ export default function EmailSignupForm({
                 bg-white
                 text-gray-900
                 placeholder:text-gray-400
-                focus:border-blue-500 focus:ring-4 focus:ring-blue-100
+                focus:border-[#4f39f6] focus:ring-4 focus:ring-[#4f39f6]/10
                 transition-all duration-200
                 disabled:opacity-50 disabled:cursor-not-allowed
                 ${isLarge 
@@ -183,7 +209,7 @@ export default function EmailSignupForm({
                   bg-white
                   text-gray-900
                   placeholder:text-gray-400
-                  focus:border-blue-500 focus:ring-4 focus:ring-blue-100
+                  focus:border-[#4f39f6] focus:ring-4 focus:ring-[#4f39f6]/10
                   transition-all duration-200
                   disabled:opacity-50
                   text-sm md:text-base
@@ -202,7 +228,7 @@ export default function EmailSignupForm({
                   px-4 py-3
                   bg-white
                   text-gray-900
-                  focus:border-blue-500 focus:ring-4 focus:ring-blue-100
+                  focus:border-[#4f39f6] focus:ring-4 focus:ring-[#4f39f6]/10
                   transition-all duration-200
                   disabled:opacity-50
                   text-sm md:text-base
@@ -225,11 +251,11 @@ export default function EmailSignupForm({
           disabled={formState === 'loading' || !agreed}
           className={`
             ${inline ? 'md:flex-shrink-0' : 'w-full'}
-            bg-gradient-to-r from-blue-600 to-purple-600
+            bg-gradient-to-r from-[#4f39f6] to-[#9810fa]
             text-white
             font-semibold
             rounded-xl
-            hover:shadow-lg hover:shadow-purple-500/30
+            hover:shadow-lg hover:shadow-[#9810fa]/30
             hover:scale-[1.02]
             active:scale-[0.98]
             transition-all duration-200
@@ -254,32 +280,6 @@ export default function EmailSignupForm({
             </>
           )}
         </button>
-      </div>
-      
-      {/* RODO Checkbox */}
-      <div className="mt-3">
-        <label className="flex items-start gap-2 cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            disabled={formState === 'loading'}
-            className="
-              mt-0.5
-              w-4 h-4
-              rounded
-              border-2 border-gray-300
-              text-blue-600
-              focus:ring-2 focus:ring-blue-500
-              disabled:opacity-50
-              cursor-pointer
-            "
-            required
-          />
-          <span className="text-xs md:text-sm text-gray-600 group-hover:text-gray-900">
-            Zgadzam się na otrzymywanie informacji z premierą aplikacji
-          </span>
-        </label>
       </div>
       
       {/* Error Message */}

@@ -92,7 +92,7 @@ export default function PricingPreviewSection() {
             mb-4
           ">
             Prosty Cennik.{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-[#4f39f6]">
               Zero Ukrytych Kosztów
             </span>
           </h2>

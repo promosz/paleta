@@ -33,8 +33,8 @@ export default function TestimonialCard({
         border border-gray-200
         rounded-2xl
         p-6 md:p-8
-        hover:border-blue-200
-        hover:shadow-lg hover:shadow-blue-50
+        hover:border-[#4f39f6]/20
+        hover:shadow-lg hover:shadow-[#4f39f6]/10
         transition-all duration-300
         h-full
         flex flex-col
@@ -42,7 +42,7 @@ export default function TestimonialCard({
     >
       {/* Quote Icon */}
       <div className="flex items-start justify-between mb-4">
-        <Quote className="w-8 h-8 text-blue-200" />
+        <Quote className="w-8 h-8 text-[#4f39f6]/20" />
         
         {/* Star Rating */}
         <div className="flex gap-1">
@@ -72,7 +72,7 @@ export default function TestimonialCard({
         <div className="
           w-12 h-12 
           rounded-full 
-          bg-gradient-to-br from-blue-400 to-purple-500
+          bg-gradient-to-br from-[#4f39f6] to-[#9810fa]
           flex items-center justify-center
           text-white font-semibold
           text-lg
@@ -106,7 +106,7 @@ export default function TestimonialCard({
       <div className="
         absolute inset-0 
         rounded-2xl 
-        bg-gradient-to-br from-blue-500/0 via-transparent to-purple-500/0
+        bg-gradient-to-br from-[#4f39f6]/0 via-transparent to-[#9810fa]/0
         opacity-0 hover:opacity-100
         pointer-events-none
         transition-opacity duration-300
