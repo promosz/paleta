@@ -66,6 +66,9 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         this.animationFrame = null
         this.isMouseOver = false
         
+        // Resize debouncing
+        this.resizeTimeout = null
+        
         console.log('🔧 XRay: Inicjalizuję efekt')
         this.init()
       }
@@ -89,8 +92,27 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
           this.autoMove = true
         })
         
+        // Resize observer for better resize handling
+        if (window.ResizeObserver) {
+          const resizeObserver = new ResizeObserver(() => {
+            if (this.resizeTimeout) {
+              clearTimeout(this.resizeTimeout)
+            }
+            this.resizeTimeout = setTimeout(() => {
+              this.handleResize()
+            }, 50)
+          })
+          resizeObserver.observe(this.canvas.parentElement!)
+        }
+        
+        // Fallback to window resize
         window.addEventListener('resize', () => {
-          this.handleResize()
+          if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout)
+          }
+          this.resizeTimeout = setTimeout(() => {
+            this.handleResize()
+          }, 100)
         })
       }
       
@@ -134,13 +156,13 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         // Reset counter
         this.imagesLoaded = 0
         
-        // Fallback - tło gradientowe kwadratowe (1:1)
+        // Fallback - tło gradientowe kwadratowe (1:1) - wypełnia cały obszar
         const tempCanvas1 = document.createElement('canvas')
         tempCanvas1.width = 1024
         tempCanvas1.height = 1024
         const tempCtx1 = tempCanvas1.getContext('2d')!
         
-        // Gradient tła
+        // Gradient tła - wypełnia cały canvas
         const gradient1 = tempCtx1.createLinearGradient(0, 0, 1024, 1024)
         gradient1.addColorStop(0, '#4f39f6')
         gradient1.addColorStop(1, '#9810fa')
@@ -161,61 +183,61 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         tempCtx1.arc(100, 40, 12, 0, Math.PI * 2)
         tempCtx1.fill()
         
-        // Dashboard mockup - stats cards (proporcjonalnie przeskalowane)
+        // Dashboard mockup - stats cards (wypełniają więcej przestrzeni)
         tempCtx1.fillStyle = 'rgba(255, 255, 255, 0.2)'
-        tempCtx1.fillRect(100, 100, 190, 100)
-        tempCtx1.fillRect(310, 100, 190, 100)
-        tempCtx1.fillRect(520, 100, 190, 100)
+        tempCtx1.fillRect(80, 80, 200, 120)
+        tempCtx1.fillRect(300, 80, 200, 120)
+        tempCtx1.fillRect(520, 80, 200, 120)
         
-        // Progress bars
-        for (let i = 0; i < 7; i++) {
+        // Progress bars (więcej przestrzeni)
+        for (let i = 0; i < 8; i++) {
           tempCtx1.fillStyle = 'rgba(255, 255, 255, 0.1)'
-          tempCtx1.fillRect(100, 250 + i * 45, 620, 30)
+          tempCtx1.fillRect(80, 250 + i * 40, 640, 30)
           tempCtx1.fillStyle = 'rgba(124, 134, 255, 0.8)'
-          tempCtx1.fillRect(100, 250 + i * 45, 620 * (0.6 + Math.random() * 0.3), 30)
+          tempCtx1.fillRect(80, 250 + i * 40, 640 * (0.6 + Math.random() * 0.3), 30)
         }
         
         tempCtx1.fillStyle = 'white'
-        tempCtx1.font = 'bold 32px Inter'
+        tempCtx1.font = 'bold 36px Inter'
         tempCtx1.textAlign = 'center'
-        tempCtx1.fillText('Dashboard Preview', 512, 70)
+        tempCtx1.fillText('Dashboard Preview', 512, 60)
         
         this.backgroundImage = new Image()
         this.backgroundImage.onload = () => this.onImageLoad()
         this.backgroundImage.src = tempCanvas1.toDataURL()
         
-        // X-Ray fallback - kwadratowy (1:1)
+        // X-Ray fallback - kwadratowy (1:1) - wypełnia cały obszar
         const tempCanvas2 = document.createElement('canvas')
         tempCanvas2.width = 1024
         tempCanvas2.height = 1024
         const tempCtx2 = tempCanvas2.getContext('2d')!
         
-        // Tło X-Ray
+        // Tło X-Ray - wypełnia cały canvas
         tempCtx2.fillStyle = '#0a0a0a'
         tempCtx2.fillRect(0, 0, 1024, 1024)
         
-        // Świecące ramki (proporcjonalnie przeskalowane)
+        // Świecące ramki (więcej przestrzeni)
         tempCtx2.strokeStyle = '#00ffff'
         tempCtx2.lineWidth = 3
         tempCtx2.shadowColor = '#00ffff'
         tempCtx2.shadowBlur = 20
         
-        tempCtx2.strokeRect(100, 100, 190, 100)
-        tempCtx2.strokeRect(310, 100, 190, 100)
-        tempCtx2.strokeRect(520, 100, 190, 100)
+        tempCtx2.strokeRect(80, 80, 200, 120)
+        tempCtx2.strokeRect(300, 80, 200, 120)
+        tempCtx2.strokeRect(520, 80, 200, 120)
         
-        // Progress bars w X-ray
-        for (let i = 0; i < 7; i++) {
+        // Progress bars w X-ray (więcej przestrzeni)
+        for (let i = 0; i < 8; i++) {
           tempCtx2.strokeStyle = '#00ffff'
           tempCtx2.lineWidth = 2
-          tempCtx2.strokeRect(100, 250 + i * 45, 620, 30)
+          tempCtx2.strokeRect(80, 250 + i * 40, 640, 30)
         }
         
         tempCtx2.fillStyle = '#00ffff'
-        tempCtx2.font = 'bold 32px Inter'
+        tempCtx2.font = 'bold 36px Inter'
         tempCtx2.textAlign = 'center'
         tempCtx2.shadowBlur = 30
-        tempCtx2.fillText('X-RAY VIEW', 512, 70)
+        tempCtx2.fillText('X-RAY VIEW', 512, 60)
         tempCtx2.shadowBlur = 0
         
         this.xrayImage = new Image()
@@ -246,18 +268,18 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
           return
         }
         
-        // Pobierz wymiary kontenera
+        // Pobierz rzeczywiste wymiary kontenera
         const containerRect = wrapper.getBoundingClientRect()
-        const containerSize = Math.min(containerRect.width, containerRect.height) || 500
+        const containerWidth = containerRect.width || 500
         
-        // KWADRAT: wymuś identyczne wymiary
-        this.canvas.width = containerSize
-        this.canvas.height = containerSize
+        // KWADRAT: szerokość = wysokość
+        this.canvas.width = containerWidth
+        this.canvas.height = containerWidth
         
-        // Wymuś style CSS dla kwadratu
-        this.canvas.style.width = `${containerSize}px`
-        this.canvas.style.height = `${containerSize}px`
-        this.canvas.style.aspectRatio = '1/1'
+        // Ustaw style CSS - canvas wypełnia cały kontener
+        this.canvas.style.width = '100%'
+        this.canvas.style.height = '100%'
+        this.canvas.style.display = 'block'
         
         console.log(`📐 XRay: Canvas KWADRAT: ${this.canvas.width} x ${this.canvas.height}`)
         console.log(`📐 XRay: Container: ${containerRect.width} x ${containerRect.height}`)
@@ -268,6 +290,11 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         this.maskY = this.canvas.height / 2
         this.targetX = this.maskX
         this.targetY = this.maskY
+        
+        // Przerysuj animację po resize
+        if (this.backgroundImage && this.xrayImage) {
+          this.draw()
+        }
       }
       
       handleMouseMove(e: MouseEvent) {
@@ -301,27 +328,8 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         
-        // Obraz tła - center crop do kwadratu
-        const imgAspect = this.backgroundImage.width / this.backgroundImage.height
-        const canvasAspect = this.canvas.width / this.canvas.height
-        
-        let drawWidth, drawHeight, drawX, drawY
-        
-        if (imgAspect > canvasAspect) {
-          // Obraz szerszy niż canvas
-          drawHeight = this.canvas.height
-          drawWidth = drawHeight * imgAspect
-          drawX = (this.canvas.width - drawWidth) / 2
-          drawY = 0
-        } else {
-          // Obraz wyższy niż canvas lub równy
-          drawWidth = this.canvas.width
-          drawHeight = drawWidth / imgAspect
-          drawX = 0
-          drawY = (this.canvas.height - drawHeight) / 2
-        }
-        
-        this.ctx.drawImage(this.backgroundImage, drawX, drawY, drawWidth, drawHeight)
+        // Obraz tła - wypełnij cały canvas bez białych przestrzeni
+        this.ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height)
         
         // Zapisz stan
         this.ctx.save()
@@ -332,8 +340,8 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         this.ctx.closePath()
         this.ctx.clip()
         
-        // Obraz X-Ray w masce - center crop do kwadratu
-        this.ctx.drawImage(this.xrayImage, drawX, drawY, drawWidth, drawHeight)
+        // Obraz X-Ray w masce - wypełnij cały canvas
+        this.ctx.drawImage(this.xrayImage, 0, 0, this.canvas.width, this.canvas.height)
         
         // Przywróć stan
         this.ctx.restore()
@@ -382,6 +390,23 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         if (this.animationFrame) {
           cancelAnimationFrame(this.animationFrame)
         }
+        
+        // Clean up resize timeout
+        if (this.resizeTimeout) {
+          clearTimeout(this.resizeTimeout)
+        }
+        
+        // Clean up event listeners
+        this.canvas.removeEventListener('mousemove', (e) => this.handleMouseMove(e))
+        this.canvas.removeEventListener('mouseenter', () => {
+          this.isMouseOver = true
+          this.autoMove = false
+        })
+        this.canvas.removeEventListener('mouseleave', () => {
+          this.isMouseOver = false
+          this.autoMove = true
+        })
+        window.removeEventListener('resize', () => this.handleResize())
       }
     }
 
@@ -419,12 +444,6 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
         }}
       />
       
-      {/* Loading/Debug info - will be covered by canvas when it renders */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="text-white/30 text-sm">
-          X-Ray Animation Loading...
-        </div>
-      </div>
     </div>
   )
 }
