@@ -1,5 +1,5 @@
 // Pricing Preview Section for Pre-Launch Landing Page
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import PricingCard from './shared/PricingCard'
 

@@ -1,5 +1,5 @@
 // X-Ray Animation Component for Pre-Launch Hero Section
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface XRayAnimationProps {
   className?: string
@@ -37,6 +37,7 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
       imagesLoaded: number
       animationFrame: number | null
       isMouseOver: boolean
+      resizeTimeout: NodeJS.Timeout | null
 
       constructor(canvas: HTMLCanvasElement) {
         console.log('🔧 XRay: Tworzę instancję XRayEffect')

@@ -1,7 +1,7 @@
 // Pre-Launch Landing Page - PalletAI
 // Strona do zbierania emaili przed oficjalną premierą (Marzec 2025)
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import HeroSection from '../components/prelaunch/HeroSection'
 import ProblemSection from '../components/prelaunch/ProblemSection'
 import SolutionSection from '../components/prelaunch/SolutionSection'

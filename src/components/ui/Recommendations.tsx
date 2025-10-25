@@ -1,4 +1,4 @@
-import React from 'react'
+
 import type { ProductEvaluation, Recommendation } from '../../types/rules'
 import { Card, CardHeader, CardBody, StatusBadge } from './index'
 

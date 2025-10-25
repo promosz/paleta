@@ -1,5 +1,5 @@
 // Solution Section for Pre-Launch Landing Page
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import { Upload, Brain, BarChart3 } from 'lucide-react'
 

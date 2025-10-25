@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { useDropzone } from 'react-dropzone'
 import { Button } from '../ui'
 import { useFileAnalysis } from '../../hooks/useFileAnalysis'

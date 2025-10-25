@@ -1,5 +1,5 @@
 // FAQ Section for Pre-Launch Landing Page
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import { HelpCircle } from 'lucide-react'
 import FAQItem from './shared/FAQItem'

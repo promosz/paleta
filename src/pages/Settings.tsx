@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Card, CardHeader, CardBody, Input, Button } from '../components/ui'
 
 const Settings: React.FC = () => {

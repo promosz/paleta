@@ -1,5 +1,5 @@
 // Email Signup Form for Pre-Launch Waitlist
-import React, { useState, FormEvent } from 'react'
+import { useState, FormEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Loader, CheckCircle, AlertCircle, Sparkles } from 'lucide-react'
 import { addToWaitlist } from '../../../services/waitlistService'

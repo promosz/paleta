@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FileSpreadsheet, Settings, BarChart3, Info, LogIn, UserPlus } from 'lucide-react'
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useAuth } from '@clerk/clerk-react'

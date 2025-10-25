@@ -1,5 +1,5 @@
 // Feature Card for Pre-Launch page
-import React from 'react'
+
 import { motion } from 'framer-motion'
 import { LucideIcon } from 'lucide-react'
 

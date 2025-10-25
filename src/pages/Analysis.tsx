@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Card, CardHeader, CardBody } from '../components/ui'
 import { FileUploadZone } from '../components/upload'

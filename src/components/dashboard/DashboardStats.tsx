@@ -1,4 +1,4 @@
-import React from 'react'
+
 import type { DashboardStats as DashboardStatsType } from '../../types/analysis'
 import { Card, CardHeader, CardBody } from '../ui'
 

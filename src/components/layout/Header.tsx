@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { Link, useNavigate } from 'react-router-dom'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react'
 import { Button } from '../ui'
