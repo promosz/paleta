@@ -34,6 +34,7 @@ export default function FeatureCard({
         hover:border-[#4f39f6]/30
         hover:shadow-lg hover:shadow-[#4f39f6]/10
         transition-all duration-300
+        h-full flex flex-col
       "
     >
       {/* Icon */}
@@ -61,7 +62,7 @@ export default function FeatureCard({
       </h3>
       
       {/* Description */}
-      <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+      <p className="text-gray-600 text-sm md:text-base leading-relaxed flex-grow">
         {description}
       </p>
       

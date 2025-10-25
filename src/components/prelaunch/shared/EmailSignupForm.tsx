@@ -127,32 +127,6 @@ export default function EmailSignupForm({
       onSubmit={handleSubmit}
       className={className}
     >
-      {/* RODO Checkbox - moved to top per Figma design */}
-      <div className="mb-3">
-        <label className="flex items-start gap-2 cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            disabled={formState === 'loading'}
-            className="
-              mt-0.5
-              w-4 h-4
-              rounded
-              border-2 border-gray-300
-              text-[#4f39f6]
-              focus:ring-2 focus:ring-[#4f39f6]
-              disabled:opacity-50
-              cursor-pointer
-            "
-            required
-          />
-          <span className="text-xs md:text-sm text-gray-600 group-hover:text-gray-900">
-            Zgadzam się na otrzymywanie informacji z premierą PalletAI (możesz wypisać się w każdym czasie)
-          </span>
-        </label>
-      </div>
-      
       <div className={`
         flex flex-col gap-3
         ${inline ? 'md:flex-row md:items-start' : ''}
@@ -191,6 +165,35 @@ export default function EmailSignupForm({
             />
           </div>
           
+          {/* RODO Checkbox - positioned directly under email field (for Hero section) */}
+          {!showOptionalFields && (
+            <div className="mt-4 mb-3 w-full">
+              <label className="flex items-start gap-2 cursor-pointer group w-full">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  disabled={formState === 'loading'}
+                  className="
+                    mt-0.5
+                    w-4 h-4
+                    rounded
+                    border-2 border-gray-300
+                    text-[#4f39f6]
+                    focus:ring-2 focus:ring-[#4f39f6]
+                    disabled:opacity-50
+                    cursor-pointer
+                    flex-shrink-0
+                  "
+                  required
+                />
+                <span className="text-sm md:text-base text-gray-600 group-hover:text-gray-900 flex-1">
+                  Zgadzam się na otrzymywanie informacji z premierą PalletAI (możesz wypisać się w każdym czasie)
+                </span>
+              </label>
+            </div>
+          )}
+          
           {/* Optional Fields */}
           {showOptionalFields && (
             <div className="mt-3 space-y-3">
@@ -201,19 +204,22 @@ export default function EmailSignupForm({
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="Imię (opcjonalnie)"
                 disabled={formState === 'loading'}
-                className="
+                className={`
                   w-full
                   border-2 border-gray-200
                   rounded-xl
-                  px-4 py-3
+                  px-4
                   bg-white
                   text-gray-900
                   placeholder:text-gray-400
                   focus:border-[#4f39f6] focus:ring-4 focus:ring-[#4f39f6]/10
                   transition-all duration-200
                   disabled:opacity-50
-                  text-sm md:text-base
-                "
+                  ${isLarge 
+                    ? 'py-4 text-base md:text-lg' 
+                    : 'py-3 text-sm md:text-base'
+                  }
+                `}
               />
               
               {/* Business Type */}
@@ -221,18 +227,21 @@ export default function EmailSignupForm({
                 value={businessType}
                 onChange={(e) => setBusinessType(e.target.value as BusinessType)}
                 disabled={formState === 'loading'}
-                className="
+                className={`
                   w-full
                   border-2 border-gray-200
                   rounded-xl
-                  px-4 py-3
+                  px-4
                   bg-white
                   text-gray-900
                   focus:border-[#4f39f6] focus:ring-4 focus:ring-[#4f39f6]/10
                   transition-all duration-200
                   disabled:opacity-50
-                  text-sm md:text-base
-                "
+                  ${isLarge 
+                    ? 'py-4 text-base md:text-lg' 
+                    : 'py-3 text-sm md:text-base'
+                  }
+                `}
               >
                 <option value="">Rodzaj biznesu (opcjonalnie)</option>
                 <option value="trader_palet">Trader palet</option>
@@ -241,6 +250,32 @@ export default function EmailSignupForm({
                 <option value="hurtownia">Hurtownia</option>
                 <option value="inne">Inne</option>
               </select>
+              
+              {/* RODO Checkbox - positioned after all inputs, before button */}
+              <div className="mb-3">
+                <label className="flex items-start gap-2 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    disabled={formState === 'loading'}
+                    className="
+                      mt-0.5
+                      w-4 h-4
+                      rounded
+                      border-2 border-gray-300
+                      text-[#4f39f6]
+                      focus:ring-2 focus:ring-[#4f39f6]
+                      disabled:opacity-50
+                      cursor-pointer
+                    "
+                    required
+                  />
+                  <span className="text-sm md:text-base text-gray-600 group-hover:text-gray-900">
+                    Zgadzam się na otrzymywanie informacji z premierą PalletAI (możesz wypisać się w każdym czasie)
+                  </span>
+                </label>
+              </div>
             </div>
           )}
         </div>
@@ -306,10 +341,6 @@ export default function EmailSignupForm({
         )}
       </AnimatePresence>
       
-      {/* Trust Badge */}
-      <p className="mt-3 text-xs text-gray-500 text-center md:text-left">
-        🔒 Twój email jest bezpieczny. Nigdy nie udostępnimy go osobom trzecim.
-      </p>
     </form>
   )
 }

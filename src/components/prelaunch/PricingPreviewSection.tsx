@@ -1,6 +1,5 @@
 // Pricing Preview Section for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import { DollarSign, Check } from 'lucide-react'
 import PricingCard from './shared/PricingCard'
 
 export default function PricingPreviewSection() {
@@ -71,7 +70,7 @@ export default function PricingPreviewSection() {
   ]
   
   return (
-    <section className="relative py-16 md:py-24 bg-white">
+    <section id="pricing-section" className="relative py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
         {/* Section Header */}
         <motion.div
@@ -81,10 +80,6 @@ export default function PricingPreviewSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 md:mb-16"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-green-50 mb-6">
-            <DollarSign className="w-8 h-8 text-green-600" />
-          </div>
-          
           <h2 className="
             text-3xl md:text-4xl lg:text-5xl 
             font-bold 
@@ -96,31 +91,9 @@ export default function PricingPreviewSection() {
               Zero Ukrytych Kosztów
             </span>
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-6">
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
             Wybierz plan dopasowany do Twoich potrzeb
           </p>
-          
-          {/* Waitlist Bonus */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="
-              inline-flex
-              items-center
-              gap-2
-              px-6 py-3
-              bg-gradient-to-r from-green-50 to-emerald-50
-              border-2 border-green-200
-              rounded-full
-            "
-          >
-            <Check className="w-5 h-5 text-green-600" />
-            <span className="font-semibold text-green-700">
-              🎁 Waitlist = 3 miesiące PRO gratis (wartość 297 zł)
-            </span>
-          </motion.div>
         </motion.div>
         
         {/* Pricing Cards */}
