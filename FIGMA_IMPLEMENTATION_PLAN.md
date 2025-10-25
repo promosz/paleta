@@ -528,3 +528,4 @@ Jeśli napotkasz problemy:
 *Utworzono: 20 października 2025*  
 *Wersja: 1.0*
 
+

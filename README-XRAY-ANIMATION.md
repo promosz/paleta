@@ -75,3 +75,4 @@ Jeśli obrazy z Figma nie zostaną załadowane, animacja automatycznie użyje wy
 Aby osadzić animację na stronie internetowej, skopiuj zawartość pliku `xray-effect-test.html` do swojego projektu i dostosuj ścieżki do obrazów.
 
 
+

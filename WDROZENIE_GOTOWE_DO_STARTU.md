@@ -364,3 +364,4 @@ Po otrzymaniu informacji:
 *Status: Oczekuje na input*
 
 
+

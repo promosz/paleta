@@ -9,7 +9,7 @@ import sparklesIcon from '../../assets/figma-icons/sparkles-icon.svg'
 import checkIcon from '../../assets/figma-icons/check-icon.svg'
 import targetIcon from '../../assets/figma-icons/target-icon.svg'
 import shieldIcon from '../../assets/figma-icons/shield-icon.svg'
-import aiAnalyzingIcon from '../../assets/figma-icons/ai-analyzing-icon.svg'
+import XRayAnimation from './shared/XRayAnimation'
 
 export default function HeroSection() {
   const [waitlistCount, setWaitlistCount] = useState(500)
@@ -178,72 +178,17 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="relative hidden lg:block"
           >
-            {/* Dashboard Preview Mockup */}
+            {/* X-Ray Animation */}
             <div className="
               relative
-              bg-white
               rounded-2xl
               shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]
-              border border-gray-200
-              overflow-hidden
-              transform rotate-2 hover:rotate-0
+              transform hover:scale-[1.02]
               transition-transform duration-500
+              w-full
+              aspect-square
             ">
-              {/* Mockup Header */}
-              <div className="bg-gradient-to-br from-[#4f39f6] to-[#9810fa] p-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#ff6467]" />
-                  <div className="w-3 h-3 rounded-full bg-[#fdc700]" />
-                  <div className="w-3 h-3 rounded-full bg-[#05df72]" />
-                </div>
-              </div>
-              
-              {/* Mockup Content */}
-              <div className="p-6 space-y-4">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-white/20 rounded-lg p-3 text-center">
-                    <div className="text-3xl font-normal text-white">127</div>
-                    <div className="text-xs text-white/70">produkty</div>
-                  </div>
-                  <div className="bg-white/20 rounded-lg p-3 text-center">
-                    <div className="text-3xl font-normal text-[#7bf1a8]">78%</div>
-                    <div className="text-xs text-white/70">rentowność</div>
-                  </div>
-                  <div className="bg-white/20 rounded-lg p-3 text-center">
-                    <div className="text-3xl font-normal text-[#ffb86a]">3</div>
-                    <div className="text-xs text-white/70">ostrzeżenia</div>
-                  </div>
-                </div>
-                
-                {/* Chart Placeholder - Progress bars */}
-                <div className="space-y-2">
-                  {[60, 85, 95, 70, 80, 90, 75].map((width, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="flex-1 bg-white/10 rounded-full h-6 overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${width}%` }}
-                          transition={{ duration: 1, delay: 1 + idx * 0.1 }}
-                          className="h-full bg-gradient-to-r from-[#7c86ff] to-[#c27aff] rounded-full"
-                        />
-                      </div>
-                      <div className="bg-[rgba(123,241,168,0.3)] rounded px-3 py-1 text-xs text-white">
-                        OK
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-              </div>
-              
-              {/* AI Analyzing Badge at bottom */}
-              <div className="absolute bottom-6 left-6 bg-white/20 border border-white/30 rounded-lg px-4 py-2 flex items-center gap-2">
-                <img src={aiAnalyzingIcon} alt="" className="w-3 h-3" />
-                <span className="text-xs font-medium text-white">
-                  AI Analyzing...
-                </span>
-              </div>
+              <XRayAnimation className="w-full h-full" />
             </div>
           </motion.div>
         </div>
