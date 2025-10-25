@@ -1,95 +1,104 @@
 {
-  "hash": "10c37c54",
-  "browserHash": "b4365987",
+  "hash": "5ccaad86",
+  "browserHash": "c7133879",
   "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "29b3e016",
+      "needsInterop": true
+    },
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "c0955669",
+      "fileHash": "2e5dba14",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "8c894df6",
+      "fileHash": "05eeac5b",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.js",
       "file": "react-router-dom.js",
-      "fileHash": "c83bfd96",
-      "needsInterop": false
-    },
-    "lucide-react": {
-      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.mjs",
-      "file": "lucide-react.js",
-      "fileHash": "a3b0133b",
-      "needsInterop": false
-    },
-    "xlsx": {
-      "src": "../../node_modules/xlsx/xlsx.mjs",
-      "file": "xlsx.js",
-      "fileHash": "5a829dd7",
+      "fileHash": "5b903152",
       "needsInterop": false
     },
     "@clerk/clerk-react": {
       "src": "../../node_modules/@clerk/clerk-react/dist/index.mjs",
       "file": "@clerk_clerk-react.js",
-      "fileHash": "5d5f3db1",
+      "fileHash": "cad94854",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.mjs",
+      "file": "lucide-react.js",
+      "fileHash": "904a41b5",
       "needsInterop": false
     },
     "zustand": {
       "src": "../../node_modules/zustand/esm/index.mjs",
       "file": "zustand.js",
-      "fileHash": "6c8a685c",
+      "fileHash": "e2e2fe6f",
       "needsInterop": false
     },
     "framer-motion": {
       "src": "../../node_modules/framer-motion/dist/es/index.mjs",
       "file": "framer-motion.js",
-      "fileHash": "bef4f41c",
+      "fileHash": "2324b1e6",
       "needsInterop": false
     },
     "@supabase/supabase-js": {
       "src": "../../node_modules/@supabase/supabase-js/dist/module/index.js",
       "file": "@supabase_supabase-js.js",
-      "fileHash": "a9892385",
+      "fileHash": "b4a375dd",
       "needsInterop": false
     },
     "react-dropzone": {
       "src": "../../node_modules/react-dropzone/dist/es/index.js",
       "file": "react-dropzone.js",
-      "fileHash": "a12bf0d7",
+      "fileHash": "9d448064",
       "needsInterop": false
     },
     "react-hook-form": {
       "src": "../../node_modules/react-hook-form/dist/index.esm.mjs",
       "file": "react-hook-form.js",
-      "fileHash": "0f1e538d",
+      "fileHash": "f8d5d8d2",
+      "needsInterop": false
+    },
+    "xlsx": {
+      "src": "../../node_modules/xlsx/xlsx.mjs",
+      "file": "xlsx.js",
+      "fileHash": "85572a7b",
       "needsInterop": false
     },
     "papaparse": {
       "src": "../../node_modules/papaparse/papaparse.min.js",
       "file": "papaparse.js",
-      "fileHash": "6bd409dc",
+      "fileHash": "afab3044",
       "needsInterop": true
     },
     "pdfjs-dist": {
       "src": "../../node_modules/pdfjs-dist/build/pdf.mjs",
       "file": "pdfjs-dist.js",
-      "fileHash": "64b52918",
+      "fileHash": "776769f2",
       "needsInterop": false
     }
   },
   "chunks": {
+    "chunk-GHGPRMHL": {
+      "file": "chunk-GHGPRMHL.js"
+    },
     "browser-TICNBKVD": {
       "file": "browser-TICNBKVD.js"
     },
-    "chunk-HP7HJCJQ": {
-      "file": "chunk-HP7HJCJQ.js"
-    },
     "chunk-6G5ALQLW": {
       "file": "chunk-6G5ALQLW.js"
+    },
+    "chunk-HP7HJCJQ": {
+      "file": "chunk-HP7HJCJQ.js"
     },
     "chunk-CICXP2UH": {
       "file": "chunk-CICXP2UH.js"

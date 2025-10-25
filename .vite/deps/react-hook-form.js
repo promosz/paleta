@@ -546,7 +546,7 @@ function markFieldsDirty(data, fields = {}) {
     if (isTraversable(data[key])) {
       fields[key] = Array.isArray(data[key]) ? [] : {};
       markFieldsDirty(data[key], fields[key]);
-    } else if (!isNullOrUndefined(data[key])) {
+    } else if (!isUndefined(data[key])) {
       fields[key] = true;
     }
   }
@@ -1806,7 +1806,7 @@ function useFieldArray(props) {
   const ids = import_react.default.useRef(control._getFieldArray(name).map(generateId));
   const _actioned = import_react.default.useRef(false);
   control._names.array.add(name);
-  import_react.default.useMemo(() => rules && control.register(name, rules), [control, rules, name]);
+  import_react.default.useMemo(() => rules && fields.length >= 0 && control.register(name, rules), [control, name, fields.length, rules]);
   useIsomorphicLayoutEffect(() => control._subjects.array.subscribe({
     next: ({ values, name: fieldArrayName }) => {
       if (fieldArrayName === name || !fieldArrayName) {
@@ -2082,10 +2082,12 @@ function useForm(props = {}) {
   _formControl.current.formState = getProxyFormState(formState, control);
   return _formControl.current;
 }
+var Watch = ({ control, names, render }) => render(useWatch({ control, name: names }));
 export {
   Controller,
   Form,
   FormProvider,
+  Watch,
   appendErrors,
   createFormControl,
   get,

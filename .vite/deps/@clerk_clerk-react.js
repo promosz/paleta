@@ -87,7 +87,123 @@ var require_shim = __commonJS({
   }
 });
 
-// node_modules/@clerk/shared/dist/chunk-GSZMPWPY.mjs
+// node_modules/@clerk/shared/dist/chunk-AXHU6TXE.mjs
+function createErrorTypeGuard(ErrorClass) {
+  function typeGuard(error) {
+    const target = error ?? this;
+    if (!target) {
+      throw new TypeError(`${ErrorClass.kind || ErrorClass.name} type guard requires an error object`);
+    }
+    return target instanceof ErrorClass;
+  }
+  return typeGuard;
+}
+var _a;
+var ClerkAPIError = (_a = class {
+  constructor(json) {
+    __publicField(this, "code");
+    __publicField(this, "message");
+    __publicField(this, "longMessage");
+    __publicField(this, "meta");
+    const parsedError = this.parseJsonError(json);
+    this.code = parsedError.code;
+    this.message = parsedError.message;
+    this.longMessage = parsedError.longMessage;
+    this.meta = parsedError.meta;
+  }
+  parseJsonError(json) {
+    var _a5, _b, _c, _d, _e, _f, _g;
+    return {
+      code: json.code,
+      message: json.message,
+      longMessage: json.long_message,
+      meta: {
+        paramName: (_a5 = json.meta) == null ? void 0 : _a5.param_name,
+        sessionId: (_b = json.meta) == null ? void 0 : _b.session_id,
+        emailAddresses: (_c = json.meta) == null ? void 0 : _c.email_addresses,
+        identifiers: (_d = json.meta) == null ? void 0 : _d.identifiers,
+        zxcvbn: (_e = json.meta) == null ? void 0 : _e.zxcvbn,
+        plan: (_f = json.meta) == null ? void 0 : _f.plan,
+        isPlanUpgradePossible: (_g = json.meta) == null ? void 0 : _g.is_plan_upgrade_possible
+      }
+    };
+  }
+}, __publicField(_a, "kind", "ClerkApiError"), _a);
+var isClerkApiError = createErrorTypeGuard(ClerkAPIError);
+var __DEV__ = true;
+var _a2;
+var ClerkError = (_a2 = class extends Error {
+  constructor(opts) {
+    super(new.target.formatMessage(new.target.kind, opts.message, opts.code, opts.docsUrl), { cause: opts.cause });
+    __publicField(this, "clerkError", true);
+    __publicField(this, "code");
+    __publicField(this, "longMessage");
+    __publicField(this, "docsUrl");
+    __publicField(this, "cause");
+    Object.setPrototypeOf(this, _a2.prototype);
+    this.code = opts.code;
+    this.docsUrl = opts.docsUrl;
+    this.longMessage = opts.longMessage;
+    this.cause = opts.cause;
+  }
+  get name() {
+    return this.constructor.name;
+  }
+  toString() {
+    return `[${this.name}]
+Message:${this.message}`;
+  }
+  static formatMessage(name, msg, code, docsUrl) {
+    const prefix = "Clerk:";
+    const regex = new RegExp(prefix.replace(" ", "\\s*"), "i");
+    msg = msg.replace(regex, "");
+    msg = `${prefix} ${msg.trim()}
+
+(code="${code}")
+
+`;
+    if (__DEV__ && docsUrl) {
+      msg += `
+
+Docs: ${docsUrl}`;
+    }
+    return msg;
+  }
+}, __publicField(_a2, "kind", "ClerkError"), _a2);
+var _a3;
+var ClerkAPIResponseError = (_a3 = class extends ClerkError {
+  constructor(message, options) {
+    const { data: errorsJson, status, clerkTraceId, retryAfter } = options;
+    super({ ...options, message, code: "api_response_error" });
+    __publicField(this, "status");
+    __publicField(this, "clerkTraceId");
+    __publicField(this, "retryAfter");
+    __publicField(this, "errors");
+    Object.setPrototypeOf(this, _a3.prototype);
+    this.status = status;
+    this.clerkTraceId = clerkTraceId;
+    this.retryAfter = retryAfter;
+    this.errors = (errorsJson || []).map((e) => new ClerkAPIError(e));
+  }
+  toString() {
+    let message = `[${this.name}]
+Message:${this.message}
+Status:${this.status}
+Serialized errors: ${this.errors.map(
+      (e) => JSON.stringify(e)
+    )}`;
+    if (this.clerkTraceId) {
+      message += `
+Clerk Trace ID: ${this.clerkTraceId}`;
+    }
+    return message;
+  }
+  // Override formatMessage to keep it unformatted for backward compatibility
+  static formatMessage(name, msg, _, __) {
+    return msg;
+  }
+}, __publicField(_a3, "kind", "ClerkAPIResponseError"), _a3);
+var isClerkApiResponseError = createErrorTypeGuard(ClerkAPIResponseError);
 var DefaultMessages = Object.freeze({
   InvalidProxyUrlErrorMessage: `The proxyUrl passed to Clerk is invalid. The expected value for proxyUrl is an absolute URL or a relative path with a leading '/'. (key={{url}})`,
   InvalidPublishableKeyErrorMessage: `The publishableKey passed to Clerk is invalid. You can get your Publishable key at https://dashboard.clerk.com/last-active?path=api-keys. (key={{key}})`,
@@ -144,46 +260,18 @@ function buildErrorThrower({ packageName, customMessages }) {
     }
   };
 }
-var ClerkRuntimeError = class _ClerkRuntimeError extends Error {
-  constructor(message, { code, cause }) {
-    const prefix = "🔒 Clerk:";
-    const regex = new RegExp(prefix.replace(" ", "\\s*"), "i");
-    const sanitized = message.replace(regex, "");
-    const _message = `${prefix} ${sanitized.trim()}
-
-(code="${code}")
-`;
-    super(_message);
-    __publicField(this, "clerkRuntimeError");
+var _a4;
+var ClerkRuntimeError = (_a4 = class extends ClerkError {
+  constructor(message, options) {
+    super({ ...options, message });
     /**
-     * The error message in english, it contains a detailed description of the error.
+     * @deprecated Use `clerkError` property instead. This property is maintained for backward compatibility.
      */
-    __publicField(this, "message");
-    /**
-     * A unique code identifying the error, can be used for localization.
-     */
-    __publicField(this, "code");
-    /**
-     * The original error that was caught to throw an instance of ClerkRuntimeError.
-     */
-    __publicField(this, "cause");
-    /**
-     * Returns a string representation of the error.
-     *
-     * @returns A formatted string with the error name and message.
-     */
-    __publicField(this, "toString", () => {
-      return `[${this.name}]
-Message:${this.message}`;
-    });
-    Object.setPrototypeOf(this, _ClerkRuntimeError.prototype);
-    this.cause = cause;
-    this.code = code;
-    this.message = _message;
-    this.clerkRuntimeError = true;
-    this.name = "ClerkRuntimeError";
+    __publicField(this, "clerkRuntimeError", true);
+    Object.setPrototypeOf(this, _a4.prototype);
   }
-};
+}, __publicField(_a4, "kind", "ClerkRuntimeError"), _a4);
+var isClerkRuntimeError = createErrorTypeGuard(ClerkRuntimeError);
 function isClerkAPIResponseError(err) {
   return err && "clerkError" in err;
 }
@@ -601,7 +689,7 @@ function eventMethodCalled(method, payload) {
 }
 
 // node_modules/@clerk/clerk-react/dist/chunk-XIVXL4LQ.mjs
-var import_react17 = __toESM(require_react(), 1);
+var import_react18 = __toESM(require_react(), 1);
 
 // node_modules/@clerk/shared/dist/chunk-IBXKDGSZ.mjs
 function getCurrentOrganizationMembership(organizationMemberships, organizationId) {
@@ -637,8 +725,8 @@ var reverificationError = (missingConfig) => ({
   }
 });
 var isReverificationHint = (result) => {
-  var _a, _b;
-  return result && typeof result === "object" && "clerk_error" in result && ((_a = result.clerk_error) == null ? void 0 : _a.type) === "forbidden" && ((_b = result.clerk_error) == null ? void 0 : _b.reason) === REVERIFICATION_REASON;
+  var _a5, _b;
+  return result && typeof result === "object" && "clerk_error" in result && ((_a5 = result.clerk_error) == null ? void 0 : _a5.type) === "forbidden" && ((_b = result.clerk_error) == null ? void 0 : _b.reason) === REVERIFICATION_REASON;
 };
 
 // node_modules/@clerk/shared/dist/react/index.mjs
@@ -2005,6 +2093,7 @@ var useSWRInfinite = withMiddleware(useSWR, infinite);
 // node_modules/@clerk/shared/dist/react/index.mjs
 var import_react8 = __toESM(require_react(), 1);
 var import_react9 = __toESM(require_react(), 1);
+var import_react10 = __toESM(require_react(), 1);
 
 // node_modules/dequal/dist/index.mjs
 var has2 = Object.prototype.hasOwnProperty;
@@ -2095,11 +2184,11 @@ function dequal2(foo, bar) {
 }
 
 // node_modules/@clerk/shared/dist/react/index.mjs
-var import_react10 = __toESM(require_react(), 1);
 var import_react11 = __toESM(require_react(), 1);
 var import_react12 = __toESM(require_react(), 1);
 var import_react13 = __toESM(require_react(), 1);
 var import_react14 = __toESM(require_react(), 1);
+var import_react15 = __toESM(require_react(), 1);
 
 // node_modules/swr/dist/mutation/index.mjs
 var import_react5 = __toESM(require_react(), 1);
@@ -2244,8 +2333,8 @@ var mutation = () => (key, fetcher, config = {}) => {
 var useSWRMutation = withMiddleware(useSWR, mutation);
 
 // node_modules/@clerk/shared/dist/react/index.mjs
-var import_react15 = __toESM(require_react(), 1);
 var import_react16 = __toESM(require_react(), 1);
+var import_react17 = __toESM(require_react(), 1);
 function assertContextExists(contextVal, msgOrCtx) {
   if (!contextVal) {
     throw typeof msgOrCtx === "string" ? new Error(msgOrCtx) : new Error(`${msgOrCtx.displayName} not found`);
@@ -2317,6 +2406,15 @@ Learn more: https://clerk.com/docs/components/clerk-provider`.trim()
     );
   }
 }
+function usePreviousValue(value) {
+  const currentRef = (0, import_react9.useRef)(value);
+  const previousRef = (0, import_react9.useRef)(null);
+  if (currentRef.current !== value) {
+    previousRef.current = currentRef.current;
+    currentRef.current = value;
+  }
+  return previousRef.current;
+}
 function getDifferentKeys(obj1, obj2) {
   const keysSet = new Set(Object.keys(obj2));
   const differentKeysObject = {};
@@ -2362,8 +2460,9 @@ var usePagesOrInfinite = (params, fetcher, config, cacheKeys) => {
     initialPage: paginatedPage,
     pageSize: pageSizeRef.current
   };
+  const previousIsSignedIn = usePreviousValue(isSignedIn);
   const shouldFetch = !triggerInfinite && enabled && (!cacheMode ? !!fetcher : true);
-  const swrKey = isSignedIn ? pagesCacheKey : shouldFetch ? pagesCacheKey : null;
+  const swrKey = typeof isSignedIn === "boolean" ? previousIsSignedIn === true && isSignedIn === false ? pagesCacheKey : isSignedIn ? shouldFetch ? pagesCacheKey : null : null : shouldFetch ? pagesCacheKey : null;
   const swrFetcher = !cacheMode && !!fetcher ? (cacheKeyParams) => {
     if (isSignedIn === false || shouldFetch === false) {
       return null;
@@ -2388,7 +2487,7 @@ var usePagesOrInfinite = (params, fetcher, config, cacheKeys) => {
     mutate: swrInfiniteMutate
   } = useSWRInfinite(
     (pageIndex) => {
-      if (!triggerInfinite || !enabled) {
+      if (!triggerInfinite || !enabled || isSignedIn === false) {
         return null;
       }
       return {
@@ -2418,7 +2517,7 @@ var usePagesOrInfinite = (params, fetcher, config, cacheKeys) => {
       }
       return setPaginatedPage(numberOrgFn);
     },
-    [setSize]
+    [setSize, triggerInfinite]
   );
   const data = (0, import_react8.useMemo)(() => {
     if (triggerInfinite) {
@@ -2427,9 +2526,9 @@ var usePagesOrInfinite = (params, fetcher, config, cacheKeys) => {
     return (swrData == null ? void 0 : swrData.data) ?? [];
   }, [triggerInfinite, swrData, swrInfiniteData]);
   const count = (0, import_react8.useMemo)(() => {
-    var _a;
+    var _a5;
     if (triggerInfinite) {
-      return ((_a = swrInfiniteData == null ? void 0 : swrInfiniteData[(swrInfiniteData == null ? void 0 : swrInfiniteData.length) - 1]) == null ? void 0 : _a.total_count) || 0;
+      return ((_a5 = swrInfiniteData == null ? void 0 : swrInfiniteData[(swrInfiniteData == null ? void 0 : swrInfiniteData.length) - 1]) == null ? void 0 : _a5.total_count) || 0;
     }
     return (swrData == null ? void 0 : swrData.total_count) ?? 0;
   }, [triggerInfinite, swrData, swrInfiniteData]);
@@ -2491,7 +2590,7 @@ var undefinedPaginatedResource = {
   setData: void 0
 };
 function useOrganization(params) {
-  var _a;
+  var _a5;
   const {
     domains: domainListParams,
     membershipRequests: membershipRequestsListParams,
@@ -2531,7 +2630,7 @@ function useOrganization(params) {
     infinite: false
   });
   const clerk = useClerkInstanceContext();
-  (_a = clerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled("useOrganization"));
+  (_a5 = clerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled("useOrganization"));
   const domainParams = typeof domainListParams === "undefined" ? void 0 : {
     initialPage: domainSafeValues.initialPage,
     pageSize: domainSafeValues.pageSize,
@@ -2674,7 +2773,7 @@ var undefinedPaginatedResource2 = {
   setData: void 0
 };
 function useOrganizationList(params) {
-  var _a;
+  var _a5;
   const { userMemberships, userInvitations, userSuggestions } = params || {};
   useAssertWrappedByClerkProvider("useOrganizationList");
   const userMembershipsSafeValues = useWithSafeValues(userMemberships, {
@@ -2699,7 +2798,7 @@ function useOrganizationList(params) {
   });
   const clerk = useClerkInstanceContext();
   const user = useUserContext();
-  (_a = clerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled("useOrganizationList"));
+  (_a5 = clerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled("useOrganizationList"));
   const userMembershipsParams = typeof userMemberships === "undefined" ? void 0 : {
     initialPage: userMembershipsSafeValues.initialPage,
     pageSize: userMembershipsSafeValues.pageSize
@@ -2777,14 +2876,14 @@ function useOrganizationList(params) {
     userSuggestions: suggestions
   };
 }
-var useSafeLayoutEffect = typeof window !== "undefined" ? import_react9.default.useLayoutEffect : import_react9.default.useEffect;
+var useSafeLayoutEffect = typeof window !== "undefined" ? import_react10.default.useLayoutEffect : import_react10.default.useEffect;
 var hookName = `useSession`;
 var useSession = () => {
-  var _a;
+  var _a5;
   useAssertWrappedByClerkProvider(hookName);
   const session = useSessionContext();
   const clerk = useClerkInstanceContext();
-  (_a = clerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled(hookName));
+  (_a5 = clerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled(hookName));
   if (session === void 0) {
     return { isLoaded: false, isSignedIn: void 0, session: void 0 };
   }
@@ -2795,12 +2894,12 @@ var useSession = () => {
 };
 var hookName2 = "useSessionList";
 var useSessionList = () => {
-  var _a;
+  var _a5;
   useAssertWrappedByClerkProvider(hookName2);
   const isomorphicClerk = useClerkInstanceContext();
   const client = useClientContext();
   const clerk = useClerkInstanceContext();
-  (_a = clerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled(hookName2));
+  (_a5 = clerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled(hookName2));
   if (!client) {
     return { isLoaded: false, sessions: void 0, setActive: void 0 };
   }
@@ -2812,11 +2911,11 @@ var useSessionList = () => {
 };
 var hookName3 = "useUser";
 function useUser() {
-  var _a;
+  var _a5;
   useAssertWrappedByClerkProvider(hookName3);
   const user = useUserContext();
   const clerk = useClerkInstanceContext();
-  (_a = clerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled(hookName3));
+  (_a5 = clerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled(hookName3));
   if (user === void 0) {
     return { isLoaded: false, isSignedIn: void 0, user: void 0 };
   }
@@ -2848,11 +2947,11 @@ async function resolveResult(result) {
 function createReverificationHandler(params) {
   function assertReverification(fetcher) {
     return async (...args) => {
-      var _a, _b;
+      var _a5, _b;
       let result = await resolveResult(fetcher(...args));
       if (isReverificationHint(result)) {
         const resolvers = createDeferredPromise();
-        const isValidMetadata = validateReverificationConfig((_a = result.clerk_error.metadata) == null ? void 0 : _a.reverification);
+        const isValidMetadata = validateReverificationConfig((_a5 = result.clerk_error.metadata) == null ? void 0 : _a5.reverification);
         const level = isValidMetadata ? isValidMetadata().level : void 0;
         const cancel = () => {
           resolvers.reject(
@@ -2887,8 +2986,8 @@ function createReverificationHandler(params) {
 }
 var useReverification = (fetcher, options) => {
   const { __internal_openReverification, telemetry } = useClerk();
-  const fetcherRef = (0, import_react11.useRef)(fetcher);
-  const optionsRef = (0, import_react11.useRef)(options);
+  const fetcherRef = (0, import_react12.useRef)(fetcher);
+  const optionsRef = (0, import_react12.useRef)(options);
   telemetry == null ? void 0 : telemetry.record(
     eventMethodCalled("useReverification", {
       onNeedsReverification: Boolean(options == null ? void 0 : options.onNeedsReverification)
@@ -2898,7 +2997,7 @@ var useReverification = (fetcher, options) => {
     fetcherRef.current = fetcher;
     optionsRef.current = options;
   });
-  return (0, import_react11.useCallback)(
+  return (0, import_react12.useCallback)(
     (...args) => {
       const handler = createReverificationHandler({
         openUIComponent: __internal_openReverification,
@@ -2917,7 +3016,7 @@ function createBillingPaginatedHook({
   options
 }) {
   return function useBillingHook(params) {
-    var _a;
+    var _a5;
     const { for: _for, ...paginationParams } = params || {};
     useAssertWrappedByClerkProvider(hookName5);
     const fetchFn = useFetcher(_for || "user");
@@ -2932,11 +3031,11 @@ function createBillingPaginatedHook({
     const environment = clerk.__unstable__environment;
     const user = useUserContext();
     const { organization } = useOrganizationContext();
-    (_a = clerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled(hookName5));
+    (_a5 = clerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled(hookName5));
     const hookParams = typeof paginationParams === "undefined" ? void 0 : {
       initialPage: safeValues.initialPage,
       pageSize: safeValues.pageSize,
-      ..._for === "organization" ? { orgId: organization == null ? void 0 : organization.id } : {}
+      ...(options == null ? void 0 : options.unauthenticated) ? {} : _for === "organization" ? { orgId: organization == null ? void 0 : organization.id } : {}
     };
     const isOrganization = _for === "organization";
     const billingEnabled = isOrganization ? environment == null ? void 0 : environment.commerceSettings.billing.organization.enabled : environment == null ? void 0 : environment.commerceSettings.billing.user.enabled;
@@ -2953,8 +3052,11 @@ function createBillingPaginatedHook({
       },
       {
         type: resourceType,
-        userId: user == null ? void 0 : user.id,
-        ..._for === "organization" ? { orgId: organization == null ? void 0 : organization.id } : {}
+        // userId: user?.id,
+        ...(options == null ? void 0 : options.unauthenticated) ? {} : {
+          userId: user == null ? void 0 : user.id,
+          ..._for === "organization" ? { orgId: organization == null ? void 0 : organization.id } : {}
+        }
       }
     );
     return result;
@@ -2989,9 +3091,9 @@ var usePaymentMethods = createBillingPaginatedHook({
     const { organization } = useOrganizationContext();
     const user = useUserContext();
     if (resource === "organization") {
-      return organization == null ? void 0 : organization.getPaymentSources;
+      return organization == null ? void 0 : organization.getPaymentMethods;
     }
-    return user == null ? void 0 : user.getPaymentSources;
+    return user == null ? void 0 : user.getPaymentMethods;
   }
 });
 var usePlans = createBillingPaginatedHook({
@@ -3002,9 +3104,7 @@ var usePlans = createBillingPaginatedHook({
     if (!clerk.loaded) {
       return void 0;
     }
-    return ({ orgId, ...rest }) => {
-      return clerk.billing.getPlans({ ...rest, for: _for });
-    };
+    return (params) => clerk.billing.getPlans({ ...params, for: _for });
   },
   options: {
     unauthenticated: true
@@ -3027,16 +3127,16 @@ var useCheckout = (options) => {
       "Clerk: Ensure your flow checks for an active organization. Retrieve `orgId` from `useAuth()` and confirm it is defined. For SSR, see: https://clerk.com/docs/reference/backend/types/auth-object#how-to-access-the-auth-object"
     );
   }
-  const manager = (0, import_react13.useMemo)(
+  const manager = (0, import_react14.useMemo)(
     () => clerk.__experimental_checkout({ planId, planPeriod, for: forOrganization }),
     [user.id, organization == null ? void 0 : organization.id, planId, planPeriod, forOrganization]
   );
-  const managerProperties = (0, import_react13.useSyncExternalStore)(
+  const managerProperties = (0, import_react14.useSyncExternalStore)(
     (cb) => manager.subscribe(cb),
     () => manager.getState(),
     () => manager.getState()
   );
-  const properties = (0, import_react13.useMemo)(() => {
+  const properties = (0, import_react14.useMemo)(() => {
     if (!managerProperties.checkout) {
       return {
         id: null,
@@ -3047,7 +3147,7 @@ var useCheckout = (options) => {
         isImmediatePlanChange: null,
         planPeriod: null,
         plan: null,
-        paymentSource: null,
+        paymentMethod: null,
         freeTrialEndsAt: null,
         payer: null
       };
@@ -3080,19 +3180,19 @@ var useCheckout = (options) => {
   };
 };
 var usePrevious = (value) => {
-  const ref = (0, import_react16.useRef)(value);
-  (0, import_react16.useEffect)(() => {
+  const ref = (0, import_react17.useRef)(value);
+  (0, import_react17.useEffect)(() => {
     ref.current = value;
   }, [value]);
   return ref.current;
 };
 var useAttachEvent = (element, event, cb) => {
   const cbDefined = !!cb;
-  const cbRef = (0, import_react16.useRef)(cb);
-  (0, import_react16.useEffect)(() => {
+  const cbRef = (0, import_react17.useRef)(cb);
+  (0, import_react17.useEffect)(() => {
     cbRef.current = cb;
   }, [cb]);
-  (0, import_react16.useEffect)(() => {
+  (0, import_react17.useEffect)(() => {
     if (!cbDefined || !element) {
       return () => {
       };
@@ -3108,7 +3208,7 @@ var useAttachEvent = (element, event, cb) => {
     };
   }, [cbDefined, event, element, cbRef]);
 };
-var ElementsContext = import_react15.default.createContext(null);
+var ElementsContext = import_react16.default.createContext(null);
 ElementsContext.displayName = "ElementsContext";
 var parseElementsContext = (ctx, useCase) => {
   if (!ctx) {
@@ -3123,12 +3223,12 @@ var Elements = ({
   options,
   children
 }) => {
-  const parsed = import_react15.default.useMemo(() => parseStripeProp(rawStripeProp), [rawStripeProp]);
-  const [ctx, setContext] = import_react15.default.useState(() => ({
+  const parsed = import_react16.default.useMemo(() => parseStripeProp(rawStripeProp), [rawStripeProp]);
+  const [ctx, setContext] = import_react16.default.useState(() => ({
     stripe: parsed.tag === "sync" ? parsed.stripe : null,
     elements: parsed.tag === "sync" ? parsed.stripe.elements(options) : null
   }));
-  import_react15.default.useEffect(() => {
+  import_react16.default.useEffect(() => {
     let isMounted = true;
     const safeSetContext = (stripe) => {
       setContext((ctx2) => {
@@ -3155,13 +3255,13 @@ var Elements = ({
     };
   }, [parsed, ctx, options]);
   const prevStripe = usePrevious(rawStripeProp);
-  import_react15.default.useEffect(() => {
+  import_react16.default.useEffect(() => {
     if (prevStripe !== null && prevStripe !== rawStripeProp) {
       console.warn("Unsupported prop change on Elements: You cannot change the `stripe` prop after setting it.");
     }
   }, [prevStripe, rawStripeProp]);
   const prevOptions = usePrevious(options);
-  import_react15.default.useEffect(() => {
+  import_react16.default.useEffect(() => {
     if (!ctx.elements) {
       return;
     }
@@ -3170,10 +3270,10 @@ var Elements = ({
       ctx.elements.update(updates);
     }
   }, [options, prevOptions, ctx.elements]);
-  return import_react15.default.createElement(ElementsContext.Provider, { value: ctx }, children);
+  return import_react16.default.createElement(ElementsContext.Provider, { value: ctx }, children);
 };
 var useElementsContextWithUseCase = (useCaseMessage) => {
-  const ctx = import_react15.default.useContext(ElementsContext);
+  const ctx = import_react16.default.useContext(ElementsContext);
   return parseElementsContext(ctx, useCaseMessage);
 };
 var useElements = () => {
@@ -3273,7 +3373,7 @@ var useStripe = () => {
   return stripe;
 };
 var useElementsOrCheckoutSdkContextWithUseCase = (useCaseString) => {
-  const elementsContext = import_react15.default.useContext(ElementsContext);
+  const elementsContext = import_react16.default.useContext(ElementsContext);
   return parseElementsContext(elementsContext, useCaseString);
 };
 var capitalized = (str) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -3300,10 +3400,10 @@ var createElementComponent = (type, isServer2) => {
   }) => {
     const ctx = useElementsOrCheckoutSdkContextWithUseCase(`mounts <${displayName}>`);
     const elements = "elements" in ctx ? ctx.elements : null;
-    const [element, setElement] = import_react15.default.useState(null);
-    const elementRef = import_react15.default.useRef(null);
-    const domNode = import_react15.default.useRef(null);
-    const [isReady, setReady] = (0, import_react15.useState)(false);
+    const [element, setElement] = import_react16.default.useState(null);
+    const elementRef = import_react16.default.useRef(null);
+    const domNode = import_react16.default.useRef(null);
+    const [isReady, setReady] = (0, import_react16.useState)(false);
     useAttachEvent(element, "blur", onBlur);
     useAttachEvent(element, "focus", onFocus);
     useAttachEvent(element, "escape", onEscape);
@@ -3324,7 +3424,7 @@ var createElementComponent = (type, isServer2) => {
       };
     }
     useAttachEvent(element, "ready", readyCallback);
-    import_react15.default.useLayoutEffect(() => {
+    import_react16.default.useLayoutEffect(() => {
       if (elementRef.current === null && domNode.current !== null && elements) {
         let newElement = null;
         if (elements) {
@@ -3338,7 +3438,7 @@ var createElementComponent = (type, isServer2) => {
       }
     }, [elements, options]);
     const prevOptions = usePrevious(options);
-    import_react15.default.useEffect(() => {
+    import_react16.default.useEffect(() => {
       if (!elementRef.current) {
         return;
       }
@@ -3347,7 +3447,7 @@ var createElementComponent = (type, isServer2) => {
         elementRef.current.update(updates);
       }
     }, [options, prevOptions]);
-    import_react15.default.useLayoutEffect(() => {
+    import_react16.default.useLayoutEffect(() => {
       return () => {
         if (elementRef.current && typeof elementRef.current.destroy === "function") {
           try {
@@ -3358,7 +3458,7 @@ var createElementComponent = (type, isServer2) => {
         }
       };
     }, []);
-    return import_react15.default.createElement(import_react15.default.Fragment, null, !isReady && fallback, import_react15.default.createElement(
+    return import_react16.default.createElement(import_react16.default.Fragment, null, !isReady && fallback, import_react16.default.createElement(
       "div",
       {
         id,
@@ -3374,7 +3474,7 @@ var createElementComponent = (type, isServer2) => {
   const ServerElement = (props) => {
     useElementsOrCheckoutSdkContextWithUseCase(`mounts <${displayName}>`);
     const { id, className } = props;
-    return import_react15.default.createElement(
+    return import_react16.default.createElement(
       "div",
       {
         id,
@@ -3404,7 +3504,7 @@ var StripeLibsProvider = ({ children }) => {
       dedupingInterval: Infinity
     }
   );
-  return import_react14.default.createElement(
+  return import_react15.default.createElement(
     StripeLibsContext.Provider,
     {
       value: {
@@ -3423,28 +3523,28 @@ var usePaymentSourceUtils = (forResource = "user") => {
   const { user } = useUser();
   const resource = forResource === "organization" ? organization : user;
   const stripeClerkLibs = useStripeLibsContext();
-  const { data: initializedPaymentSource, trigger: initializePaymentSource } = useSWRMutation(
+  const { data: initializedPaymentMethod, trigger: initializePaymentMethod } = useSWRMutation(
     {
-      key: "billing-payment-source-initialize",
+      key: "billing-payment-method-initialize",
       resourceId: resource == null ? void 0 : resource.id
     },
     () => {
-      return resource == null ? void 0 : resource.initializePaymentSource({
+      return resource == null ? void 0 : resource.initializePaymentMethod({
         gateway: "stripe"
       });
     }
   );
   const environment = useInternalEnvironment();
-  (0, import_react14.useEffect)(() => {
+  (0, import_react15.useEffect)(() => {
     if (!(resource == null ? void 0 : resource.id)) {
       return;
     }
-    initializePaymentSource().catch(() => {
+    initializePaymentMethod().catch(() => {
     });
   }, [resource == null ? void 0 : resource.id]);
-  const externalGatewayId = initializedPaymentSource == null ? void 0 : initializedPaymentSource.externalGatewayId;
-  const externalClientSecret = initializedPaymentSource == null ? void 0 : initializedPaymentSource.externalClientSecret;
-  const paymentMethodOrder = initializedPaymentSource == null ? void 0 : initializedPaymentSource.paymentMethodOrder;
+  const externalGatewayId = initializedPaymentMethod == null ? void 0 : initializedPaymentMethod.externalGatewayId;
+  const externalClientSecret = initializedPaymentMethod == null ? void 0 : initializedPaymentMethod.externalClientSecret;
+  const paymentMethodOrder = initializedPaymentMethod == null ? void 0 : initializedPaymentMethod.paymentMethodOrder;
   const stripePublishableKey = environment == null ? void 0 : environment.commerceSettings.billing.stripePublishableKey;
   const { data: stripe } = useSWR(
     stripeClerkLibs && externalGatewayId && stripePublishableKey ? { key: "stripe-sdk", externalGatewayId, stripePublishableKey } : null,
@@ -3462,7 +3562,7 @@ var usePaymentSourceUtils = (forResource = "user") => {
   );
   return {
     stripe,
-    initializePaymentSource,
+    initializePaymentMethod,
     externalClientSecret,
     paymentMethodOrder
   };
@@ -3472,15 +3572,15 @@ var [StripeUtilsContext, useStripeUtilsContext] = createContextAndHook("StripeUt
 var ValidateStripeUtils = ({ children }) => {
   const stripe = useStripe();
   const elements = useElements();
-  return import_react14.default.createElement(StripeUtilsContext.Provider, { value: { value: { stripe, elements } } }, children);
+  return import_react15.default.createElement(StripeUtilsContext.Provider, { value: { value: { stripe, elements } } }, children);
 };
 var DummyStripeUtils = ({ children }) => {
-  return import_react14.default.createElement(StripeUtilsContext.Provider, { value: { value: {} } }, children);
+  return import_react15.default.createElement(StripeUtilsContext.Provider, { value: { value: {} } }, children);
 };
 var PropsProvider = ({ children, ...props }) => {
   const utils = usePaymentSourceUtils(props.for);
-  const [isPaymentElementReady, setIsPaymentElementReady] = (0, import_react14.useState)(false);
-  return import_react14.default.createElement(
+  const [isPaymentElementReady, setIsPaymentElementReady] = (0, import_react15.useState)(false);
+  return import_react15.default.createElement(
     PaymentElementContext.Provider,
     {
       value: {
@@ -3496,12 +3596,12 @@ var PropsProvider = ({ children, ...props }) => {
   );
 };
 var PaymentElementProvider = ({ children, ...props }) => {
-  return import_react14.default.createElement(StripeLibsProvider, null, import_react14.default.createElement(PropsProvider, { ...props }, import_react14.default.createElement(PaymentElementInternalRoot, null, children)));
+  return import_react15.default.createElement(StripeLibsProvider, null, import_react15.default.createElement(PropsProvider, { ...props }, import_react15.default.createElement(PaymentElementInternalRoot, null, children)));
 };
 var PaymentElementInternalRoot = (props) => {
   const { stripe, externalClientSecret, stripeAppearance } = usePaymentElementContext();
   if (stripe && externalClientSecret) {
-    return import_react14.default.createElement(
+    return import_react15.default.createElement(
       Elements,
       {
         key: externalClientSecret,
@@ -3514,10 +3614,10 @@ var PaymentElementInternalRoot = (props) => {
           }
         }
       },
-      import_react14.default.createElement(ValidateStripeUtils, null, props.children)
+      import_react15.default.createElement(ValidateStripeUtils, null, props.children)
     );
   }
-  return import_react14.default.createElement(DummyStripeUtils, null, props.children);
+  return import_react15.default.createElement(DummyStripeUtils, null, props.children);
 };
 var PaymentElement2 = ({ fallback }) => {
   const {
@@ -3530,8 +3630,8 @@ var PaymentElement2 = ({ fallback }) => {
     for: _for
   } = usePaymentElementContext();
   const environment = useInternalEnvironment();
-  const applePay = (0, import_react14.useMemo)(() => {
-    var _a;
+  const applePay = (0, import_react15.useMemo)(() => {
+    var _a5;
     if (!checkout || !checkout.totals || !checkout.plan) {
       return void 0;
     }
@@ -3540,14 +3640,14 @@ var PaymentElement2 = ({ fallback }) => {
         paymentDescription: paymentDescription || "",
         managementURL: _for === "organization" ? (environment == null ? void 0 : environment.displayConfig.organizationProfileUrl) || "" : (environment == null ? void 0 : environment.displayConfig.userProfileUrl) || "",
         regularBilling: {
-          amount: ((_a = checkout.totals.totalDueNow) == null ? void 0 : _a.amount) || checkout.totals.grandTotal.amount,
+          amount: ((_a5 = checkout.totals.totalDueNow) == null ? void 0 : _a5.amount) || checkout.totals.grandTotal.amount,
           label: checkout.plan.name,
           recurringPaymentIntervalUnit: checkout.planPeriod === "annual" ? "year" : "month"
         }
       }
     };
   }, [checkout, paymentDescription, _for, environment]);
-  const options = (0, import_react14.useMemo)(() => {
+  const options = (0, import_react15.useMemo)(() => {
     return {
       layout: {
         type: "tabs",
@@ -3557,13 +3657,13 @@ var PaymentElement2 = ({ fallback }) => {
       applePay
     };
   }, [applePay, paymentMethodOrder]);
-  const onReady = (0, import_react14.useCallback)(() => {
+  const onReady = (0, import_react15.useCallback)(() => {
     setIsPaymentElementReady(true);
   }, [setIsPaymentElementReady]);
   if (!stripe || !externalClientSecret) {
-    return import_react14.default.createElement(import_react14.default.Fragment, null, fallback);
+    return import_react15.default.createElement(import_react15.default.Fragment, null, fallback);
   }
-  return import_react14.default.createElement(
+  return import_react15.default.createElement(
     PaymentElement,
     {
       fallback,
@@ -3578,10 +3678,10 @@ var throwLibsMissingError = () => {
   );
 };
 var usePaymentElement = () => {
-  const { isPaymentElementReady, initializePaymentSource } = usePaymentElementContext();
+  const { isPaymentElementReady, initializePaymentMethod } = usePaymentElementContext();
   const { stripe, elements } = useStripeUtilsContext();
   const { externalClientSecret } = usePaymentElementContext();
-  const submit = (0, import_react14.useCallback)(async () => {
+  const submit = (0, import_react15.useCallback)(async () => {
     if (!stripe || !elements) {
       return throwLibsMissingError();
     }
@@ -3610,12 +3710,12 @@ var usePaymentElement = () => {
       error: null
     };
   }, [stripe, elements]);
-  const reset = (0, import_react14.useCallback)(async () => {
+  const reset = (0, import_react15.useCallback)(async () => {
     if (!stripe || !elements) {
       return throwLibsMissingError();
     }
-    await initializePaymentSource();
-  }, [stripe, elements, initializePaymentSource]);
+    await initializePaymentMethod();
+  }, [stripe, elements, initializePaymentMethod]);
   const isProviderReady = Boolean(stripe && externalClientSecret);
   if (!isProviderReady) {
     return {
@@ -3638,8 +3738,8 @@ var usePaymentElement = () => {
 };
 
 // node_modules/@clerk/clerk-react/dist/chunk-XIVXL4LQ.mjs
-var import_react21 = __toESM(require_react(), 1);
-var import_react25 = __toESM(require_react(), 1);
+var import_react22 = __toESM(require_react(), 1);
+var import_react26 = __toESM(require_react(), 1);
 var errorThrower = buildErrorThrower({ packageName: "@clerk/clerk-react" });
 function setErrorThrowerOptions(options) {
   errorThrower.setMessages(options).setPackageName(options);
@@ -3697,7 +3797,7 @@ var createSignOut = (isomorphicClerk) => {
   };
 };
 var useAuth = (initialAuthStateOrOptions = {}) => {
-  var _a;
+  var _a5;
   useAssertWrappedByClerkProvider2("useAuth");
   const { treatPendingAsSignedOut, ...rest } = initialAuthStateOrOptions != null ? initialAuthStateOrOptions : {};
   const initialAuthState = rest;
@@ -3707,9 +3807,9 @@ var useAuth = (initialAuthStateOrOptions = {}) => {
     authContext = initialAuthState != null ? initialAuthState : {};
   }
   const isomorphicClerk = useIsomorphicClerkContext();
-  const getToken = (0, import_react17.useCallback)(createGetToken(isomorphicClerk), [isomorphicClerk]);
-  const signOut = (0, import_react17.useCallback)(createSignOut(isomorphicClerk), [isomorphicClerk]);
-  (_a = isomorphicClerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled("useAuth", { treatPendingAsSignedOut }));
+  const getToken = (0, import_react18.useCallback)(createGetToken(isomorphicClerk), [isomorphicClerk]);
+  const signOut = (0, import_react18.useCallback)(createSignOut(isomorphicClerk), [isomorphicClerk]);
+  (_a5 = isomorphicClerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled("useAuth", { treatPendingAsSignedOut }));
   return useDerivedAuth(
     {
       ...authContext,
@@ -3723,7 +3823,7 @@ var useAuth = (initialAuthStateOrOptions = {}) => {
 };
 function useDerivedAuth(authObject, { treatPendingAsSignedOut = true } = {}) {
   const { userId, orgId, orgRole, has: has3, signOut, getToken, orgPermissions, factorVerificationAge, sessionClaims } = authObject != null ? authObject : {};
-  const derivedHas = (0, import_react17.useCallback)(
+  const derivedHas = (0, import_react18.useCallback)(
     (params) => {
       if (has3) {
         return has3(params);
@@ -3757,8 +3857,8 @@ function useDerivedAuth(authObject, { treatPendingAsSignedOut = true } = {}) {
   return payload;
 }
 function useEmailLink(resource) {
-  const { startEmailLinkFlow, cancelEmailLinkFlow } = import_react21.default.useMemo(() => resource.createEmailLinkFlow(), [resource]);
-  import_react21.default.useEffect(() => {
+  const { startEmailLinkFlow, cancelEmailLinkFlow } = import_react22.default.useMemo(() => resource.createEmailLinkFlow(), [resource]);
+  import_react22.default.useEffect(() => {
     return cancelEmailLinkFlow;
   }, []);
   return {
@@ -3767,11 +3867,11 @@ function useEmailLink(resource) {
   };
 }
 var useSignIn = () => {
-  var _a;
+  var _a5;
   useAssertWrappedByClerkProvider2("useSignIn");
   const isomorphicClerk = useIsomorphicClerkContext();
   const client = useClientContext();
-  (_a = isomorphicClerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled("useSignIn"));
+  (_a5 = isomorphicClerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled("useSignIn"));
   if (!client) {
     return { isLoaded: false, signIn: void 0, setActive: void 0 };
   }
@@ -3782,11 +3882,11 @@ var useSignIn = () => {
   };
 };
 var useSignUp = () => {
-  var _a;
+  var _a5;
   useAssertWrappedByClerkProvider2("useSignUp");
   const isomorphicClerk = useIsomorphicClerkContext();
   const client = useClientContext();
-  (_a = isomorphicClerk.telemetry) == null ? void 0 : _a.record(eventMethodCalled("useSignUp"));
+  (_a5 = isomorphicClerk.telemetry) == null ? void 0 : _a5.record(eventMethodCalled("useSignUp"));
   if (!client) {
     return { isLoaded: false, signUp: void 0, setActive: void 0 };
   }
@@ -3807,7 +3907,7 @@ var withClerk = (Component, displayNameOrOptions) => {
     if (!clerk.loaded && !(options == null ? void 0 : options.renderWhileLoading)) {
       return null;
     }
-    return import_react25.default.createElement(
+    return import_react26.default.createElement(
       Component,
       {
         ...props,
@@ -3859,7 +3959,7 @@ ${warning}`
 };
 
 // node_modules/@clerk/clerk-react/dist/chunk-JPAFWK3P.mjs
-var import_react26 = __toESM(require_react(), 1);
+var import_react27 = __toESM(require_react(), 1);
 var SignedIn = ({ children, treatPendingAsSignedOut }) => {
   useAssertWrappedByClerkProvider2("SignedIn");
   const { userId } = useAuth({ treatPendingAsSignedOut });
@@ -3939,7 +4039,7 @@ var RedirectToSignIn = withClerk(({ clerk, ...props }) => {
     // Compat for clerk-js<5.54.0 (which was released with the `signedInSessions` property)
     client.activeSessions && client.activeSessions.length > 0
   );
-  import_react26.default.useEffect(() => {
+  import_react27.default.useEffect(() => {
     if (session === null && hasSignedInSessions) {
       void clerk.redirectToAfterSignOut();
     } else {
@@ -3949,33 +4049,33 @@ var RedirectToSignIn = withClerk(({ clerk, ...props }) => {
   return null;
 }, "RedirectToSignIn");
 var RedirectToSignUp = withClerk(({ clerk, ...props }) => {
-  import_react26.default.useEffect(() => {
+  import_react27.default.useEffect(() => {
     void clerk.redirectToSignUp(props);
   }, []);
   return null;
 }, "RedirectToSignUp");
 var RedirectToTasks = withClerk(({ clerk, ...props }) => {
-  import_react26.default.useEffect(() => {
+  import_react27.default.useEffect(() => {
     void clerk.redirectToTasks(props);
   }, []);
   return null;
 }, "RedirectToTasks");
 var RedirectToUserProfile = withClerk(({ clerk }) => {
-  import_react26.default.useEffect(() => {
+  import_react27.default.useEffect(() => {
     deprecated("RedirectToUserProfile", "Use the `redirectToUserProfile()` method instead.");
     void clerk.redirectToUserProfile();
   }, []);
   return null;
 }, "RedirectToUserProfile");
 var RedirectToOrganizationProfile = withClerk(({ clerk }) => {
-  import_react26.default.useEffect(() => {
+  import_react27.default.useEffect(() => {
     deprecated("RedirectToOrganizationProfile", "Use the `redirectToOrganizationProfile()` method instead.");
     void clerk.redirectToOrganizationProfile();
   }, []);
   return null;
 }, "RedirectToOrganizationProfile");
 var RedirectToCreateOrganization = withClerk(({ clerk }) => {
-  import_react26.default.useEffect(() => {
+  import_react27.default.useEffect(() => {
     deprecated("RedirectToCreateOrganization", "Use the `redirectToCreateOrganization()` method instead.");
     void clerk.redirectToCreateOrganization();
   }, []);
@@ -3983,7 +4083,7 @@ var RedirectToCreateOrganization = withClerk(({ clerk }) => {
 }, "RedirectToCreateOrganization");
 var AuthenticateWithRedirectCallback = withClerk(
   ({ clerk, ...handleRedirectCallbackParams }) => {
-    import_react26.default.useEffect(() => {
+    import_react27.default.useEffect(() => {
       void clerk.handleRedirectCallback(handleRedirectCallbackParams);
     }, []);
     return null;
@@ -4013,15 +4113,15 @@ function handleValueOrFn(value, url, defaultValue) {
 }
 
 // node_modules/@clerk/clerk-react/dist/chunk-SOK75ZUK.mjs
-var import_react28 = __toESM(require_react(), 1);
 var import_react29 = __toESM(require_react(), 1);
 var import_react30 = __toESM(require_react(), 1);
 var import_react31 = __toESM(require_react(), 1);
-var import_react_dom = __toESM(require_react_dom(), 1);
 var import_react32 = __toESM(require_react(), 1);
+var import_react_dom = __toESM(require_react_dom(), 1);
 var import_react33 = __toESM(require_react(), 1);
 var import_react34 = __toESM(require_react(), 1);
 var import_react35 = __toESM(require_react(), 1);
+var import_react36 = __toESM(require_react(), 1);
 
 // node_modules/@clerk/shared/dist/chunk-CFXQSUF6.mjs
 var without = (obj, ...props) => {
@@ -4033,10 +4133,10 @@ var without = (obj, ...props) => {
 };
 
 // node_modules/@clerk/clerk-react/dist/chunk-SOK75ZUK.mjs
-var import_react37 = __toESM(require_react(), 1);
+var import_react38 = __toESM(require_react(), 1);
 var assertSingleChild = (children) => (name) => {
   try {
-    return import_react29.default.Children.only(children);
+    return import_react30.default.Children.only(children);
   } catch {
     return errorThrower.throw(multipleChildrenInButtonComponent(name));
   }
@@ -4046,7 +4146,7 @@ var normalizeWithDefaultValue = (children, defaultText) => {
     children = defaultText;
   }
   if (typeof children === "string") {
-    children = import_react29.default.createElement("button", null, children);
+    children = import_react30.default.createElement("button", null, children);
   }
   return children;
 };
@@ -4060,7 +4160,7 @@ function isConstructor(f) {
 }
 var counts = /* @__PURE__ */ new Map();
 function useMaxAllowedInstancesGuard(name, error, maxCount = 1) {
-  import_react30.default.useEffect(() => {
+  import_react31.default.useEffect(() => {
     const count = counts.get(name) || 0;
     if (count == maxCount) {
       return errorThrower.throw(error);
@@ -4075,13 +4175,13 @@ function withMaxAllowedInstancesGuard(WrappedComponent, name, error) {
   const displayName = WrappedComponent.displayName || WrappedComponent.name || name || "Component";
   const Hoc = (props) => {
     useMaxAllowedInstancesGuard(name, error);
-    return import_react30.default.createElement(WrappedComponent, { ...props });
+    return import_react31.default.createElement(WrappedComponent, { ...props });
   };
   Hoc.displayName = `withMaxAllowedInstancesGuard(${displayName})`;
   return Hoc;
 }
 var useCustomElementPortal = (elements) => {
-  const [nodeMap, setNodeMap] = (0, import_react31.useState)(/* @__PURE__ */ new Map());
+  const [nodeMap, setNodeMap] = (0, import_react32.useState)(/* @__PURE__ */ new Map());
   return elements.map((el) => ({
     id: el.id,
     mount: (node) => setNodeMap((prev) => new Map(prev).set(String(el.id), node)),
@@ -4097,7 +4197,7 @@ var useCustomElementPortal = (elements) => {
   }));
 };
 var isThatComponent = (v, component) => {
-  return !!v && import_react33.default.isValidElement(v) && (v == null ? void 0 : v.type) === component;
+  return !!v && import_react34.default.isValidElement(v) && (v == null ? void 0 : v.type) === component;
 };
 var useUserProfileCustomPages = (children, options) => {
   const reorderItemsLabels = ["account", "security"];
@@ -4135,7 +4235,7 @@ var useSanitizedChildren = (children) => {
     UserProfilePage,
     UserProfileLink
   ];
-  import_react32.default.Children.forEach(children, (child) => {
+  import_react33.default.Children.forEach(children, (child) => {
     if (!excludedComponents.some((component) => isThatComponent(child, component))) {
       sanitizedChildren.push(child);
     }
@@ -4146,7 +4246,7 @@ var useCustomPages = (params, options) => {
   const { children, LinkComponent, PageComponent, MenuItemsComponent, reorderItemsLabels, componentName } = params;
   const { allowForAnyChildren = false } = options || {};
   const validChildren = [];
-  import_react32.default.Children.forEach(children, (child) => {
+  import_react33.default.Children.forEach(children, (child) => {
     if (!isThatComponent(child, PageComponent) && !isThatComponent(child, LinkComponent) && !isThatComponent(child, MenuItemsComponent)) {
       if (child && !allowForAnyChildren) {
         logErrorInDevMode(customPagesIgnoredComponent(componentName));
@@ -4239,7 +4339,7 @@ var isExternalLink = (childProps) => {
   return !children && !!url && !!labelIcon && !!label;
 };
 var useUserButtonCustomMenuItems = (children, options) => {
-  var _a;
+  var _a5;
   const reorderItemsLabels = ["manageAccount", "signOut"];
   return useCustomMenuItems({
     children,
@@ -4249,7 +4349,7 @@ var useUserButtonCustomMenuItems = (children, options) => {
     MenuLinkComponent: MenuLink,
     UserProfileLinkComponent: UserProfileLink,
     UserProfilePageComponent: UserProfilePage,
-    allowForAnyChildren: (_a = options == null ? void 0 : options.allowForAnyChildren) != null ? _a : false
+    allowForAnyChildren: (_a5 = options == null ? void 0 : options.allowForAnyChildren) != null ? _a5 : false
   });
 };
 var useCustomMenuItems = ({
@@ -4265,7 +4365,7 @@ var useCustomMenuItems = ({
   const validChildren = [];
   const customMenuItems = [];
   const customMenuItemsPortals = [];
-  import_react34.default.Children.forEach(children, (child) => {
+  import_react35.default.Children.forEach(children, (child) => {
     if (!isThatComponent(child, MenuItemsComponent) && !isThatComponent(child, UserProfileLinkComponent) && !isThatComponent(child, UserProfilePageComponent)) {
       if (child && !allowForAnyChildren) {
         logErrorInDevMode(userButtonIgnoredComponent);
@@ -4276,7 +4376,7 @@ var useCustomMenuItems = ({
       return;
     }
     const { props } = child;
-    import_react34.default.Children.forEach(props.children, (child2) => {
+    import_react35.default.Children.forEach(props.children, (child2) => {
       if (!isThatComponent(child2, MenuActionComponent) && !isThatComponent(child2, MenuLinkComponent)) {
         if (child2) {
           logErrorInDevMode(customMenuItemsIgnoredComponent);
@@ -4431,14 +4531,14 @@ var waitForElementChildren = createAwaitableMutationObserver({
   childList: true,
   subtree: true,
   isReady: (el, selector) => {
-    var _a;
-    return !!(el == null ? void 0 : el.childElementCount) && ((_a = el == null ? void 0 : el.matches) == null ? void 0 : _a.call(el, selector)) && el.childElementCount > 0;
+    var _a5;
+    return !!(el == null ? void 0 : el.childElementCount) && ((_a5 = el == null ? void 0 : el.matches) == null ? void 0 : _a5.call(el, selector)) && el.childElementCount > 0;
   }
 });
 function useWaitForComponentMount(component, options) {
-  const watcherRef = (0, import_react35.useRef)();
-  const [status, setStatus] = (0, import_react35.useState)("rendering");
-  (0, import_react35.useEffect)(() => {
+  const watcherRef = (0, import_react36.useRef)();
+  const [status, setStatus] = (0, import_react36.useState)("rendering");
+  (0, import_react36.useEffect)(() => {
     if (!component) {
       throw new Error("Clerk: no component name provided, unable to detect mount.");
     }
@@ -4468,19 +4568,19 @@ var isOpenProps = (props) => {
 var stripMenuItemIconHandlers = (menuItems) => {
   return menuItems == null ? void 0 : menuItems.map(({ mountIcon, unmountIcon, ...rest }) => rest);
 };
-var ClerkHostRenderer = class extends import_react37.default.PureComponent {
+var ClerkHostRenderer = class extends import_react38.default.PureComponent {
   constructor() {
     super(...arguments);
-    this.rootRef = import_react37.default.createRef();
+    this.rootRef = import_react38.default.createRef();
   }
   componentDidUpdate(_prevProps) {
-    var _a, _b, _c, _d;
+    var _a5, _b, _c, _d;
     if (!isMountProps(_prevProps) || !isMountProps(this.props)) {
       return;
     }
     const prevProps = without(_prevProps.props, "customPages", "customMenuItems", "children");
     const newProps = without(this.props.props, "customPages", "customMenuItems", "children");
-    const customPagesChanged = ((_a = prevProps.customPages) == null ? void 0 : _a.length) !== ((_b = newProps.customPages) == null ? void 0 : _b.length);
+    const customPagesChanged = ((_a5 = prevProps.customPages) == null ? void 0 : _a5.length) !== ((_b = newProps.customPages) == null ? void 0 : _b.length);
     const customMenuItemsChanged = ((_c = prevProps.customMenuItems) == null ? void 0 : _c.length) !== ((_d = newProps.customMenuItems) == null ? void 0 : _d.length);
     const prevMenuItemsWithoutHandlers = stripMenuItemIconHandlers(_prevProps.props.customMenuItems);
     const newMenuItemsWithoutHandlers = stripMenuItemIconHandlers(this.props.props.customMenuItems);
@@ -4517,12 +4617,12 @@ var ClerkHostRenderer = class extends import_react37.default.PureComponent {
       ...this.props.rootProps,
       ...this.props.component && { "data-clerk-component": this.props.component }
     };
-    return import_react37.default.createElement(import_react37.default.Fragment, null, !hideRootHtmlElement && import_react37.default.createElement("div", { ...rootAttributes }), this.props.children);
+    return import_react38.default.createElement(import_react38.default.Fragment, null, !hideRootHtmlElement && import_react38.default.createElement("div", { ...rootAttributes }), this.props.children);
   }
 };
 var CustomPortalsRenderer = (props) => {
-  var _a, _b;
-  return import_react28.default.createElement(import_react28.default.Fragment, null, (_a = props == null ? void 0 : props.customPagesPortals) == null ? void 0 : _a.map((portal, index) => (0, import_react28.createElement)(portal, { key: index })), (_b = props == null ? void 0 : props.customMenuItemsPortals) == null ? void 0 : _b.map((portal, index) => (0, import_react28.createElement)(portal, { key: index })));
+  var _a5, _b;
+  return import_react29.default.createElement(import_react29.default.Fragment, null, (_a5 = props == null ? void 0 : props.customPagesPortals) == null ? void 0 : _a5.map((portal, index) => (0, import_react29.createElement)(portal, { key: index })), (_b = props == null ? void 0 : props.customMenuItemsPortals) == null ? void 0 : _b.map((portal, index) => (0, import_react29.createElement)(portal, { key: index })));
 };
 var SignIn = withClerk(
   ({ clerk, component, fallback, ...props }) => {
@@ -4531,7 +4631,7 @@ var SignIn = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4552,7 +4652,7 @@ var SignUp = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4568,11 +4668,11 @@ var SignUp = withClerk(
 );
 function UserProfilePage({ children }) {
   logErrorInDevMode(userProfilePageRenderedError);
-  return import_react28.default.createElement(import_react28.default.Fragment, null, children);
+  return import_react29.default.createElement(import_react29.default.Fragment, null, children);
 }
 function UserProfileLink({ children }) {
   logErrorInDevMode(userProfileLinkRenderedError);
-  return import_react28.default.createElement(import_react28.default.Fragment, null, children);
+  return import_react29.default.createElement(import_react29.default.Fragment, null, children);
 }
 var _UserProfile = withClerk(
   ({
@@ -4587,7 +4687,7 @@ var _UserProfile = withClerk(
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
     const { customPages, customPagesPortals } = useUserProfileCustomPages(props.children);
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4597,7 +4697,7 @@ var _UserProfile = withClerk(
         props: { ...props, customPages },
         rootProps: rendererRootProps
       },
-      import_react28.default.createElement(CustomPortalsRenderer, { customPagesPortals })
+      import_react29.default.createElement(CustomPortalsRenderer, { customPagesPortals })
     ));
   },
   { component: "UserProfile", renderWhileLoading: true }
@@ -4606,7 +4706,7 @@ var UserProfile = Object.assign(_UserProfile, {
   Page: UserProfilePage,
   Link: UserProfileLink
 });
-var UserButtonContext = (0, import_react28.createContext)({
+var UserButtonContext = (0, import_react29.createContext)({
   mount: () => {
   },
   unmount: () => {
@@ -4644,7 +4744,7 @@ var _UserButton = withClerk(
       customPagesPortals,
       customMenuItemsPortals
     };
-    return import_react28.default.createElement(UserButtonContext.Provider, { value: passableProps }, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(UserButtonContext.Provider, { value: passableProps }, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4653,25 +4753,25 @@ var _UserButton = withClerk(
         rootProps: rendererRootProps
       },
       props.__experimental_asProvider ? sanitizedChildren : null,
-      import_react28.default.createElement(CustomPortalsRenderer, { ...portalProps })
+      import_react29.default.createElement(CustomPortalsRenderer, { ...portalProps })
     ));
   },
   { component: "UserButton", renderWhileLoading: true }
 );
 function MenuItems({ children }) {
   logErrorInDevMode(userButtonMenuItemsRenderedError);
-  return import_react28.default.createElement(import_react28.default.Fragment, null, children);
+  return import_react29.default.createElement(import_react29.default.Fragment, null, children);
 }
 function MenuAction({ children }) {
   logErrorInDevMode(userButtonMenuActionRenderedError);
-  return import_react28.default.createElement(import_react28.default.Fragment, null, children);
+  return import_react29.default.createElement(import_react29.default.Fragment, null, children);
 }
 function MenuLink({ children }) {
   logErrorInDevMode(userButtonMenuLinkRenderedError);
-  return import_react28.default.createElement(import_react28.default.Fragment, null, children);
+  return import_react29.default.createElement(import_react29.default.Fragment, null, children);
 }
 function UserButtonOutlet(outletProps) {
-  const providerProps = (0, import_react28.useContext)(UserButtonContext);
+  const providerProps = (0, import_react29.useContext)(UserButtonContext);
   const portalProps = {
     ...providerProps,
     props: {
@@ -4679,7 +4779,7 @@ function UserButtonOutlet(outletProps) {
       ...outletProps
     }
   };
-  return import_react28.default.createElement(ClerkHostRenderer, { ...portalProps });
+  return import_react29.default.createElement(ClerkHostRenderer, { ...portalProps });
 }
 var UserButton = Object.assign(_UserButton, {
   UserProfilePage,
@@ -4691,11 +4791,11 @@ var UserButton = Object.assign(_UserButton, {
 });
 function OrganizationProfilePage({ children }) {
   logErrorInDevMode(organizationProfilePageRenderedError);
-  return import_react28.default.createElement(import_react28.default.Fragment, null, children);
+  return import_react29.default.createElement(import_react29.default.Fragment, null, children);
 }
 function OrganizationProfileLink({ children }) {
   logErrorInDevMode(organizationProfileLinkRenderedError);
-  return import_react28.default.createElement(import_react28.default.Fragment, null, children);
+  return import_react29.default.createElement(import_react29.default.Fragment, null, children);
 }
 var _OrganizationProfile = withClerk(
   ({
@@ -4710,7 +4810,7 @@ var _OrganizationProfile = withClerk(
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
     const { customPages, customPagesPortals } = useOrganizationProfileCustomPages(props.children);
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4720,7 +4820,7 @@ var _OrganizationProfile = withClerk(
         props: { ...props, customPages },
         rootProps: rendererRootProps
       },
-      import_react28.default.createElement(CustomPortalsRenderer, { customPagesPortals })
+      import_react29.default.createElement(CustomPortalsRenderer, { customPagesPortals })
     ));
   },
   { component: "OrganizationProfile", renderWhileLoading: true }
@@ -4736,7 +4836,7 @@ var CreateOrganization = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4750,7 +4850,7 @@ var CreateOrganization = withClerk(
   },
   { component: "CreateOrganization", renderWhileLoading: true }
 );
-var OrganizationSwitcherContext = (0, import_react28.createContext)({
+var OrganizationSwitcherContext = (0, import_react29.createContext)({
   mount: () => {
   },
   unmount: () => {
@@ -4784,20 +4884,20 @@ var _OrganizationSwitcher = withClerk(
       component
     };
     clerk.__experimental_prefetchOrganizationSwitcher();
-    return import_react28.default.createElement(OrganizationSwitcherContext.Provider, { value: passableProps }, import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(OrganizationSwitcherContext.Provider, { value: passableProps }, import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         ...passableProps,
         hideRootHtmlElement: !!props.__experimental_asProvider
       },
       props.__experimental_asProvider ? sanitizedChildren : null,
-      import_react28.default.createElement(CustomPortalsRenderer, { customPagesPortals })
+      import_react29.default.createElement(CustomPortalsRenderer, { customPagesPortals })
     )));
   },
   { component: "OrganizationSwitcher", renderWhileLoading: true }
 );
 function OrganizationSwitcherOutlet(outletProps) {
-  const providerProps = (0, import_react28.useContext)(OrganizationSwitcherContext);
+  const providerProps = (0, import_react29.useContext)(OrganizationSwitcherContext);
   const portalProps = {
     ...providerProps,
     props: {
@@ -4805,7 +4905,7 @@ function OrganizationSwitcherOutlet(outletProps) {
       ...outletProps
     }
   };
-  return import_react28.default.createElement(ClerkHostRenderer, { ...portalProps });
+  return import_react29.default.createElement(ClerkHostRenderer, { ...portalProps });
 }
 var OrganizationSwitcher = Object.assign(_OrganizationSwitcher, {
   OrganizationProfilePage,
@@ -4819,7 +4919,7 @@ var OrganizationList = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4840,7 +4940,7 @@ var GoogleOneTap = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4861,7 +4961,7 @@ var Waitlist = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4885,7 +4985,7 @@ var PricingTable = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4906,7 +5006,7 @@ var APIKeys = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4927,7 +5027,7 @@ var UserAvatar = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4948,7 +5048,7 @@ var TaskChooseOrganization = withClerk(
     const rendererRootProps = {
       ...shouldShowFallback && fallback && { style: { display: "none" } }
     };
-    return import_react28.default.createElement(import_react28.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react28.default.createElement(
+    return import_react29.default.createElement(import_react29.default.Fragment, null, shouldShowFallback && fallback, clerk.loaded && import_react29.default.createElement(
       ClerkHostRenderer,
       {
         component,
@@ -4973,23 +5073,23 @@ var __privateAdd2 = (obj, member, value) => member.has(obj) ? __typeError("Canno
 var __privateSet2 = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 var __privateMethod2 = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 
-// node_modules/@clerk/shared/dist/chunk-BUMRB4NE.mjs
-var versionSelector = (clerkJSVersion, packageVersion = "5.99.0") => {
+// node_modules/@clerk/shared/dist/chunk-ELKNO6YM.mjs
+var versionSelector = (clerkJSVersion, packageVersion = "5.102.1") => {
   if (clerkJSVersion) {
     return clerkJSVersion;
   }
   const prereleaseTag = getPrereleaseTag(packageVersion);
   if (prereleaseTag) {
     if (prereleaseTag === "snapshot") {
-      return "5.99.0";
+      return "5.102.1";
     }
     return prereleaseTag;
   }
   return getMajorVersion(packageVersion);
 };
 var getPrereleaseTag = (packageVersion) => {
-  var _a;
-  return (_a = packageVersion.trim().replace(/^v/, "").match(/-(.+?)(\.|$)/)) == null ? void 0 : _a[1];
+  var _a5;
+  return (_a5 = packageVersion.trim().replace(/^v/, "").match(/-(.+?)(\.|$)/)) == null ? void 0 : _a5[1];
 };
 var getMajorVersion = (packageVersion) => packageVersion.trim().replace(/^v/, "").split(".")[0];
 
@@ -5126,7 +5226,7 @@ async function loadScript(src = "", opts) {
   return retry(load, { shouldRetry: (_, iterations) => iterations <= 5 });
 }
 
-// node_modules/@clerk/shared/dist/chunk-OPVMKWD3.mjs
+// node_modules/@clerk/shared/dist/chunk-YTPL7FML.mjs
 var ERROR_CODE = "failed_to_load_clerk_js";
 var ERROR_CODE_TIMEOUT = "failed_to_load_clerk_js_timeout";
 var FAILED_TO_LOAD_ERROR = "Failed to load Clerk";
@@ -5210,7 +5310,7 @@ var loadClerkJsScript = async (opts) => {
   return loadPromise;
 };
 var clerkJsScriptUrl = (opts) => {
-  var _a, _b;
+  var _a5, _b;
   const { clerkJSUrl, clerkJSVariant, clerkJSVersion, proxyUrl, domain, publishableKey } = opts;
   if (clerkJSUrl) {
     return clerkJSUrl;
@@ -5218,7 +5318,7 @@ var clerkJsScriptUrl = (opts) => {
   let scriptHost = "";
   if (!!proxyUrl && isValidProxyUrl(proxyUrl)) {
     scriptHost = proxyUrlToAbsoluteURL(proxyUrl).replace(/http(s)?:\/\//, "");
-  } else if (domain && !isDevOrStagingUrl(((_a = parsePublishableKey(publishableKey)) == null ? void 0 : _a.frontendApi) || "")) {
+  } else if (domain && !isDevOrStagingUrl(((_a5 = parsePublishableKey(publishableKey)) == null ? void 0 : _a5.frontendApi) || "")) {
     scriptHost = addClerkPrefix(domain);
   } else {
     scriptHost = ((_b = parsePublishableKey(publishableKey)) == null ? void 0 : _b.frontendApi) || "";
@@ -5251,11 +5351,11 @@ var applyClerkJsScriptAttributes = (options) => (script) => {
 };
 
 // node_modules/@clerk/clerk-react/dist/index.mjs
-var import_react38 = __toESM(require_react(), 1);
 var import_react39 = __toESM(require_react(), 1);
 var import_react40 = __toESM(require_react(), 1);
 var import_react41 = __toESM(require_react(), 1);
 var import_react42 = __toESM(require_react(), 1);
+var import_react43 = __toESM(require_react(), 1);
 
 // node_modules/@clerk/shared/dist/chunk-ZIXJBK4O.mjs
 var deriveState = (clerkOperational, state, initialState) => {
@@ -5295,12 +5395,12 @@ var deriveFromSsrInitialState = (initialState) => {
   };
 };
 var deriveFromClientSideState = (state) => {
-  var _a, _b, _c, _d;
+  var _a5, _b, _c, _d;
   const userId = state.user ? state.user.id : state.user;
   const user = state.user;
   const sessionId = state.session ? state.session.id : state.session;
   const session = state.session;
-  const sessionStatus = (_a = state.session) == null ? void 0 : _a.status;
+  const sessionStatus = (_a5 = state.session) == null ? void 0 : _a5.status;
   const sessionClaims = state.session ? (_c = (_b = state.session.lastActiveToken) == null ? void 0 : _b.jwt) == null ? void 0 : _c.claims : null;
   const factorVerificationAge = state.session ? state.session.factorVerificationAge : null;
   const actor = session == null ? void 0 : session.actor;
@@ -5328,7 +5428,7 @@ var deriveFromClientSideState = (state) => {
 };
 
 // node_modules/@clerk/clerk-react/dist/index.mjs
-var import_react44 = __toESM(require_react(), 1);
+var import_react45 = __toESM(require_react(), 1);
 
 // node_modules/@clerk/shared/dist/chunk-JKSAJ6AV.mjs
 function inBrowser() {
@@ -5472,7 +5572,7 @@ var SignInButton = withClerk(
       return clickHandler();
     };
     const childProps = { ...rest, onClick: wrappedChildClickHandler };
-    return import_react38.default.cloneElement(child, childProps);
+    return import_react39.default.cloneElement(child, childProps);
   },
   { component: "SignInButton", renderWhileLoading: true }
 );
@@ -5492,7 +5592,7 @@ var SignInWithMetamaskButton = withClerk(
       return clickHandler();
     };
     const childProps = { ...rest, onClick: wrappedChildClickHandler };
-    return import_react39.default.cloneElement(child, childProps);
+    return import_react40.default.cloneElement(child, childProps);
   },
   { component: "SignInWithMetamask", renderWhileLoading: true }
 );
@@ -5507,7 +5607,7 @@ var SignOutButton = withClerk(
       return clickHandler();
     };
     const childProps = { ...rest, onClick: wrappedChildClickHandler };
-    return import_react40.default.cloneElement(child, childProps);
+    return import_react41.default.cloneElement(child, childProps);
   },
   { component: "SignOutButton", renderWhileLoading: true }
 );
@@ -5554,7 +5654,7 @@ var SignUpButton = withClerk(
       return clickHandler();
     };
     const childProps = { ...rest, onClick: wrappedChildClickHandler };
-    return import_react41.default.cloneElement(child, childProps);
+    return import_react42.default.cloneElement(child, childProps);
   },
   { component: "SignUpButton", renderWhileLoading: true }
 );
@@ -5680,6 +5780,7 @@ var StateProxy = class {
           "verifyBackupCode"
         ]),
         ticket: this.gateMethod(target, "ticket"),
+        passkey: this.gateMethod(target, "passkey"),
         web3: this.gateMethod(target, "web3")
       }
     };
@@ -5740,6 +5841,9 @@ var StateProxy = class {
         },
         get legalAcceptedAt() {
           return gateProperty(target, "legalAcceptedAt", null);
+        },
+        get locale() {
+          return gateProperty(target, "locale", null);
         },
         get status() {
           return gateProperty(target, "status", "missing_requirements");
@@ -5822,7 +5926,7 @@ if (typeof globalThis.__BUILD_DISABLE_RHC__ === "undefined") {
 }
 var SDK_METADATA = {
   name: "@clerk/clerk-react",
-  version: "5.51.0",
+  version: "5.53.3",
   environment: "development"
 };
 var _status;
@@ -5874,8 +5978,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     __privateAdd2(this, _stateProxy);
     this.buildSignInUrl = (opts) => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildSignInUrl(opts)) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildSignInUrl(opts)) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5885,8 +5989,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildSignUpUrl = (opts) => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildSignUpUrl(opts)) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildSignUpUrl(opts)) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5896,8 +6000,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildAfterSignInUrl = (...args) => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildAfterSignInUrl(...args)) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildAfterSignInUrl(...args)) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5907,8 +6011,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildAfterSignUpUrl = (...args) => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildAfterSignUpUrl(...args)) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildAfterSignUpUrl(...args)) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5918,8 +6022,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildAfterSignOutUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildAfterSignOutUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildAfterSignOutUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5929,8 +6033,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildNewSubscriptionRedirectUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildNewSubscriptionRedirectUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildNewSubscriptionRedirectUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5940,8 +6044,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildAfterMultiSessionSingleSignOutUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildAfterMultiSessionSingleSignOutUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildAfterMultiSessionSingleSignOutUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5951,8 +6055,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildUserProfileUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildUserProfileUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildUserProfileUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5962,8 +6066,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildCreateOrganizationUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildCreateOrganizationUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildCreateOrganizationUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5973,8 +6077,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildOrganizationProfileUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildOrganizationProfileUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildOrganizationProfileUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5984,8 +6088,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildWaitlistUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildWaitlistUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildWaitlistUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -5995,8 +6099,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildTasksUrl = () => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildTasksUrl()) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildTasksUrl()) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6006,8 +6110,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.buildUrlWithAuth = (to) => {
       const callback = () => {
-        var _a;
-        return ((_a = this.clerkjs) == null ? void 0 : _a.buildUrlWithAuth(to)) || "";
+        var _a5;
+        return ((_a5 = this.clerkjs) == null ? void 0 : _a5.buildUrlWithAuth(to)) || "";
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6017,8 +6121,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.handleUnauthenticated = async () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.handleUnauthenticated();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.handleUnauthenticated();
       };
       if (this.clerkjs && this.loaded) {
         void callback();
@@ -6027,16 +6131,16 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
       }
     };
     this.on = (...args) => {
-      var _a;
-      if ((_a = this.clerkjs) == null ? void 0 : _a.on) {
+      var _a5;
+      if ((_a5 = this.clerkjs) == null ? void 0 : _a5.on) {
         return this.clerkjs.on(...args);
       } else {
         __privateGet2(this, _eventBus).on(...args);
       }
     };
     this.off = (...args) => {
-      var _a;
-      if ((_a = this.clerkjs) == null ? void 0 : _a.off) {
+      var _a5;
+      if ((_a5 = this.clerkjs) == null ? void 0 : _a5.off) {
         return this.clerkjs.off(...args);
       } else {
         __privateGet2(this, _eventBus).off(...args);
@@ -6058,7 +6162,7 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
       }
     };
     this.hydrateClerkJS = (clerkjs) => {
-      var _a;
+      var _a5;
       if (!clerkjs) {
         throw new Error("Failed to hydrate latest Clerk JS");
       }
@@ -6067,7 +6171,7 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
       this.premountAddListenerCalls.forEach((listenerHandlers, listener) => {
         listenerHandlers.nativeUnsubscribe = clerkjs.addListener(listener);
       });
-      (_a = __privateGet2(this, _eventBus).internal.retrieveListeners("status")) == null ? void 0 : _a.forEach((listener) => {
+      (_a5 = __privateGet2(this, _eventBus).internal.retrieveListeners("status")) == null ? void 0 : _a5.forEach((listener) => {
         this.on("status", listener, { notify: true });
       });
       if (this.preopenSignIn !== null) {
@@ -6143,8 +6247,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
       return this.clerkjs;
     };
     this.__experimental_checkout = (...args) => {
-      var _a;
-      return (_a = this.clerkjs) == null ? void 0 : _a.__experimental_checkout(...args);
+      var _a5;
+      return (_a5 = this.clerkjs) == null ? void 0 : _a5.__experimental_checkout(...args);
     };
     this.__unstable__updateProps = async (props) => {
       const clerkjs = await __privateMethod2(this, _IsomorphicClerk_instances, waitForClerkJS_fn).call(this);
@@ -6413,8 +6517,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.__experimental_prefetchOrganizationSwitcher = () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.__experimental_prefetchOrganizationSwitcher();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.__experimental_prefetchOrganizationSwitcher();
       };
       if (this.clerkjs && this.loaded) {
         void callback();
@@ -6525,10 +6629,10 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
         return this.clerkjs.addListener(listener);
       } else {
         const unsubscribe = () => {
-          var _a;
+          var _a5;
           const listenerHandlers = this.premountAddListenerCalls.get(listener);
           if (listenerHandlers) {
-            (_a = listenerHandlers.nativeUnsubscribe) == null ? void 0 : _a.call(listenerHandlers);
+            (_a5 = listenerHandlers.nativeUnsubscribe) == null ? void 0 : _a5.call(listenerHandlers);
             this.premountAddListenerCalls.delete(listener);
           }
         };
@@ -6538,8 +6642,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.navigate = (to) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.navigate(to);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.navigate(to);
       };
       if (this.clerkjs && this.loaded) {
         void callback();
@@ -6549,8 +6653,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectWithAuth = async (...args) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectWithAuth(...args);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectWithAuth(...args);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6561,8 +6665,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToSignIn = async (opts) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToSignIn(opts);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToSignIn(opts);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6573,8 +6677,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToSignUp = async (opts) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToSignUp(opts);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToSignUp(opts);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6585,8 +6689,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToUserProfile = async () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToUserProfile();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToUserProfile();
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6597,8 +6701,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToAfterSignUp = () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToAfterSignUp();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToAfterSignUp();
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6608,8 +6712,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToAfterSignIn = () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToAfterSignIn();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToAfterSignIn();
       };
       if (this.clerkjs && this.loaded) {
         callback();
@@ -6619,8 +6723,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToAfterSignOut = () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToAfterSignOut();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToAfterSignOut();
       };
       if (this.clerkjs && this.loaded) {
         callback();
@@ -6630,8 +6734,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToOrganizationProfile = async () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToOrganizationProfile();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToOrganizationProfile();
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6642,8 +6746,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToCreateOrganization = async () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToCreateOrganization();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToCreateOrganization();
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6654,8 +6758,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToWaitlist = async () => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToWaitlist();
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToWaitlist();
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6666,8 +6770,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.redirectToTasks = async (opts) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.redirectToTasks(opts);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.redirectToTasks(opts);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6677,26 +6781,26 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
       }
     };
     this.handleRedirectCallback = async (params) => {
-      var _a;
+      var _a5;
       const callback = () => {
-        var _a2;
-        return (_a2 = this.clerkjs) == null ? void 0 : _a2.handleRedirectCallback(params);
+        var _a22;
+        return (_a22 = this.clerkjs) == null ? void 0 : _a22.handleRedirectCallback(params);
       };
       if (this.clerkjs && this.loaded) {
-        void ((_a = callback()) == null ? void 0 : _a.catch(() => {
+        void ((_a5 = callback()) == null ? void 0 : _a5.catch(() => {
         }));
       } else {
         this.premountMethodCalls.set("handleRedirectCallback", callback);
       }
     };
     this.handleGoogleOneTapCallback = async (signInOrUp, params) => {
-      var _a;
+      var _a5;
       const callback = () => {
-        var _a2;
-        return (_a2 = this.clerkjs) == null ? void 0 : _a2.handleGoogleOneTapCallback(signInOrUp, params);
+        var _a22;
+        return (_a22 = this.clerkjs) == null ? void 0 : _a22.handleGoogleOneTapCallback(signInOrUp, params);
       };
       if (this.clerkjs && this.loaded) {
-        void ((_a = callback()) == null ? void 0 : _a.catch(() => {
+        void ((_a5 = callback()) == null ? void 0 : _a5.catch(() => {
         }));
       } else {
         this.premountMethodCalls.set("handleGoogleOneTapCallback", callback);
@@ -6704,8 +6808,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.handleEmailLinkVerification = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.handleEmailLinkVerification(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.handleEmailLinkVerification(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6715,8 +6819,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.authenticateWithMetamask = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.authenticateWithMetamask(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.authenticateWithMetamask(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6726,8 +6830,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.authenticateWithCoinbaseWallet = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.authenticateWithCoinbaseWallet(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.authenticateWithCoinbaseWallet(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6737,8 +6841,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.authenticateWithBase = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.authenticateWithBase(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.authenticateWithBase(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6748,8 +6852,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.authenticateWithOKXWallet = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.authenticateWithOKXWallet(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.authenticateWithOKXWallet(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6759,8 +6863,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.authenticateWithWeb3 = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.authenticateWithWeb3(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.authenticateWithWeb3(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6778,8 +6882,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.createOrganization = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.createOrganization(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.createOrganization(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6789,8 +6893,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.getOrganization = async (organizationId) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.getOrganization(organizationId);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.getOrganization(organizationId);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6800,8 +6904,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.joinWaitlist = async (params) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.joinWaitlist(params);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.joinWaitlist(params);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6811,8 +6915,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     };
     this.signOut = async (...args) => {
       const callback = () => {
-        var _a;
-        return (_a = this.clerkjs) == null ? void 0 : _a.signOut(...args);
+        var _a5;
+        return (_a5 = this.clerkjs) == null ? void 0 : _a5.signOut(...args);
       };
       if (this.clerkjs && this.loaded) {
         return callback();
@@ -6841,15 +6945,15 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     return __privateGet2(this, _publishableKey);
   }
   get loaded() {
-    var _a;
-    return ((_a = this.clerkjs) == null ? void 0 : _a.loaded) || false;
+    var _a5;
+    return ((_a5 = this.clerkjs) == null ? void 0 : _a5.loaded) || false;
   }
   get status() {
-    var _a;
+    var _a5;
     if (!this.clerkjs) {
       return __privateGet2(this, _status);
     }
-    return ((_a = this.clerkjs) == null ? void 0 : _a.status) || /**
+    return ((_a5 = this.clerkjs) == null ? void 0 : _a5.status) || /**
     * Support older clerk-js versions.
     * If clerk-js is available but `.status` is missing it we need to fallback to `.loaded`.
     * Since "degraded" an "error" did not exist before,
@@ -6891,24 +6995,24 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
    *  @internal
    */
   __internal_getOption(key) {
-    var _a, _b;
-    return ((_a = this.clerkjs) == null ? void 0 : _a.__internal_getOption) ? (_b = this.clerkjs) == null ? void 0 : _b.__internal_getOption(key) : this.options[key];
+    var _a5, _b;
+    return ((_a5 = this.clerkjs) == null ? void 0 : _a5.__internal_getOption) ? (_b = this.clerkjs) == null ? void 0 : _b.__internal_getOption(key) : this.options[key];
   }
   get sdkMetadata() {
-    var _a;
-    return ((_a = this.clerkjs) == null ? void 0 : _a.sdkMetadata) || this.options.sdkMetadata || void 0;
+    var _a5;
+    return ((_a5 = this.clerkjs) == null ? void 0 : _a5.sdkMetadata) || this.options.sdkMetadata || void 0;
   }
   get instanceType() {
-    var _a;
-    return (_a = this.clerkjs) == null ? void 0 : _a.instanceType;
+    var _a5;
+    return (_a5 = this.clerkjs) == null ? void 0 : _a5.instanceType;
   }
   get frontendApi() {
-    var _a;
-    return ((_a = this.clerkjs) == null ? void 0 : _a.frontendApi) || "";
+    var _a5;
+    return ((_a5 = this.clerkjs) == null ? void 0 : _a5.frontendApi) || "";
   }
   get isStandardBrowser() {
-    var _a;
-    return ((_a = this.clerkjs) == null ? void 0 : _a.isStandardBrowser) || this.options.standardBrowser || false;
+    var _a5;
+    return ((_a5 = this.clerkjs) == null ? void 0 : _a5.isStandardBrowser) || this.options.standardBrowser || false;
   }
   get isSatellite() {
     if (typeof window !== "undefined" && window.location) {
@@ -6920,7 +7024,7 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     return false;
   }
   async loadClerkJS() {
-    var _a;
+    var _a5;
     if (this.mode !== "browser" || this.loaded) {
       return;
     }
@@ -6963,7 +7067,7 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
         this.beforeLoad(global.Clerk);
         await global.Clerk.load(this.options);
       }
-      if ((_a = global.Clerk) == null ? void 0 : _a.loaded) {
+      if ((_a5 = global.Clerk) == null ? void 0 : _a5.loaded) {
         return this.hydrateClerkJS(global.Clerk);
       }
       return;
@@ -6975,8 +7079,8 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     }
   }
   get version() {
-    var _a;
-    return (_a = this.clerkjs) == null ? void 0 : _a.version;
+    var _a5;
+    return (_a5 = this.clerkjs) == null ? void 0 : _a5.version;
   }
   get client() {
     if (this.clerkjs) {
@@ -7028,15 +7132,15 @@ var _IsomorphicClerk = class _IsomorphicClerk2 {
     }
   }
   get billing() {
-    var _a;
-    return (_a = this.clerkjs) == null ? void 0 : _a.billing;
+    var _a5;
+    return (_a5 = this.clerkjs) == null ? void 0 : _a5.billing;
   }
   get __internal_state() {
     return this.loaded && this.clerkjs ? this.clerkjs.__internal_state : __privateGet2(this, _stateProxy);
   }
   get apiKeys() {
-    var _a;
-    return (_a = this.clerkjs) == null ? void 0 : _a.apiKeys;
+    var _a5;
+    return (_a5 = this.clerkjs) == null ? void 0 : _a5.apiKeys;
   }
   __unstable__setEnvironment(...args) {
     if (this.clerkjs && "__unstable__setEnvironment" in this.clerkjs) {
@@ -7064,24 +7168,24 @@ var IsomorphicClerk = _IsomorphicClerk;
 function ClerkContextProvider(props) {
   const { isomorphicClerkOptions, initialState, children } = props;
   const { isomorphicClerk: clerk, clerkStatus } = useLoadedIsomorphicClerk(isomorphicClerkOptions);
-  const [state, setState] = import_react44.default.useState({
+  const [state, setState] = import_react45.default.useState({
     client: clerk.client,
     session: clerk.session,
     user: clerk.user,
     organization: clerk.organization
   });
-  import_react44.default.useEffect(() => {
+  import_react45.default.useEffect(() => {
     return clerk.addListener((e) => setState({ ...e }));
   }, []);
   const derivedState = deriveState(clerk.loaded, state, initialState);
-  const clerkCtx = import_react44.default.useMemo(
+  const clerkCtx = import_react45.default.useMemo(
     () => ({ value: clerk }),
     [
       // Only update the clerk reference on status change
       clerkStatus
     ]
   );
-  const clientCtx = import_react44.default.useMemo(() => ({ value: state.client }), [state.client]);
+  const clientCtx = import_react45.default.useMemo(() => ({ value: state.client }), [state.client]);
   const {
     sessionId,
     sessionStatus,
@@ -7097,7 +7201,7 @@ function ClerkContextProvider(props) {
     orgPermissions,
     factorVerificationAge
   } = derivedState;
-  const authCtx = import_react44.default.useMemo(() => {
+  const authCtx = import_react45.default.useMemo(() => {
     const value = {
       sessionId,
       sessionStatus,
@@ -7112,9 +7216,9 @@ function ClerkContextProvider(props) {
     };
     return { value };
   }, [sessionId, sessionStatus, userId, actor, orgId, orgRole, orgSlug, factorVerificationAge, sessionClaims == null ? void 0 : sessionClaims.__raw]);
-  const sessionCtx = import_react44.default.useMemo(() => ({ value: session }), [sessionId, session]);
-  const userCtx = import_react44.default.useMemo(() => ({ value: user }), [userId, user]);
-  const organizationCtx = import_react44.default.useMemo(() => {
+  const sessionCtx = import_react45.default.useMemo(() => ({ value: session }), [sessionId, session]);
+  const userCtx = import_react45.default.useMemo(() => ({ value: user }), [userId, user]);
+  const organizationCtx = import_react45.default.useMemo(() => {
     const value = {
       organization
     };
@@ -7122,7 +7226,7 @@ function ClerkContextProvider(props) {
   }, [orgId, organization]);
   return (
     // @ts-expect-error value passed is of type IsomorphicClerk where the context expects LoadedClerk
-    import_react44.default.createElement(IsomorphicClerkContext.Provider, { value: clerkCtx }, import_react44.default.createElement(ClientContext.Provider, { value: clientCtx }, import_react44.default.createElement(SessionContext.Provider, { value: sessionCtx }, import_react44.default.createElement(OrganizationProvider, { ...organizationCtx.value }, import_react44.default.createElement(AuthContext.Provider, { value: authCtx }, import_react44.default.createElement(UserContext.Provider, { value: userCtx }, import_react44.default.createElement(
+    import_react45.default.createElement(IsomorphicClerkContext.Provider, { value: clerkCtx }, import_react45.default.createElement(ClientContext.Provider, { value: clientCtx }, import_react45.default.createElement(SessionContext.Provider, { value: sessionCtx }, import_react45.default.createElement(OrganizationProvider, { ...organizationCtx.value }, import_react45.default.createElement(AuthContext.Provider, { value: authCtx }, import_react45.default.createElement(UserContext.Provider, { value: userCtx }, import_react45.default.createElement(
       __experimental_CheckoutProvider,
       {
         value: void 0
@@ -7132,15 +7236,15 @@ function ClerkContextProvider(props) {
   );
 }
 var useLoadedIsomorphicClerk = (options) => {
-  const isomorphicClerkRef = import_react44.default.useRef(IsomorphicClerk.getOrCreateInstance(options));
-  const [clerkStatus, setClerkStatus] = import_react44.default.useState(isomorphicClerkRef.current.status);
-  import_react44.default.useEffect(() => {
+  const isomorphicClerkRef = import_react45.default.useRef(IsomorphicClerk.getOrCreateInstance(options));
+  const [clerkStatus, setClerkStatus] = import_react45.default.useState(isomorphicClerkRef.current.status);
+  import_react45.default.useEffect(() => {
     void isomorphicClerkRef.current.__unstable__updateProps({ appearance: options.appearance });
   }, [options.appearance]);
-  import_react44.default.useEffect(() => {
+  import_react45.default.useEffect(() => {
     void isomorphicClerkRef.current.__unstable__updateProps({ options });
   }, [options.localization]);
-  import_react44.default.useEffect(() => {
+  import_react45.default.useEffect(() => {
     isomorphicClerkRef.current.on("status", setClerkStatus);
     return () => {
       if (isomorphicClerkRef.current) {
@@ -7161,7 +7265,7 @@ function ClerkProviderBase(props) {
       errorThrower.throwInvalidPublishableKeyError({ key: publishableKey });
     }
   }
-  return import_react42.default.createElement(
+  return import_react43.default.createElement(
     ClerkContextProvider,
     {
       initialState,
