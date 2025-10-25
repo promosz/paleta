@@ -1,52 +1,101 @@
 {
-  "hash": "f2b686a9",
-  "configHash": "3e9a0537",
-  "lockfileHash": "b23718b7",
-  "browserHash": "df8486fa",
+  "hash": "10c37c54",
+  "browserHash": "b4365987",
   "optimized": {
-    "react/jsx-dev-runtime": {
-      "src": "../../node_modules/react/jsx-dev-runtime.js",
-      "file": "react_jsx-dev-runtime.js",
-      "fileHash": "bbf5c5d9",
-      "needsInterop": true
-    },
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "762a5143",
+      "fileHash": "c0955669",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "fb3674bf",
+      "fileHash": "8c894df6",
       "needsInterop": true
     },
     "react-router-dom": {
-      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "src": "../../node_modules/react-router-dom/dist/index.js",
       "file": "react-router-dom.js",
-      "fileHash": "e3381883",
+      "fileHash": "c83bfd96",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.mjs",
+      "file": "lucide-react.js",
+      "fileHash": "a3b0133b",
+      "needsInterop": false
+    },
+    "xlsx": {
+      "src": "../../node_modules/xlsx/xlsx.mjs",
+      "file": "xlsx.js",
+      "fileHash": "5a829dd7",
+      "needsInterop": false
+    },
+    "@clerk/clerk-react": {
+      "src": "../../node_modules/@clerk/clerk-react/dist/index.mjs",
+      "file": "@clerk_clerk-react.js",
+      "fileHash": "5d5f3db1",
       "needsInterop": false
     },
     "zustand": {
       "src": "../../node_modules/zustand/esm/index.mjs",
       "file": "zustand.js",
-      "fileHash": "9540cee8",
+      "fileHash": "6c8a685c",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "bef4f41c",
+      "needsInterop": false
+    },
+    "@supabase/supabase-js": {
+      "src": "../../node_modules/@supabase/supabase-js/dist/module/index.js",
+      "file": "@supabase_supabase-js.js",
+      "fileHash": "a9892385",
       "needsInterop": false
     },
     "react-dropzone": {
       "src": "../../node_modules/react-dropzone/dist/es/index.js",
       "file": "react-dropzone.js",
-      "fileHash": "46bdafc7",
+      "fileHash": "a12bf0d7",
+      "needsInterop": false
+    },
+    "react-hook-form": {
+      "src": "../../node_modules/react-hook-form/dist/index.esm.mjs",
+      "file": "react-hook-form.js",
+      "fileHash": "0f1e538d",
+      "needsInterop": false
+    },
+    "papaparse": {
+      "src": "../../node_modules/papaparse/papaparse.min.js",
+      "file": "papaparse.js",
+      "fileHash": "6bd409dc",
+      "needsInterop": true
+    },
+    "pdfjs-dist": {
+      "src": "../../node_modules/pdfjs-dist/build/pdf.mjs",
+      "file": "pdfjs-dist.js",
+      "fileHash": "64b52918",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-QPG7G3M7": {
-      "file": "chunk-QPG7G3M7.js"
+    "browser-TICNBKVD": {
+      "file": "browser-TICNBKVD.js"
     },
-    "chunk-UTEJFLXC": {
-      "file": "chunk-UTEJFLXC.js"
+    "chunk-HP7HJCJQ": {
+      "file": "chunk-HP7HJCJQ.js"
+    },
+    "chunk-6G5ALQLW": {
+      "file": "chunk-6G5ALQLW.js"
+    },
+    "chunk-CICXP2UH": {
+      "file": "chunk-CICXP2UH.js"
+    },
+    "chunk-J32WSRGE": {
+      "file": "chunk-J32WSRGE.js"
     }
   }
 }

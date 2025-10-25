@@ -37,6 +37,7 @@ export default function XRayAnimation({ className = '' }: XRayAnimationProps) {
       imagesLoaded: number
       animationFrame: number | null
       isMouseOver: boolean
+      resizeTimeout: NodeJS.Timeout | null
 
       constructor(canvas: HTMLCanvasElement) {
         console.log('🔧 XRay: Tworzę instancję XRayEffect')
