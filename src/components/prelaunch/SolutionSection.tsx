@@ -1,8 +1,6 @@
 // Solution Section for Pre-Launch Landing Page
 import { motion } from 'framer-motion'
-import uploadIcon from '../../assets/figma-icons/upload-icon.svg'
-import brainIcon from '../../assets/figma-icons/brain-icon.svg'
-import chartIcon from '../../assets/figma-icons/chart-icon.svg'
+import { Upload, Brain, BarChart3 } from 'lucide-react'
 
 export default function SolutionSection() {
   const steps = [
@@ -10,19 +8,19 @@ export default function SolutionSection() {
       step: '01',
       title: 'Wrzuć Plik',
       description: 'Upload pliku Excel z ofertą palety (XLSX, CSV, PDF). Obsługujemy wszystkie popularne formaty.',
-      icon: uploadIcon
+      icon: Upload
     },
     {
       step: '02',
       title: 'AI Analizuje',
       description: 'Sztuczna inteligencja sprawdza każdy produkt, porównuje ceny na 10+ platformach i wykreśla trendy.',
-      icon: brainIcon
+      icon: Brain
     },
     {
       step: '03',
       title: 'Otrzymujesz Raport',
       description: 'Jasna rekomendacja: KUP / ROZWAŻ / UNIKAJ. Szczegółowa analiza każdego produktu i listy ostrzeżeń.',
-      icon: chartIcon
+      icon: BarChart3
     }
   ]
   
@@ -84,25 +82,28 @@ export default function SolutionSection() {
                   text-center
                   h-full
                   flex flex-col items-center
+                  relative
+                  shadow-lg
+                  shadow-[#4f39f6]/5
                 ">
-                  {/* Header: Step number and Icon */}
-                  <div className="flex items-center justify-between w-full mb-6">
-                    {/* Step number badge */}
-                    <div className="
-                      w-10 h-10
-                      rounded-full
-                      bg-[#4f39f6]
-                      text-white
-                      font-normal
-                      text-base
-                      flex items-center justify-center
-                    ">
-                      {step.step}
-                    </div>
-                    
-                    {/* Icon */}
-                    <div className="w-16 h-16 flex items-center justify-center">
-                      <img src={step.icon} alt="" className="w-8 h-8" />
+                  {/* Step number badge */}
+                  <div className="
+                    w-10 h-10
+                    rounded-full
+                    bg-[#4f39f6]
+                    text-white
+                    font-normal
+                    text-base
+                    flex items-center justify-center
+                    absolute top-4 left-4
+                  ">
+                    {step.step}
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className="w-20 h-20 flex items-center justify-center mb-6">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#4f39f6]/10 to-[#9810fa]/10 flex items-center justify-center">
+                      <step.icon className="w-12 h-12 text-[#4f39f6]" />
                     </div>
                   </div>
                   
