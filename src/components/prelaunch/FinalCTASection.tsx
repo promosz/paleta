@@ -1,4 +1,5 @@
 // Final CTA Section for Pre-Launch Landing Page
+import React from 'react'
 import { motion } from 'framer-motion'
 import { Rocket, CheckCircle, Bell, Gift, Shield, Clock } from 'lucide-react'
 import EmailSignupForm from './shared/EmailSignupForm'

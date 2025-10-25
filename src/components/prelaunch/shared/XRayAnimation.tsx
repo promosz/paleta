@@ -1,5 +1,5 @@
 // X-Ray Animation Component for Pre-Launch Hero Section
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 interface XRayAnimationProps {
   className?: string

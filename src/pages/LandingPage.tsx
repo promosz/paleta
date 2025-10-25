@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import LandingHeader from '../components/landing/LandingHeader';
 import HeroSection from '../components/landing/HeroSection';

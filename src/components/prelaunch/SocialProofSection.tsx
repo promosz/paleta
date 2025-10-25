@@ -1,4 +1,5 @@
 // Social Proof Section for Pre-Launch Landing Page
+import React from 'react'
 import { motion } from 'framer-motion'
 import { Users, Target, Star, TrendingUp } from 'lucide-react'
 import TestimonialCard from './shared/TestimonialCard'

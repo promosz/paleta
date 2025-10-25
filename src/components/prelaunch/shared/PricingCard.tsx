@@ -1,4 +1,5 @@
 // Pricing Card for Pre-Launch page
+import React from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import checkmarkIcon from '../../../assets/figma-icons/checkmark-icon.svg'

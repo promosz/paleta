@@ -1,4 +1,5 @@
 // Features Section for Pre-Launch Landing Page
+import React from 'react'
 import { motion } from 'framer-motion'
 import FeatureCard from './shared/FeatureCard'
 import { Zap, DollarSign, MessageCircle, Table, FileText, Shield } from 'lucide-react'

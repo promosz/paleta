@@ -1,4 +1,5 @@
 // Problem Section for Pre-Launch Landing Page
+import React from 'react'
 import { motion } from 'framer-motion'
 import clockIcon from '../../assets/figma-icons/clock-icon.svg'
 import alertTriangleIcon from '../../assets/figma-icons/alert-triangle-icon.svg'

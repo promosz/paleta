@@ -1,4 +1,5 @@
 // Hero Section for Pre-Launch Landing Page
+import React from 'react'
 import { motion } from 'framer-motion'
 import { Users, Gift } from 'lucide-react'
 import EmailSignupForm from './shared/EmailSignupForm'
