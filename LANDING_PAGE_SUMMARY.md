@@ -640,3 +640,4 @@ Landing page PalletAI jest gotowy! 🚀
 
 
 
+

@@ -8,6 +8,9 @@ interface LandingHeaderProps {
 }
 
 export default function LandingHeader({ onNavigate }: LandingHeaderProps) {
+  // Check if Clerk is configured
+  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  const isClerkConfigured = PUBLISHABLE_KEY && PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY_HERE'
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -65,17 +68,35 @@ export default function LandingHeader({ onNavigate }: LandingHeaderProps) {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-3">
-            <SignInButton mode="modal">
-              <button className="px-4 py-2 rounded-xl text-slate-900 hover:bg-slate-50 transition-colors font-medium text-sm">
-                Zaloguj się
-              </button>
-            </SignInButton>
-            <SignInButton mode="modal">
-              <button className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all font-medium text-sm flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Wypróbuj za darmo
-              </button>
-            </SignInButton>
+            {isClerkConfigured ? (
+              <>
+                <SignInButton mode="modal">
+                  <button className="px-4 py-2 rounded-xl text-slate-900 hover:bg-slate-50 transition-colors font-medium text-sm">
+                    Zaloguj się
+                  </button>
+                </SignInButton>
+                <SignInButton mode="modal">
+                  <button className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all font-medium text-sm flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Wypróbuj za darmo
+                  </button>
+                </SignInButton>
+              </>
+            ) : (
+              <>
+                <Link to="/paleta/pre-launch">
+                  <button className="px-4 py-2 rounded-xl text-slate-900 hover:bg-slate-50 transition-colors font-medium text-sm">
+                    Zaloguj się
+                  </button>
+                </Link>
+                <Link to="/paleta/pre-launch">
+                  <button className="px-6 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all font-medium text-sm flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Wypróbuj za darmo
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

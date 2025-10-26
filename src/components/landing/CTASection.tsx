@@ -3,8 +3,12 @@ import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Sparkles, Calendar } from 'lucide-react';
 import { SignInButton } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
 
 export default function CTASection() {
+  // Check if Clerk is configured
+  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  const isClerkConfigured = PUBLISHABLE_KEY && PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY_HERE'
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
@@ -68,11 +72,19 @@ export default function CTASection() {
               transition={{ duration: 0.6, delay: 0.5 }}
               className="flex flex-wrap justify-center gap-4 pt-4"
             >
-              <SignInButton mode="modal">
-                <button className="px-8 py-4 rounded-xl bg-white text-purple-600 font-medium shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
-                  Zarejestruj się za darmo
-                </button>
-              </SignInButton>
+              {isClerkConfigured ? (
+                <SignInButton mode="modal">
+                  <button className="px-8 py-4 rounded-xl bg-white text-purple-600 font-medium shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+                    Zarejestruj się za darmo
+                  </button>
+                </SignInButton>
+              ) : (
+                <Link to="/paleta/pre-launch">
+                  <button className="px-8 py-4 rounded-xl bg-white text-purple-600 font-medium shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
+                    Zarejestruj się za darmo
+                  </button>
+                </Link>
+              )}
               <button className="px-8 py-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/40 text-white font-medium hover:bg-white/20 transition-all flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 Umów prezentację

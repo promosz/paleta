@@ -157,3 +157,65 @@ export type EvaluationProgressCallback = (progress: number, status: string) => v
 
 // Callback dla zakończenia oceny
 export type EvaluationCompleteCallback = (results: ProductEvaluation[]) => void
+
+// === NOWE TYPY DLA SYSTEMU OSTRZEŻEŃ PRODUKTÓW ===
+
+// Poziomy ostrzeżeń (trzystopniowa skala)
+export type ProductWarningLevel = 'LOW' | 'MEDIUM' | 'HIGH'
+
+// Typy reguł produktów
+export type ProductRuleType = 'category' | 'product' | 'phrase'
+
+// Interfejs reguły produktu (stara struktura dla kompatybilności wstecznej)
+export interface OldProductRule {
+  id: string
+  type: 'category' | 'product'
+  name: string
+  action: 'warning'  // zawsze 'warning' w starej wersji
+  description?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Interfejs reguły produktu (nowa struktura)
+export interface ProductRule {
+  id: string
+  userId: string
+  ruleType: ProductRuleType
+  ruleValue: string
+  warningLevel: ProductWarningLevel
+  description?: string
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Rozszerzenie produktu o ostrzeżenie
+export interface ProductWithWarning {
+  warningLevel?: ProductWarningLevel
+  appliedRules?: AppliedProductRule[]
+}
+
+// Zastosowana reguła produktu
+export interface AppliedProductRule {
+  ruleId: string
+  ruleType: ProductRuleType
+  ruleValue: string
+  warningLevel: ProductWarningLevel
+  description?: string
+}
+
+// Funkcja migracji starej reguły na nową
+export function migrateOldRuleToNew(oldRule: OldProductRule, userId: string): ProductRule {
+  return {
+    id: oldRule.id,
+    userId: userId,
+    ruleType: oldRule.type,
+    ruleValue: oldRule.name,
+    warningLevel: 'MEDIUM',  // domyślnie MEDIUM dla starych reguł
+    description: oldRule.description,
+    isActive: true,
+    createdAt: oldRule.createdAt,
+    updatedAt: oldRule.updatedAt
+  }
+}

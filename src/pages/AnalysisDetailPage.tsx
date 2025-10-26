@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, BarChart3, Brain, Loader } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, TrendingUp, Package, AlertTriangle, CheckCircle, BarChart3, Brain, Loader, Flag, Info, XCircle } from 'lucide-react'
 import { Link, useParams, useLocation } from 'react-router-dom'
 import ProductFilter from '../components/ProductFilter'
 import ProductActions from '../components/ProductActions'
 import RulesManager from '../components/RulesManager'
+import ProductWarningBadge from '../components/ProductWarningBadge'
+import AddRuleModal from '../components/AddRuleModal'
 import { hybridAIService } from '../services/hybridAIService'
+import { productWarningEngine } from '../services/productWarningEngine'
 import { useAnalysisStore } from '../stores/analysisStoreSupabase'
 import { useProducts } from '../hooks/useProducts'
 import { useCurrentUser } from '../hooks/useCurrentUser'
+import { useProductRulesStore } from '../stores/productRulesStore'
+import type { ProductWithWarning, ProductRule, ProductWarningLevel, AppliedProductRule } from '../types/rules'
 
-interface Product {
+interface Product extends ProductWithWarning {
   paleta: string
   nazwa: string
   foto: string
@@ -40,13 +45,19 @@ const AnalysisDetailPage: React.FC = () => {
   const { analyses, loadAnalyses } = useAnalysisStore()
   const { products: dbProducts, loading: productsLoading } = useProducts(id || '', supabaseUserId || '')
   
+  // NOWY: Store dla reguł produktów
+  const { rules: productRules, loadRules: loadProductRules, addRule } = useProductRulesStore()
+  
   const [showRulesManager, setShowRulesManager] = useState(false)
   const [productsWithStatus, setProductsWithStatus] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [sortField, setSortField] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  
+  // STARY: Zostawiam dla kompatybilności wstecznej z ProductActions
   const [rules, setRules] = useState<any[]>([])
+  
   const [aiReport, setAiReport] = useState<{
     summary: string
     productAnalysis: string
@@ -55,6 +66,10 @@ const AnalysisDetailPage: React.FC = () => {
     confidenceScore: number
   } | null>(null)
   const [isLoadingReport, setIsLoadingReport] = useState(false)
+  
+  // NOWY: Stan dla modalu dodawania reguły
+  const [showAddRuleModal, setShowAddRuleModal] = useState(false)
+  const [selectedProductForRule, setSelectedProductForRule] = useState<Product | null>(null)
   
   // Pobierz dane analizy z store
   const analysis = analyses.find(a => a.id === id)
@@ -66,7 +81,24 @@ const AnalysisDetailPage: React.FC = () => {
     }
   }, [supabaseUserId, analyses.length, loadAnalyses])
 
-  // Load rules on component mount
+  // NOWY: Załaduj reguły produktów z Supabase przy montowaniu
+  useEffect(() => {
+    if (supabaseUserId) {
+      console.log('📥 Loading product rules for user:', supabaseUserId)
+      loadProductRules(supabaseUserId)
+    }
+  }, [supabaseUserId, loadProductRules])
+
+  // NOWY: Przeładuj reguły gdy się zmieniają
+  useEffect(() => {
+    if (supabaseUserId && productRules.length > 0) {
+      console.log(`🎯 ${productRules.length} product rules loaded, re-evaluating products`)
+      // Automatyczne odświeżenie produktów gdy reguły się zmienią
+      analyzeProductsWithRules()
+    }
+  }, [productRules.length, supabaseUserId])  // tylko length, nie cały array
+
+  // STARY: Load rules on component mount (kompatybilność wsteczna)
   const loadRules = () => {
     const savedRules = localStorage.getItem('analysis-rules')
     if (savedRules) {
@@ -194,6 +226,8 @@ const AnalysisDetailPage: React.FC = () => {
           rentownosc: productForRules.rentownosc
         })
       }
+      // NOWY: Użycie silnika oceny produktów
+      // Stary system (kompatybilność wsteczna) - zostawiam dla ProductActions
       let status: 'warning' | 'allowed' = 'allowed'
       let appliedRule: string | undefined = undefined
 
@@ -228,9 +262,16 @@ const AnalysisDetailPage: React.FC = () => {
       return result
     })
     
-    // Store products with status
-    setProductsWithStatus(updatedProducts)
-  }, [dbProducts, rules])
+    // NOWY: Zastosuj nowy silnik oceny jeśli mamy reguły produktów
+    if (productRules.length > 0) {
+      console.log('🎯 Applying new warning engine with', productRules.length, 'rules')
+      const evaluatedProducts = productWarningEngine.evaluateProducts(updatedProducts, productRules)
+      setProductsWithStatus(evaluatedProducts)
+    } else {
+      // Stary system dla kompatybilności wstecznej
+      setProductsWithStatus(updatedProducts)
+    }
+  }, [dbProducts, rules, productRules])
 
   useEffect(() => {
     loadRules()
@@ -301,6 +342,60 @@ const AnalysisDetailPage: React.FC = () => {
     const updatedRules = rules.filter(rule => rule.id !== ruleId)
     localStorage.setItem('analysis-rules', JSON.stringify(updatedRules))
     setRules(updatedRules)
+  }
+
+  // NOWY: Obsługa dodawania reguły z produktu
+  const handleAddRuleClick = (product: Product) => {
+    if (!supabaseUserId) {
+      alert('Zaloguj się, aby korzystać z funkcji reguł')
+      return
+    }
+    setSelectedProductForRule(product)
+    setShowAddRuleModal(true)
+  }
+
+  const handleSaveRule = async (rule: Omit<ProductRule, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
+    if (!supabaseUserId) {
+      alert('Zaloguj się, aby korzystać z funkcji reguł')
+      return
+    }
+    
+    console.log('💾 Saving rule:', rule, 'for user:', supabaseUserId)
+    
+    try {
+      await addRule(rule, supabaseUserId)
+      console.log('✅ Rule saved successfully')
+      setShowAddRuleModal(false)
+      setSelectedProductForRule(null)
+      // Odświeżenie produktów po opóźnieniu (aby reguły zostały załadowane)
+      setTimeout(() => {
+        console.log('🔄 Refreshing products with rules')
+        analyzeProductsWithRules()
+      }, 500)
+    } catch (error) {
+      console.error('❌ Failed to save rule:', error)
+      alert(`Nie udało się zapisać reguły: ${error instanceof Error ? error.message : 'Nieznany błąd'}`)
+    }
+  }
+
+  // Funkcja pomocnicza dla koloru wiersza
+  const getWarningRowBg = (level?: ProductWarningLevel) => {
+    switch (level) {
+      case 'LOW': return 'bg-yellow-50'
+      case 'MEDIUM': return 'bg-orange-50'
+      case 'HIGH': return 'bg-red-50'
+      default: return ''
+    }
+  }
+
+  // Funkcja pomocnicza dla ikony obok nazwy
+  const getWarningIcon = (level?: ProductWarningLevel) => {
+    switch (level) {
+      case 'LOW': return <Info className="h-4 w-4 text-yellow-600" />
+      case 'MEDIUM': return <AlertTriangle className="h-4 w-4 text-orange-600" />
+      case 'HIGH': return <XCircle className="h-4 w-4 text-red-600" />
+      default: return null
+    }
   }
 
   // Jeśli ładuje dane, pokaż loading
@@ -430,7 +525,10 @@ const AnalysisDetailPage: React.FC = () => {
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status / Akcje
+                  Status ostrzeżenia
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Akcje
                 </th>
               </tr>
             </thead>
@@ -442,7 +540,7 @@ const AnalysisDetailPage: React.FC = () => {
                 return (
                   <tr 
                     key={index} 
-                    className={`${productStatus === 'warning' ? 'bg-yellow-50' : ''} hover:bg-gray-50 transition-colors`}
+                    className={`${getWarningRowBg(product.warningLevel)} hover:bg-gray-50 transition-colors`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
@@ -453,7 +551,8 @@ const AnalysisDetailPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
                       <div className="space-y-1">
-                        <div className="truncate font-medium" title={product.nazwa}>
+                        <div className="truncate font-medium flex items-center space-x-2" title={product.nazwa}>
+                          {getWarningIcon(product.warningLevel)}
                           <span>{product.nazwa}</span>
                         </div>
                         <div className="text-xs text-gray-500">
@@ -490,7 +589,24 @@ const AnalysisDetailPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div onClick={(e) => e.stopPropagation()}>
+                      {product.warningLevel && (
+                        <ProductWarningBadge 
+                          level={product.warningLevel} 
+                          appliedRules={product.appliedRules} 
+                        />
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                        {supabaseUserId && (
+                          <button
+                            onClick={() => handleAddRuleClick(product)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                            title="Dodaj regułę ostrzeżenia"
+                          >
+                            <Flag className="h-4 w-4" />
+                          </button>
+                        )}
                         <ProductActions
                           product={product}
                           onAddToRules={handleAddToRules}
@@ -780,6 +896,17 @@ const AnalysisDetailPage: React.FC = () => {
           onRemoveRule={handleRemoveRule}
         />
       )}
+
+      {/* Add Rule Modal */}
+      <AddRuleModal
+        isOpen={showAddRuleModal}
+        onClose={() => {
+          setShowAddRuleModal(false)
+          setSelectedProductForRule(null)
+        }}
+        product={selectedProductForRule || undefined}
+        onSave={handleSaveRule}
+      />
 
     </div>
   )

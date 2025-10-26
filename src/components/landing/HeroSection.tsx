@@ -1,8 +1,12 @@
 import { motion } from 'framer-motion';
 import { Sparkles, Play } from 'lucide-react';
 import { SignInButton } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
 
 export default function HeroSection() {
+  // Check if Clerk is configured
+  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  const isClerkConfigured = PUBLISHABLE_KEY && PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY_HERE'
   return (
     <section className="relative min-h-screen flex items-center justify-center px-8 py-32 pt-24 overflow-hidden">
       {/* Background gradients - delikatne, rozległe */}
@@ -58,11 +62,19 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.6 }}
               className="flex flex-wrap gap-4"
             >
-              <SignInButton mode="modal">
-                <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all">
-                  Wypróbuj za darmo
-                </button>
-              </SignInButton>
+              {isClerkConfigured ? (
+                <SignInButton mode="modal">
+                  <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all">
+                    Wypróbuj za darmo
+                  </button>
+                </SignInButton>
+              ) : (
+                <Link to="/paleta/pre-launch">
+                  <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all">
+                    Wypróbuj za darmo
+                  </button>
+                </Link>
+              )}
               <button className="px-6 py-3 rounded-xl bg-white/60 backdrop-blur-sm border border-white/20 text-slate-900 font-medium hover:bg-white/80 transition-all flex items-center gap-2">
                 <Play className="w-4 h-4" />
                 Zobacz jak to działa

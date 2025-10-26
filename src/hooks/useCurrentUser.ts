@@ -1,6 +1,7 @@
 import { useUser } from '@clerk/clerk-react'
 import { useEffect, useState } from 'react'
 import { ClerkSupabaseService } from '../services/clerkSupabaseService'
+import { supabase } from '../lib/supabase'
 
 /**
  * Hook do pobierania aktualnego użytkownika i jego ID z Supabase
@@ -18,6 +19,14 @@ export const useCurrentUser = () => {
       }
 
       if (!isSignedIn || !user) {
+        setSupabaseUserId(null)
+        setLoading(false)
+        return
+      }
+
+      // Check if Supabase is configured
+      if (!supabase) {
+        console.warn('Supabase not configured - running in pre-launch mode')
         setSupabaseUserId(null)
         setLoading(false)
         return

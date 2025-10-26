@@ -18,7 +18,21 @@ import SignUpPage from './pages/SignUpPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
-  const { isSignedIn } = useAuth()
+  // Check if Clerk is configured
+  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  const isClerkConfigured = PUBLISHABLE_KEY && PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY_HERE'
+  
+  // Get auth state - always return false if Clerk is not configured
+  let isSignedIn = false
+  try {
+    if (isClerkConfigured) {
+      const auth = useAuth()
+      isSignedIn = auth.isSignedIn || false
+    }
+  } catch (error) {
+    console.warn('Clerk not configured, running in pre-launch mode')
+    isSignedIn = false
+  }
 
   return (
     <Routes>
@@ -33,6 +47,14 @@ function App() {
       {/* GitHub Pages base path route */}
       <Route 
         path="/paleta" 
+        element={
+          isSignedIn ? <Navigate to="/paleta/dashboard" replace /> : <LandingPage />
+        } 
+      />
+      
+      {/* Paleta root - redirect to landing */}
+      <Route 
+        path="/paleta/" 
         element={
           isSignedIn ? <Navigate to="/paleta/dashboard" replace /> : <LandingPage />
         } 

@@ -117,6 +117,50 @@ export type Database = {
           },
         ]
       }
+      product_rules: {
+        Row: {
+          id: string
+          user_id: string
+          rule_type: 'category' | 'product' | 'phrase'
+          rule_value: string
+          warning_level: 'LOW' | 'MEDIUM' | 'HIGH'
+          description: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          rule_type: 'category' | 'product' | 'phrase'
+          rule_value: string
+          warning_level: 'LOW' | 'MEDIUM' | 'HIGH'
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          rule_type?: 'category' | 'product' | 'phrase'
+          rule_value?: string
+          warning_level?: 'LOW' | 'MEDIUM' | 'HIGH'
+          description?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_rules_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           id: string

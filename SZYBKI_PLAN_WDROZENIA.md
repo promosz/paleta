@@ -69,3 +69,4 @@ Otwórz Figma i powiedz mi:
 
 
 
+

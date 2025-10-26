@@ -3,8 +3,13 @@ import { useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Check, X, Sparkles } from 'lucide-react';
 import { SignInButton } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
 
 export default function PricingSection() {
+  // Check if Clerk is configured
+  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+  const isClerkConfigured = PUBLISHABLE_KEY && PUBLISHABLE_KEY !== 'YOUR_PUBLISHABLE_KEY_HERE'
+  
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
 
@@ -148,17 +153,31 @@ export default function PricingSection() {
               </div>
 
               {/* CTA */}
-              <SignInButton mode="modal">
-                <button
-                  className={`w-full py-3 rounded-xl font-medium transition-all mb-8 ${
-                    plan.popular
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40'
-                      : 'bg-white/80 border-2 border-blue-600 text-slate-900 hover:bg-white'
-                  }`}
-                >
-                  {plan.cta}
-                </button>
-              </SignInButton>
+              {isClerkConfigured ? (
+                <SignInButton mode="modal">
+                  <button
+                    className={`w-full py-3 rounded-xl font-medium transition-all mb-8 ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40'
+                        : 'bg-white/80 border-2 border-blue-600 text-slate-900 hover:bg-white'
+                    }`}
+                  >
+                    {plan.cta}
+                  </button>
+                </SignInButton>
+              ) : (
+                <Link to="/paleta/pre-launch">
+                  <button
+                    className={`w-full py-3 rounded-xl font-medium transition-all mb-8 ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40'
+                        : 'bg-white/80 border-2 border-blue-600 text-slate-900 hover:bg-white'
+                    }`}
+                  >
+                    {plan.cta}
+                  </button>
+                </Link>
+              )}
 
               {/* Features */}
               <ul className="space-y-4">
