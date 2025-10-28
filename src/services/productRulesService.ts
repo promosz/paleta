@@ -1,7 +1,6 @@
 import { supabase, getSupabaseClient } from '../lib/supabase'
 import type { ProductRule, OldProductRule } from '../types/rules'
 import type { Database } from '../types/supabase'
-import { getToken } from '@clerk/clerk-react'
 
 type ProductRulesRow = Database['public']['Tables']['product_rules']['Row']
 type ProductRulesInsert = Database['public']['Tables']['product_rules']['Insert']
@@ -12,17 +11,10 @@ class ProductRulesService {
   
   // Pobierz autoryzowany klient Supabase z tokenem Clerk
   private async getAuthorizedClient() {
-    try {
-      const token = await getToken()
-      if (!token) {
-        console.error('❌ No Clerk token available')
-        return supabase
-      }
-      return await getSupabaseClient(token)
-    } catch (error) {
-      console.error('❌ Failed to get authorized client:', error)
-      return supabase
-    }
+    // TODO: Przywrócić autoryzację po naprawieniu getToken()
+    // Problem: getToken() z @clerk/clerk-react nie działa poza kontekstem React
+    console.warn('⚠️ Using unauthenticated Supabase client - RLS policies may prevent writes')
+    return supabase
   }
 
   static getInstance(): ProductRulesService {
