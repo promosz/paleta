@@ -263,11 +263,19 @@ const AnalysisDetailPage: React.FC = () => {
     })
     
     // NOWY: Zastosuj nowy silnik oceny jeśli mamy reguły produktów
+    console.log('🔍 analyzeProductsWithRules called, productRules.length:', productRules.length)
     if (productRules.length > 0) {
       console.log('🎯 Applying new warning engine with', productRules.length, 'rules')
+      console.log('📋 Rules:', productRules.map(r => ({ type: r.ruleType, value: r.ruleValue, level: r.warningLevel })))
       const evaluatedProducts = productWarningEngine.evaluateProducts(updatedProducts, productRules)
+      console.log('✅ Evaluated products:', evaluatedProducts.filter(p => p.warningLevel).map(p => ({ 
+        nazwa: p.nazwa, 
+        warningLevel: p.warningLevel,
+        appliedRules: p.appliedRules 
+      })))
       setProductsWithStatus(evaluatedProducts)
     } else {
+      console.log('⚠️ No product rules found, using old system')
       // Stary system dla kompatybilności wstecznej
       setProductsWithStatus(updatedProducts)
     }
@@ -365,13 +373,20 @@ const AnalysisDetailPage: React.FC = () => {
     try {
       await addRule(rule, supabaseUserId)
       console.log('✅ Rule saved successfully')
+      
+      // Ponowne załadowanie reguł
+      console.log('🔄 Reloading rules from store')
+      await loadProductRules(supabaseUserId)
+      
+      // Zamknięcie modalu
       setShowAddRuleModal(false)
       setSelectedProductForRule(null)
+      
       // Odświeżenie produktów po opóźnieniu (aby reguły zostały załadowane)
       setTimeout(() => {
-        console.log('🔄 Refreshing products with rules')
+        console.log('🔄 Refreshing products with rules after reload')
         analyzeProductsWithRules()
-      }, 500)
+      }, 1000)
     } catch (error) {
       console.error('❌ Failed to save rule:', error)
       alert(`Nie udało się zapisać reguły: ${error instanceof Error ? error.message : 'Nieznany błąd'}`)

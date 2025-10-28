@@ -40,7 +40,7 @@ const RulesManager: React.FC<RulesManagerProps> = ({
   // NOWY: Hooks dla nowego systemu ostrzeżeń
   const { supabaseUserId } = useCurrentUser()
   const { 
-    rules: productRules, 
+    rules: productRulesFromStore, 
     loadRules, 
     addRule: addProductRule, 
     updateRule, 
@@ -142,21 +142,21 @@ const RulesManager: React.FC<RulesManagerProps> = ({
 
   // Filtrowanie reguł
   const filteredRules = activeLevelFilter === 'ALL' 
-    ? productRules 
-    : productRules.filter(rule => rule.warningLevel === activeLevelFilter)
+    ? productRulesFromStore 
+    : productRulesFromStore.filter(rule => rule.warningLevel === activeLevelFilter)
 
   const categoryRules = filteredRules.filter(rule => rule.ruleType === 'category')
   const productRulesFiltered = filteredRules.filter(rule => rule.ruleType === 'product' || rule.ruleType === 'phrase')
   
   // Statystyki
   const stats = {
-    total: productRules.length,
-    low: productRules.filter(r => r.warningLevel === 'LOW').length,
-    medium: productRules.filter(r => r.warningLevel === 'MEDIUM').length,
-    high: productRules.filter(r => r.warningLevel === 'HIGH').length,
-    categories: productRules.filter(r => r.ruleType === 'category').length,
-    products: productRules.filter(r => r.ruleType === 'product').length,
-    phrases: productRules.filter(r => r.ruleType === 'phrase').length
+    total: productRulesFromStore.length,
+    low: productRulesFromStore.filter(r => r.warningLevel === 'LOW').length,
+    medium: productRulesFromStore.filter(r => r.warningLevel === 'MEDIUM').length,
+    high: productRulesFromStore.filter(r => r.warningLevel === 'HIGH').length,
+    categories: productRulesFromStore.filter(r => r.ruleType === 'category').length,
+    products: productRulesFromStore.filter(r => r.ruleType === 'product').length,
+    phrases: productRulesFromStore.filter(r => r.ruleType === 'phrase').length
   }
 
   // Show login message if user is not logged in
