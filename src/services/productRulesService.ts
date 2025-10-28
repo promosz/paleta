@@ -1,6 +1,7 @@
 import { supabase, getSupabaseClient } from '../lib/supabase'
 import type { ProductRule, OldProductRule } from '../types/rules'
 import type { Database } from '../types/supabase'
+import { getToken } from '@clerk/clerk-react'
 
 type ProductRulesRow = Database['public']['Tables']['product_rules']['Row']
 type ProductRulesInsert = Database['public']['Tables']['product_rules']['Insert']
@@ -8,7 +9,21 @@ type ProductRulesUpdate = Database['public']['Tables']['product_rules']['Update'
 
 class ProductRulesService {
   private static instance: ProductRulesService
-  private supabaseClient = supabase
+  
+  // Pobierz autoryzowany klient Supabase z tokenem Clerk
+  private async getAuthorizedClient() {
+    try {
+      const token = await getToken()
+      if (!token) {
+        console.error('❌ No Clerk token available')
+        return supabase
+      }
+      return await getSupabaseClient(token)
+    } catch (error) {
+      console.error('❌ Failed to get authorized client:', error)
+      return supabase
+    }
+  }
 
   static getInstance(): ProductRulesService {
     if (!ProductRulesService.instance) {
@@ -46,13 +61,14 @@ class ProductRulesService {
 
   // Pobieranie reguł użytkownika
   async getRules(userId: string): Promise<ProductRule[]> {
-    if (!this.supabaseClient) {
+    const client = await this.getAuthorizedClient()
+    if (!client) {
       console.warn('Supabase not configured - returning empty rules array')
       return []
     }
 
     try {
-      const { data, error } = await this.supabaseClient
+      const { data, error } = await client
         .from('product_rules')
         .select('*')
         .eq('user_id', userId)
@@ -73,34 +89,39 @@ class ProductRulesService {
 
   // Dodawanie reguły
   async addRule(rule: Omit<ProductRule, 'id' | 'createdAt' | 'updatedAt'>, userId: string): Promise<ProductRule> {
-    if (!this.supabaseClient) {
+    const client = await this.getAuthorizedClient()
+    if (!client) {
       throw new Error('Supabase not configured')
     }
 
     try {
       const insertData = this.ruleToInsert(rule, userId)
 
-      const { data, error } = await this.supabaseClient
+      console.log('💾 Inserting rule to Supabase:', insertData)
+
+      const { data, error } = await client
         .from('product_rules')
         .insert(insertData)
         .select()
         .single()
 
       if (error) {
-        console.error('Error adding rule:', error)
+        console.error('❌ Error adding rule:', error)
         throw error
       }
 
+      console.log('✅ Rule added successfully:', data)
       return this.rowToRule(data)
     } catch (error) {
-      console.error('Failed to add rule:', error)
+      console.error('❌ Failed to add rule:', error)
       throw error
     }
   }
 
   // Aktualizacja reguły
   async updateRule(ruleId: string, updates: Partial<ProductRule>, userId: string): Promise<void> {
-    if (!this.supabaseClient) {
+    const client = await this.getAuthorizedClient()
+    if (!client) {
       throw new Error('Supabase not configured')
     }
 
@@ -113,7 +134,7 @@ class ProductRulesService {
       if (updates.description !== undefined) updateData.description = updates.description
       if (updates.isActive !== undefined) updateData.is_active = updates.isActive
 
-      const { error } = await this.supabaseClient
+      const { error } = await client
         .from('product_rules')
         .update(updateData)
         .eq('id', ruleId)
@@ -131,12 +152,13 @@ class ProductRulesService {
 
   // Usuwanie reguły (soft delete)
   async deleteRule(ruleId: string, userId: string): Promise<void> {
-    if (!this.supabaseClient) {
+    const client = await this.getAuthorizedClient()
+    if (!client) {
       throw new Error('Supabase not configured')
     }
 
     try {
-      const { error } = await this.supabaseClient
+      const { error } = await client
         .from('product_rules')
         .update({ is_active: false })
         .eq('id', ruleId)
@@ -154,7 +176,8 @@ class ProductRulesService {
 
   // Synchronizacja z LocalStorage (migracja starych reguł)
   async syncWithLocalStorage(userId: string): Promise<void> {
-    if (!this.supabaseClient) {
+    const client = await this.getAuthorizedClient()
+    if (!client) {
       console.warn('Supabase not configured - skipping sync')
       return
     }
