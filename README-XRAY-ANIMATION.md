@@ -77,3 +77,6 @@ Aby osadzić animację na stronie internetowej, skopiuj zawartość pliku `xray-
 
 
 
+
+
+
